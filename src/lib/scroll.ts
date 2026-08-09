@@ -80,6 +80,44 @@ class ScrollDriver {
       this.listeners.delete(fn)
     }
   }
+
+  /** Hauteur de scroll utile de la zone narrative, en pixels. */
+  private span() {
+    if (!this.el) return 0
+    return Math.max(1, this.el.offsetHeight - window.innerHeight)
+  }
+
+  /** Position de page (px) correspondant à une progression 0 → 1. */
+  positionOf(progress: number) {
+    if (!this.el) return 0
+    const top = window.scrollY + this.el.getBoundingClientRect().top
+    return top + clamp(progress) * this.span()
+  }
+
+  /**
+   * Amène la narration à une progression donnée.
+   *
+   * C'est ce qui permet d'avancer AU CLIC ou AU CLAVIER : sans molette,
+   * sans trackpad, sans barre de défilement à attraper. Le scroll reste la
+   * voie principale, il n'est simplement plus la seule.
+   */
+  goTo(progress: number) {
+    if (!this.el) return
+    window.scrollTo({
+      top: this.positionOf(progress),
+      behavior: this.reduced ? 'auto' : 'smooth',
+    })
+  }
+
+  /** Sort de l'intro et se pose sur la section suivante. */
+  skip() {
+    if (!this.el) return
+    const end = this.el.getBoundingClientRect().bottom + window.scrollY
+    window.scrollTo({
+      top: end,
+      behavior: this.reduced ? 'auto' : 'smooth',
+    })
+  }
 }
 
 export const scrollDriver = new ScrollDriver()

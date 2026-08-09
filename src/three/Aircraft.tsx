@@ -76,12 +76,40 @@ export default function Aircraft({
     [],
   )
 
+  // Hélice : à bas régime on voit les pales, à haut régime on ne voit plus
+  // qu'un disque translucide. C'est ce que l'œil perçoit réellement, et
+  // cela évite la barre noire qui traverse le nez.
+  const bladeMat = useMemo(
+    () =>
+      new THREE.MeshStandardMaterial({
+        color: P3.graphite,
+        metalness: 0.5,
+        roughness: 0.35,
+        transparent: true,
+        flatShading: true,
+      }),
+    [],
+  )
+  const discMat = useMemo(
+    () =>
+      new THREE.MeshBasicMaterial({
+        color: P3.graphite,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+      }),
+    [],
+  )
+
   useMemo(() => {
     // Libération des matériaux au démontage.
     return () => {
       for (const list of Object.values(mats)) for (const m of list) m.dispose()
+      bladeMat.dispose()
+      discMat.dispose()
     }
-  }, [mats])
+  }, [mats, bladeMat, discMat])
 
   useFrame((_, dt) => {
     const cut = getCut ? clamp(getCut()) : 0
@@ -95,10 +123,16 @@ export default function Aircraft({
         m.visible = m.opacity > 0.015
       }
     }
-    if (propRef.current) {
-      const rpm = propSpin ? propSpin() : 0
-      propRef.current.rotation.z += dt * rpm
-    }
+    // Fondu pale → disque selon le régime.
+    const rpm = propSpin ? propSpin() : 0
+    const blur = clamp((rpm - 6) / 16)
+    const alive = 1 - clamp((cut - 0.3) / 0.36)
+    bladeMat.opacity = (1 - blur * 0.92) * alive
+    bladeMat.visible = bladeMat.opacity > 0.02
+    discMat.opacity = blur * 0.13 * alive
+    discMat.visible = discMat.opacity > 0.01
+
+    if (propRef.current) propRef.current.rotation.z += dt * rpm
   })
 
   const M = (role: Role, order: number) => mats[role][order]
@@ -166,8 +200,11 @@ export default function Aircraft({
       >
         <cylinderGeometry args={[0.12, 0.16, 0.2, seg]} />
       </mesh>
-      <mesh ref={propRef} material={M('dark', 1)} position={[0, 0, -2.3]}>
-        <boxGeometry args={[0.09, 2.0, 0.03]} />
+      <mesh ref={propRef} material={bladeMat} position={[0, 0, -2.3]}>
+        <boxGeometry args={[0.075, 1.34, 0.03]} />
+      </mesh>
+      <mesh material={discMat} position={[0, 0, -2.31]}>
+        <circleGeometry args={[0.68, Math.max(12, Math.round(28 * density))]} />
       </mesh>
 
       {/* ---- TRAIN FIXE ---- */}

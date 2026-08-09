@@ -220,6 +220,15 @@ function Questions() {
 
 /* ------------------------------------------------------------- CHAPITRE */
 
+/**
+ * L'interface posée sur la scène doit rester lisible des deux côtés de la
+ * bascule nuit → jour. On bascule l'encre au même seuil que le ciel.
+ */
+function setInk(el: HTMLElement, p: number) {
+  const ink = p < INTRO.skyTurnsWhite ? 'light' : 'dark'
+  if (el.dataset.ink !== ink) el.dataset.ink = ink
+}
+
 const CHAPTERS: { at: number; id: string; label: string }[] = [
   { at: 0.0, id: '01', label: 'Le rêve' },
   { at: 0.13, id: '02', label: 'La machine' },
@@ -229,18 +238,26 @@ const CHAPTERS: { at: number; id: string; label: string }[] = [
   { at: 0.76, id: '06', label: 'Comprendre' },
 ]
 
+/**
+ * Repère de chapitre — et surtout, moyen d'AVANCER SANS SCROLLER.
+ *
+ * Chaque chapitre est un bouton : on clique, la narration s'y rend. C'est
+ * indispensable pour qui n'a ni molette ni trackpad, utile au clavier, et
+ * précieux en démo pour revenir directement sur un passage précis.
+ */
 function ChapterMark() {
-  const idRef = useRef<HTMLSpanElement>(null)
-  const labelRef = useRef<HTMLSpanElement>(null)
-  const barRef = useRef<HTMLSpanElement>(null)
   const wrap = useRef<HTMLDivElement>(null)
+  const barRef = useRef<HTMLSpanElement>(null)
+  const dots = useRef<(HTMLButtonElement | null)[]>([])
 
   useEffect(() => {
     let current = -1
     return scrollDriver.subscribe((p) => {
       if (wrap.current) {
-        const vis = window4(p, 0.1, 0.14, 0.95, 0.99)
-        wrap.current.style.opacity = String(vis * 0.9)
+        const vis = window4(p, -0.02, 0.004, 0.96, 0.995)
+        wrap.current.style.opacity = String(vis)
+        wrap.current.style.pointerEvents = vis > 0.5 ? 'auto' : 'none'
+        setInk(wrap.current, p)
       }
       if (barRef.current) barRef.current.style.transform = `scaleY(${p})`
 
@@ -248,22 +265,101 @@ function ChapterMark() {
       for (let i = 0; i < CHAPTERS.length; i++) if (p >= CHAPTERS[i].at) idx = i
       if (idx === current) return
       current = idx
-      if (idRef.current) idRef.current.textContent = CHAPTERS[idx].id
-      if (labelRef.current) labelRef.current.textContent = CHAPTERS[idx].label
+      for (let i = 0; i < CHAPTERS.length; i++) {
+        const b = dots.current[i]
+        if (b) b.setAttribute('aria-current', i === idx ? 'true' : 'false')
+      }
     })
   }, [])
 
   return (
-    <div className="chapter" ref={wrap} aria-hidden="true">
-      <span className="chapter__track">
+    <div className="chapter" ref={wrap}>
+      <span className="chapter__track" aria-hidden="true">
         <span className="chapter__bar" ref={barRef} />
       </span>
-      <span className="chapter__id u-mono" ref={idRef}>
-        01
-      </span>
-      <span className="chapter__label" ref={labelRef}>
-        Le rêve
-      </span>
+      <nav className="chapter__list" aria-label="Chapitres de l’introduction">
+        {CHAPTERS.map((c, i) => (
+          <button
+            key={c.id}
+            ref={(el) => {
+              dots.current[i] = el
+            }}
+            aria-current={i === 0 ? 'true' : 'false'}
+            onClick={() => scrollDriver.goTo(c.at + 0.02)}
+          >
+            <span className="chapter__id u-mono">{c.id}</span>
+            <span className="chapter__name">{c.label}</span>
+          </button>
+        ))}
+      </nav>
+    </div>
+  )
+}
+
+/**
+ * Commandes de lecture : avancer, reculer, passer.
+ * Visibles en permanence pendant l'intro — pas une aide cachée.
+ */
+function IntroControls() {
+  const wrap = useRef<HTMLDivElement>(null)
+  const progress = useRef(0)
+
+  useEffect(() => {
+    const unsub = scrollDriver.subscribe((p) => {
+      progress.current = p
+      if (wrap.current) {
+        const vis = window4(p, -0.02, 0.004, 0.965, 0.995)
+        wrap.current.style.opacity = String(vis)
+        wrap.current.style.pointerEvents = vis > 0.5 ? 'auto' : 'none'
+        setInk(wrap.current, p)
+      }
+    })
+
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement | null
+      if (t && /INPUT|TEXTAREA|SELECT/.test(t.tagName)) return
+      if (progress.current >= 0.999) return
+      if (e.key === 'ArrowRight') {
+        e.preventDefault()
+        step(1)
+      } else if (e.key === 'ArrowLeft') {
+        e.preventDefault()
+        step(-1)
+      } else if (e.key === 'Escape') {
+        e.preventDefault()
+        scrollDriver.skip()
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => {
+      unsub()
+      window.removeEventListener('keydown', onKey)
+    }
+  }, [])
+
+  const step = (dir: 1 | -1) => {
+    // `raw` suit la position réelle de la page ; `smooth` traîne derrière
+    // pendant un défilement animé et ferait sauter un chapitre.
+    const p = scrollDriver.raw
+    let idx = 0
+    for (let i = 0; i < CHAPTERS.length; i++) if (p >= CHAPTERS[i].at - 0.005) idx = i
+    const next = idx + dir
+    if (next < 0) return scrollDriver.goTo(0)
+    if (next >= CHAPTERS.length) return scrollDriver.skip()
+    scrollDriver.goTo(CHAPTERS[next].at + 0.02)
+  }
+
+  return (
+    <div className="intro-controls" ref={wrap}>
+      <button onClick={() => step(-1)} aria-label="Chapitre précédent">
+        <span aria-hidden="true">←</span>
+      </button>
+      <button onClick={() => step(1)} aria-label="Chapitre suivant">
+        <span aria-hidden="true">→</span>
+      </button>
+      <button className="intro-controls__skip" onClick={() => scrollDriver.skip()}>
+        Passer l’introduction
+      </button>
     </div>
   )
 }
@@ -337,6 +433,7 @@ export default function Intro() {
         <ClimbStrip />
         <Questions />
         <ChapterMark />
+        <IntroControls />
 
         <div ref={hintRef} className="scroll-hint">
           <span className="u-label">Scroll to begin</span>

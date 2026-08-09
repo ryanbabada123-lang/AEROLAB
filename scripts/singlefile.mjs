@@ -16,7 +16,17 @@ import path from 'node:path'
 
 const ROOT = process.cwd()
 const DIST = path.join(ROOT, 'dist-single')
-const OUT = process.argv[2] || path.join(ROOT, '.preview/aerolab.html')
+
+/**
+ * Par défaut : un document HTML COMPLET, qu'on ouvre d'un double-clic.
+ * `--fragment` produit une version sans <html>/<head>/<body>, destinée à
+ * être injectée dans une page hôte.
+ */
+const FRAGMENT = process.argv.includes('--fragment')
+const args = process.argv.slice(2).filter((a) => !a.startsWith('--'))
+const OUT =
+  args[0] ||
+  path.join(ROOT, FRAGMENT ? '.preview/aerolab.fragment.html' : '.preview/aerolab.html')
 
 console.log('· build mono-fichier …')
 execSync('npx vite build --config vite.single.config.ts --base ./', {
@@ -91,12 +101,33 @@ if (!scripts.includes('createElement') && scripts.length < 10_000) {
   throw new Error('le bundle applicatif n’a pas été récupéré')
 }
 
-const out = `${title}\n${styles}\n${bodyInner}\n${scripts}\n`
+const meta = [...headInner.matchAll(/<meta[^>]*>/g)]
+  .map((m) => m[0])
+  .filter((m) => !/http-equiv/i.test(m))
+  .join('\n')
+const icon = headInner.match(/<link[^>]*rel="icon"[^>]*>/)?.[0] ?? ''
+
+const out = FRAGMENT
+  ? `${title}\n${styles}\n${bodyInner}\n${scripts}\n`
+  : `<!doctype html>
+<html lang="fr">
+<head>
+${meta}
+${icon}
+${title}
+${styles}
+</head>
+<body>
+${bodyInner}
+${scripts}
+</body>
+</html>
+`
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true })
 fs.writeFileSync(OUT, out)
 
 console.log(
   `· ${path.relative(ROOT, OUT)} — ${(Buffer.byteLength(out) / 1024 / 1024).toFixed(2)} Mo ` +
-    `(${cssCount} CSS, ${jsCount} JS intégrés)`,
+    `(${FRAGMENT ? 'fragment' : 'document complet'}, ${cssCount} CSS, ${jsCount} JS intégrés)`,
 )

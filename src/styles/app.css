@@ -379,11 +379,12 @@
   position: absolute;
   left: 0;
   right: 0;
-  bottom: max(34px, env(safe-area-inset-bottom));
+  /* Au-dessus des commandes de lecture, jamais dedans. */
+  bottom: calc(max(26px, env(safe-area-inset-bottom)) + 58px);
   z-index: var(--z-scene-ui);
   display: grid;
   justify-items: center;
-  gap: var(--s-3);
+  gap: var(--s-2);
   pointer-events: none;
 }
 .scroll-hint .u-label {
@@ -391,7 +392,7 @@
 }
 .scroll-hint__line {
   width: 1px;
-  height: 46px;
+  height: 26px;
   background: linear-gradient(
     to bottom,
     rgba(238, 243, 248, 0.5),
@@ -548,24 +549,26 @@
 
 /* ---- REPÈRE DE CHAPITRE ---- */
 
+/* ---- CHAPITRES : repère de position ET moyen de navigation ---- */
+
 .chapter {
   position: absolute;
+  pointer-events: auto;
   right: var(--gutter);
   top: 50%;
   transform: translateY(-50%);
   z-index: var(--z-scene-ui);
-  display: grid;
-  justify-items: end;
-  gap: var(--s-3);
+  display: flex;
+  align-items: stretch;
+  gap: var(--s-4);
   opacity: 0;
-  pointer-events: none;
 }
 .chapter__track {
   width: 1px;
-  height: 84px;
-  background: rgba(141, 153, 166, 0.28);
+  background: rgba(141, 153, 166, 0.3);
   display: block;
   position: relative;
+  flex: none;
 }
 .chapter__bar {
   position: absolute;
@@ -574,22 +577,117 @@
   transform-origin: top;
   transform: scaleY(0);
 }
-.chapter__id {
-  font-size: var(--t-nano);
-  letter-spacing: var(--ls-label);
-  color: var(--c-slate);
+.chapter__list {
+  display: grid;
+  gap: 2px;
+  align-content: center;
 }
-.chapter__label {
+.chapter__list button {
+  display: flex;
+  align-items: baseline;
+  gap: var(--s-3);
+  padding: 5px 0;
+  text-align: left;
   font-family: var(--f-mono);
   font-size: 9px;
   letter-spacing: var(--ls-label);
   text-transform: uppercase;
-  color: var(--c-slate);
-  writing-mode: vertical-rl;
+  color: var(--c-mute);
+  opacity: 0.65;
+  transition:
+    color var(--d-fast) var(--e-out),
+    opacity var(--d-fast) var(--e-out);
+}
+.chapter__list button:hover {
+  opacity: 1;
+  color: var(--c-electric);
+}
+.chapter__list button[aria-current='true'] {
+  opacity: 1;
+  color: var(--c-ink);
+}
+.chapter__id {
+  font-size: 9px;
+  letter-spacing: var(--ls-label);
+}
+.chapter__name {
+  font-size: 9px;
+}
+
+/* Encre claire tant que la scène est sombre. */
+.chapter[data-ink='light'] .chapter__list button {
+  color: var(--c-void-mute);
+}
+.chapter[data-ink='light'] .chapter__list button[aria-current='true'] {
+  color: var(--c-void-ink);
+}
+
+/* ---- COMMANDES DE LECTURE ---- */
+
+/* Visibles dès la première image : c'est au tout début qu'on a besoin
+   d'un moyen d'avancer autre que la molette. */
+.intro-controls {
+  position: absolute;
+  pointer-events: auto;
+  left: 0;
+  right: 0;
+  bottom: max(26px, env(safe-area-inset-bottom));
+  z-index: var(--z-scene-ui);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: var(--s-2);
+  opacity: 0;
+}
+.intro-controls button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--c-line);
+  background: rgba(251, 252, 253, 0.86);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  font-family: var(--f-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--c-graphite);
+  transition:
+    background var(--d-fast) var(--e-out),
+    color var(--d-fast) var(--e-out),
+    border-color var(--d-fast) var(--e-out);
+}
+.intro-controls button:hover {
+  background: var(--c-ink);
+  border-color: var(--c-ink);
+  color: var(--c-white);
+}
+.intro-controls__skip {
+  padding: 0 18px;
+}
+.intro-controls[data-ink='light'] button {
+  background: rgba(11, 15, 20, 0.55);
+  border-color: rgba(238, 243, 248, 0.28);
+  color: var(--c-void-ink);
+}
+.intro-controls[data-ink='light'] button:hover {
+  background: var(--c-void-ink);
+  border-color: var(--c-void-ink);
+  color: var(--c-void);
 }
 
 @media (max-width: 860px) {
-  .chapter,
+  /* Le repère de chapitre passe en pastilles : on garde la NAVIGATION,
+     on abandonne seulement les libellés, faute de place. */
+  .chapter__name {
+    display: none;
+  }
+  .chapter {
+    gap: var(--s-3);
+  }
   .climb {
     display: none;
   }

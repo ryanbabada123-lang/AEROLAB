@@ -47,7 +47,9 @@ export const CAMERA_TRACK: Key[] = [
 
   // ---- CROISIÈRE : orbite lente, le rêve ----
   { p: 0.64, pos: [10.5, 2.6, -7], look: [0, 0.4, 0], fov: 36 },
-  { p: 0.71, pos: [-2, 2.8, -13.5], look: [0, 0.35, 0], fov: 34 },
+  // Trois-quarts avant plutôt que plein nez : de face, un monomoteur se
+  // réduit à une croix d'hélice et deux jambes de train.
+  { p: 0.71, pos: [-9, 2.6, -11.5], look: [0, 0.35, 0], fov: 34 },
   { p: 0.76, pos: [-11, 1.6, -4], look: [0, 0.3, 0], fov: 36 },
 
   // ---- BASCULE : l'avion se dissout, on se recentre sur le profil ----
