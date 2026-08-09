@@ -1,0 +1,197 @@
+/* ============================================================
+   AERO//LAB — BASE
+   ============================================================ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: auto;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--c-snow);
+  color: var(--c-ink);
+  font-family: var(--f-sans);
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overscroll-behavior-y: none;
+}
+
+body.is-locked {
+  overflow: hidden;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+figure,
+blockquote,
+dl,
+dd {
+  margin: 0;
+}
+
+ul,
+ol {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+img,
+svg,
+canvas {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+input,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--c-ink);
+  color: var(--c-white);
+}
+
+/* ---- FOCUS : visible, jamais supprimé ---- */
+:focus {
+  outline: none;
+}
+:focus-visible {
+  outline: 2px solid var(--c-electric);
+  outline-offset: 3px;
+}
+
+/* ---- SKIP LINK ---- */
+.skip-link {
+  position: fixed;
+  top: -100px;
+  left: var(--gutter);
+  z-index: var(--z-boot);
+  background: var(--c-ink);
+  color: var(--c-white);
+  padding: var(--s-3) var(--s-5);
+  font: 600 var(--t-micro) / 1 var(--f-mono);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  transition: top var(--d-fast) var(--e-out);
+}
+.skip-link:focus-visible {
+  top: var(--gutter);
+}
+
+/* ---- PRIMITIVES TYPO ---- */
+.u-display {
+  font-family: var(--f-display);
+  font-weight: 600;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-display);
+  text-transform: uppercase;
+}
+
+.u-label {
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  font-weight: 500;
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--c-mute);
+}
+
+.u-mono {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.u-measure {
+  max-width: var(--measure);
+}
+
+.u-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ---- LAYOUT ---- */
+.u-shell {
+  width: 100%;
+  max-width: var(--max-w);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.u-rule {
+  height: 1px;
+  background: var(--c-line);
+  border: 0;
+  width: 100%;
+}
+
+/* ---- REDUCED MOTION (§34/§35) ----
+   On neutralise les transitions CSS ; les scènes WebGL basculent
+   sur un rendu statique piloté par useReducedMotion(). */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* KaTeX : aligné sur notre échelle typographique */
+.katex {
+  font-size: 1.06em;
+}
+.katex-display {
+  margin: var(--s-5) 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-block: 2px;
+}

@@ -1,0 +1,127 @@
+/* ============================================================
+   AERO//LAB — DESIGN TOKENS
+   Direction: air, altitude, ice, precision, silence.
+   Dominante BLANCHE (§51.1). Le noir est un ACCENT, pas un fond.
+   ============================================================ */
+
+:root {
+  /* ---- COLOR : surfaces (white-dominant) ---- */
+  --c-white: #ffffff;
+  --c-snow: #fbfcfd; /* fond dominant */
+  --c-frost: #f2f5f8; /* surfaces secondaires */
+  --c-ice: #e6ebf1; /* surfaces / séparateurs épais */
+  --c-line: #dbe2ea; /* traits */
+  --c-line-soft: #e9eef4;
+
+  /* ---- COLOR : encre ---- */
+  --c-ink: #0b0f14; /* noir profond — accent, titres */
+  --c-graphite: #2b333d;
+  --c-slate: #5a6673; /* texte secondaire */
+  --c-mute: #8d99a6; /* texte tertiaire / labels */
+
+  /* ---- COLOR : bleus ---- */
+  --c-glacier: #cfe0ee; /* bleu glace pâle */
+  --c-glacier-deep: #9fbdd6;
+  --c-electric: #1667ff; /* interactif UNIQUEMENT */
+  --c-electric-soft: rgba(22, 103, 255, 0.1);
+
+  /* ---- COLOR : scènes sombres (intro, conclusion) ---- */
+  --c-void: #05070a;
+  --c-void-2: #0c1119;
+  --c-void-ink: #eef3f8;
+  --c-void-mute: #6d7c8c;
+
+  /* ---- COLOR : sémantique ---- */
+  --c-ok: #0e7c5a;
+  --c-warn: #9a6a00;
+  --c-err: #b3261e;
+
+  /* ---- TYPO ---- */
+  --f-display: 'Aero Display', 'Helvetica Neue', Inter, -apple-system,
+    BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
+  --f-sans: 'Aero Sans', Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI',
+    Roboto, Arial, sans-serif;
+  --f-mono: 'Aero Mono', ui-monospace, 'SF Mono', 'JetBrains Mono', Menlo,
+    Consolas, monospace;
+
+  /* Échelle fluide — clamp(min, fluide, max) */
+  /* Le hero doit tenir dans le cadre même sur un mot long
+     (« COMPRENDRE ») : la borne fluide est calée là-dessus, pas sur
+     « UN RÊVE ». */
+  --t-hero: clamp(2.7rem, 9.6vw, 9rem);
+  --t-d1: clamp(2.75rem, 8.5vw, 7.5rem);
+  --t-d2: clamp(2.15rem, 5.6vw, 4.5rem);
+  --t-h1: clamp(1.85rem, 3.8vw, 3rem);
+  --t-h2: clamp(1.4rem, 2.5vw, 2rem);
+  --t-h3: clamp(1.12rem, 1.6vw, 1.35rem);
+  --t-body: clamp(1rem, 1.05vw, 1.125rem);
+  --t-small: 0.9375rem;
+  --t-micro: 0.75rem;
+  --t-nano: 0.6875rem;
+
+  --lh-tight: 0.92;
+  --lh-snug: 1.12;
+  --lh-body: 1.62;
+
+  --ls-hero: -0.045em;
+  --ls-display: -0.03em;
+  --ls-tight: -0.015em;
+  --ls-label: 0.16em; /* uppercase micro-labels */
+  --ls-wide: 0.3em;
+
+  /* ---- SPACING (base 4) ---- */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+  --s-11: 180px;
+  --s-12: 240px;
+
+  --gutter: clamp(20px, 5vw, 72px);
+  --measure: 62ch;
+  --max-w: 1560px;
+
+  /* ---- RADIUS — quasi nul : précision, pas de SaaS arrondi ---- */
+  --r-0: 0px;
+  --r-1: 2px;
+  --r-2: 4px;
+  --r-pill: 999px;
+
+  /* ---- SHADOW — froides, très basses ---- */
+  --sh-1: 0 1px 2px rgba(11, 15, 20, 0.04);
+  --sh-2: 0 2px 10px rgba(11, 15, 20, 0.05), 0 1px 2px rgba(11, 15, 20, 0.04);
+  --sh-3: 0 16px 48px -20px rgba(11, 15, 20, 0.22);
+  --sh-lift: 0 30px 80px -40px rgba(11, 15, 20, 0.35);
+
+  /* ---- MOTION ---- */
+  --e-out: cubic-bezier(0.16, 1, 0.3, 1); /* expo.out */
+  --e-io: cubic-bezier(0.65, 0, 0.35, 1);
+  --e-in: cubic-bezier(0.55, 0, 1, 0.45);
+  --d-fast: 180ms;
+  --d-base: 320ms;
+  --d-slow: 620ms;
+  --d-cine: 1100ms;
+
+  /* ---- Z-INDEX ---- */
+  --z-canvas: 0;
+  --z-scene-ui: 10;
+  --z-content: 20;
+  --z-nav: 60;
+  --z-overlay: 80;
+  --z-cursor: 95;
+  --z-boot: 100;
+}
+
+/* Densité réduite sur petits écrans */
+@media (max-width: 640px) {
+  :root {
+    --measure: 100%;
+    --ls-hero: -0.035em;
+  }
+}
