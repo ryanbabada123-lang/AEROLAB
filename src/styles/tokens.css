@@ -5,6 +5,14 @@
    ============================================================ */
 
 :root {
+  /* AERO//LAB assume UN seul monde visuel : lumière froide de haute
+     altitude, blanc dominant. Ce n'est pas une omission de thème sombre,
+     c'est la direction artistique (§51.1). On le déclare explicitement pour
+     que les contrôles natifs — curseurs des simulations, focus — suivent
+     cette palette même si le navigateur ou la page hôte est en thème
+     sombre. */
+  color-scheme: light;
+
   /* ---- COLOR : surfaces (white-dominant) ---- */
   --c-white: #ffffff;
   --c-snow: #fbfcfd; /* fond dominant */
