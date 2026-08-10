@@ -81,7 +81,9 @@
           // livré sans ses textures.
           let dressReport = null
           if (q.get('dress') === '1') {
-            dressReport = dressModel(root)
+            dressReport = dressModel(root, {
+              model: file.replace(/\.glb$/, ''),
+            })
           }
 
           if (wire) {
@@ -161,8 +163,16 @@
           }
 
           let tris = 0
+          const parts = []
           root.traverse((o) => {
-            if (o.isMesh && o.geometry?.index) tris += o.geometry.index.count / 3
+            if (!o.isMesh) return
+            if (o.geometry?.index) tris += o.geometry.index.count / 3
+            parts.push({
+              name: o.name,
+              parent: o.parent?.name ?? '',
+              material: o.material?.name ?? '',
+              tri: o.geometry?.index ? o.geometry.index.count / 3 : 0,
+            })
           })
 
           renderer.render(scene, camera)
@@ -174,6 +184,10 @@
             triangles: Math.round(tris),
             size: size.toArray().map((n) => +n.toFixed(2)),
             dress: dressReport,
+            // Les noms tels que le chargeur les a réellement montés : c'est la
+            // seule référence fiable pour viser une pièce, car glTF nomme les
+            // nœuds et les meshes séparément et le chargeur choisit.
+            parts: parts.sort((a, b) => b.tri - a.tri),
           }
         },
         undefined,

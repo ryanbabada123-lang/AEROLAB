@@ -77,6 +77,31 @@ export interface SurfaceSpec {
   opacity?: number
   /** Rend la surface non éclairée : sert aux afficheurs. */
   unlit?: boolean
+  /**
+   * Bande de peinture calculée sur la géométrie, pour obtenir une livrée deux
+   * tons sans dépendre du découpage en pièces ni des coordonnées de texture.
+   *
+   * Les modèles fournis n'ont ni pièce « capot » ni carte UV connue : viser une
+   * zone par son nom échoue, et poser un motif par UV le placerait au hasard.
+   * On teinte donc selon la position dans le repère du modèle, ce qui est
+   * déterministe et vérifiable à la mesure.
+   */
+  paint?: {
+    /** Axe local de la pièce : 0 pour la longueur, 1 la hauteur, 2 l'envergure. */
+    axis: 0 | 1 | 2
+    /**
+     * Étendue peinte, en FRACTION de la boîte englobante de la pièce le long de
+     * cet axe : `fromStart` part du minimum, `fromEnd` du maximum. Une fraction
+     * plutôt qu'une distance, parce que le repère local d'une pièce est décalé
+     * par rapport à celui où l'on mesure — un seuil en mètres tombe alors à
+     * côté, et il faut le régler à l'aveugle. Une fraction se calibre seule.
+     */
+    fromStart?: number
+    fromEnd?: number
+    color: string
+    /** Douceur de la transition, en fraction de la même étendue. */
+    feather?: number
+  }
 }
 
 /**
@@ -150,9 +175,139 @@ export function specFor(name: string): SurfaceSpec {
   return { role: 'keep' }
 }
 
+/* --------------------------------------------------- livrées, pièce par pièce */
+
+/**
+ * Surcharges par PIÈCE, et non par matériau.
+ *
+ * Toute la cellule du Tecnam partage un unique matériau `DefaultWhite` :
+ * fuselage, ailes, empennage, train et capot sont indiscernables par leur
+ * matériau. Une livrée deux tons ne peut donc s'obtenir qu'en visant les nœuds,
+ * dont voici les rôles relevés à la mesure, en mètres :
+ *
+ *   Object_7   X [-3,31 ; 3,72]  Y [-0,71 ; 1,31]  Z [-0,95 ; 0,95]  fuselage
+ *   Object_8   X [-3,43 ; 3,69]  Y [-1,19 ; 1,20]  Z [-5,24 ; 5,24]  ailes et
+ *                                                                   empennage
+ *   Object_9   X [-2,99 ; -0,58] Y [-1,32 ; -0,87] Z [-1,12 ; 1,12]  train et
+ *                                                                   carénages
+ *   Object_10  X [-3,76 ; -0,79] Y [-0,96 ; 0,41]  Z [-2,38 ; 2,38]  avant
+ *
+ * Ces noms ne valent que pour un modèle donné : les surcharges sont donc
+ * rangées par modèle et n'ont aucun effet ailleurs.
+ */
+const LIVERY: Record<string, [RegExp, SurfaceSpec][]> = {
+  // Livrée blanc et noir demandée par l'auteur du projet.
+  'tecnam-p2010': [
+    // FUSELAGE — blanc, avec le capot moteur peint en noir. Le nez du fuselage
+    // s'étend jusqu'à X = -3,31 ; la cloison pare-feu se situe vers -2,55, d'où
+    // la limite. Aucune pièce « capot » n'existe dans le modèle, et le nœud qui
+    // couvre l'avant (Object_10) s'est révélé être de la géométrie intérieure,
+    // invisible du dehors : la teinte est donc posée sur la géométrie.
+    [
+      /^Object_7$/,
+      {
+        role: 'plastic',
+        color: '#f6f8fb',
+        metalness: 0.07,
+        roughness: 0.33,
+        paint: { axis: 0, fromStart: 0.27, color: '#101317', feather: 0.008 },
+      },
+    ],
+    // AILES ET EMPENNAGE — blanc franc, peu rugueux pour accrocher la lumière
+    // rasante des plaques de montagne.
+    [/^Object_8$/, { role: 'plastic', color: '#f6f8fb', metalness: 0.07, roughness: 0.33 }],
+    // ROUES ET MÂT — noir. Vérifié au rendu par-dessous : c'est bien la pièce
+    // qui porte les trois pneus.
+    [/^Object_9$/, { role: 'plastic', color: '#0f1215', metalness: 0.14, roughness: 0.48 }],
+    // Géométrie avant intérieure : sombre, elle n'est de toute façon pas vue.
+    [/^Object_10$/, { role: 'plastic', color: '#12161a', metalness: 0.2, roughness: 0.4 }],
+  ],
+}
+
+/** Trouve la surcharge de livrée applicable à une pièce, s'il en existe. */
+function liveryFor(model: string | undefined, node: string): SurfaceSpec | null {
+  if (!model) return null
+  const rules = LIVERY[model]
+  if (!rules) return null
+  for (const [re, spec] of rules) if (re.test(node)) return spec
+  return null
+}
+
+/* ------------------------------------------------------------------ peinture */
+
+/**
+ * Teinte une partie du maillage selon sa position dans le repère du modèle, en
+ * injectant deux lignes dans le nuanceur standard de three.js.
+ *
+ * Le mélange se fait sur la couleur diffuse avant tout éclairage, si bien que la
+ * zone peinte reçoit les mêmes reflets et la même ombre que le reste : elle a
+ * l'air peinte, non collée.
+ */
+function applyPaint(
+  mat: THREE.MeshStandardMaterial,
+  paint: NonNullable<SurfaceSpec['paint']>,
+  geometry: THREE.BufferGeometry,
+) {
+  const target = new THREE.Color(paint.color)
+  const axis = 'xyz'[paint.axis]
+
+  // La limite est déduite de la pièce elle-même, ce qui rend le réglage
+  // indépendant du repère local et donc vérifiable sans tâtonner.
+  geometry.computeBoundingBox()
+  const box = geometry.boundingBox
+  const lo = box ? box.min.getComponent(paint.axis) : 0
+  const hi = box ? box.max.getComponent(paint.axis) : 1
+  const span = Math.max(1e-5, hi - lo)
+  const fromStart = paint.fromStart !== undefined
+  const frac = fromStart ? (paint.fromStart ?? 0) : (paint.fromEnd ?? 0)
+  const edge = fromStart ? lo + span * frac : hi - span * frac
+  const feather = Math.max(1e-5, span * (paint.feather ?? 0.02))
+
+  mat.onBeforeCompile = (shader) => {
+    shader.uniforms.uPaintColor = { value: target }
+    shader.uniforms.uPaintEdge = { value: edge }
+    shader.uniforms.uPaintFeather = { value: feather }
+
+    shader.vertexShader = shader.vertexShader
+      .replace('#include <common>', '#include <common>\nvarying float vPaintAxis;')
+      .replace(
+        '#include <begin_vertex>',
+        `#include <begin_vertex>\n  vPaintAxis = position.${axis};`,
+      )
+
+    const test = fromStart
+      ? 'smoothstep(uPaintEdge + uPaintFeather, uPaintEdge - uPaintFeather, vPaintAxis)'
+      : 'smoothstep(uPaintEdge - uPaintFeather, uPaintEdge + uPaintFeather, vPaintAxis)'
+
+    shader.fragmentShader = shader.fragmentShader
+      .replace(
+        '#include <common>',
+        `#include <common>
+varying float vPaintAxis;
+uniform vec3 uPaintColor;
+uniform float uPaintEdge;
+uniform float uPaintFeather;`,
+      )
+      .replace(
+        '#include <color_fragment>',
+        `#include <color_fragment>
+  diffuseColor.rgb = mix(diffuseColor.rgb, uPaintColor, ${test});`,
+      )
+  }
+  // three.js met en cache les programmes compilés : sans clé distincte, un
+  // matériau peint réutiliserait le programme d'un matériau non peint.
+  mat.customProgramCacheKey = () => `paint:${axis}:${edge.toFixed(3)}:${paint.color}`
+}
+
 /* ------------------------------------------------------------- application */
 
 export interface DressOptions {
+  /**
+   * Identifiant du modèle, sans extension — `tecnam-p2010`, `a350-1000`,
+   * `a400m-flightdeck`. Nécessaire pour appliquer une livrée, dont les règles
+   * visent des noms de pièces propres à chaque modèle.
+   */
+  model?: string
   /** Textures d'afficheur, par nom de matériau. */
   displays?: Record<string, THREE.Texture>
   /** Rapport au journal des surfaces traitées, pour vérification. */
@@ -165,6 +320,12 @@ export interface DressReport {
   hiddenTriangles: number
   /** Matériaux laissés tels quels : utile pour repérer un oubli. */
   kept: string[]
+  /**
+   * Pièces repeintes par une livrée, avec la couleur obtenue. Toutes les règles
+   * de livrée portant le même rôle, le décompte par rôle ne dit pas si elles
+   * ont pris : ce champ le dit.
+   */
+  livery: { part: string; color: string }[]
 }
 
 /**
@@ -178,6 +339,7 @@ export function dressModel(root: THREE.Object3D, opts: DressOptions = {}): Dress
     byRole: {},
     hiddenTriangles: 0,
     kept: [],
+    livery: [],
   }
   const cache = new Map<string, THREE.Material | null>()
 
@@ -187,7 +349,18 @@ export function dressModel(root: THREE.Object3D, opts: DressOptions = {}): Dress
 
     const source = mesh.material as THREE.MeshStandardMaterial
     const name = source?.name ?? ''
-    const spec = specFor(name)
+
+    // La livrée l'emporte sur les règles de matériau : c'est tout son intérêt,
+    // puisqu'elle sert précisément à distinguer des pièces qui partagent le
+    // même matériau. Le nom de la pièce peut être porté par l'objet lui-même
+    // ou par son parent, selon la façon dont le chargeur a monté la scène.
+    const nodeName = mesh.name || mesh.parent?.name || ''
+    const painted = liveryFor(opts.model, nodeName)
+    const spec = painted ?? specFor(name)
+    if (painted) {
+      report.livery.push({ part: nodeName, color: painted.color ?? '?' })
+    }
+
     report.total++
     report.byRole[spec.role] = (report.byRole[spec.role] ?? 0) + 1
 
@@ -208,7 +381,27 @@ export function dressModel(root: THREE.Object3D, opts: DressOptions = {}): Dress
       return
     }
 
-    const key = `${name}|${spec.role}`
+    // Le cache est clé sur la SPÉCIFICATION RÉSOLUE, pas sur le nom du
+    // matériau. Le fuselage blanc et le train noir du Tecnam portent tous deux
+    // le matériau `DefaultWhite` et le rôle `plastic` : une clé fondée sur le
+    // nom les confondrait, et la seconde pièce hériterait de la couleur de la
+    // première.
+    // La bande de peinture DOIT entrer dans la clé. Sans elle, le fuselage peint
+    // et les ailes non peintes du Tecnam — mêmes matériau, rôle, couleur et
+    // rugosité — partageaient un seul matériau, et le bord d'attaque des ailes
+    // se retrouvait peint sur toute l'envergure.
+    const key = [
+      name,
+      spec.role,
+      spec.color,
+      spec.metalness,
+      spec.roughness,
+      spec.opacity,
+      spec.unlit,
+      spec.paint
+        ? `${spec.paint.axis}:${spec.paint.fromStart ?? ''}:${spec.paint.fromEnd ?? ''}:${spec.paint.color}`
+        : '',
+    ].join('|')
     let mat = cache.get(key)
 
     if (mat === undefined) {
@@ -234,6 +427,7 @@ export function dressModel(root: THREE.Object3D, opts: DressOptions = {}): Dress
           std.opacity = spec.opacity
           std.depthWrite = false
         }
+        if (spec.paint) applyPaint(std, spec.paint, mesh.geometry as THREE.BufferGeometry)
         mat = std
       }
       cache.set(key, mat)

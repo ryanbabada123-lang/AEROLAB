@@ -67,6 +67,11 @@ const INSIDE = [
  * L'œil du pilote se place donc autour de X -0,9 et Y +0,22 : au-dessus, on
  * sort par le toit de la cabine et l'on ne photographie plus que le fuselage.
  */
+const TECNAM_CLOSE = [
+  { label: 'gros-plan-avant', az: 52, el: 8, zoom: 2.4 },
+  { label: 'gros-plan-train', az: 28, el: -14, zoom: 2.6 },
+]
+
 const TECNAM_INSIDE = [
   { label: 'planche-de-bord', abs: 'px=-0.95&py=0.22&pz=0.02&tx=-1.80&ty=0.10&tz=0.04&fov=58' },
   { label: 'place-gauche', abs: 'px=-0.85&py=0.24&pz=-0.24&tx=-1.80&ty=0.08&tz=-0.10&fov=64' },
@@ -88,9 +93,9 @@ const VIEWS_FOR = {
     ...dressed(INSIDE.slice(0, 4)),
   ],
   'tecnam-p2010.glb': [
-    ...TECNAM_INSIDE,
-    ...dressed(TECNAM_INSIDE),
+    ...dressed(TECNAM_CLOSE),
     ...dressed(OUTSIDE.slice(0, 3)),
+    ...dressed(TECNAM_INSIDE),
   ],
 }
 
@@ -146,7 +151,8 @@ for (const model of models) {
           ? `&inside=1&${v.inside}`
           : `&az=${v.az}&el=${v.el}`) +
       (v.wire ? '&wire=1' : '') +
-      (v.dress ? '&dress=1' : '')
+      (v.dress ? '&dress=1' : '') +
+      (v.zoom ? `&zoom=${v.zoom}` : '')
     await page.goto(url, { waitUntil: 'load', timeout: 60000 })
 
     let info = null
