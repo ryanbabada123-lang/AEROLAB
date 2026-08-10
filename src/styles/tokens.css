@@ -133,3 +133,48 @@
     --ls-hero: -0.035em;
   }
 }
+
+/* ============================================================
+   SURFACES SOMBRES ET VERRE DÉPOLI
+   ------------------------------------------------------------
+   La maquette des sections fournie par l'auteur du projet est
+   sombre et arrondie, là où les jetons ci-dessus posent un site
+   blanc dominant à angles quasi nuls. Les deux ne s'opposent pas :
+   le blanc reste la règle des PAGES DE COURS, où l'on lit 430
+   pages équivalent A4 et où un fond sombre fatiguerait ; le
+   sombre est celui des ÉCRANS DE NAVIGATION, où l'on regarde
+   plutôt qu'on ne lit.
+
+   Ces jetons n'écrasent donc rien : ils ajoutent le second
+   registre, et sont réservés aux zones marquées.
+   ============================================================ */
+
+:root {
+  /* Fonds de blizzard, du plus lointain au plus proche. */
+  --d-deep: #070b12;
+  --d-base: #0b111b;
+  --d-raise: #111a27;
+
+  /* Verre dépoli : fond translucide, bord clair, ombre portée froide. */
+  --glass-bg: rgba(18, 27, 41, 0.62);
+  --glass-bg-soft: rgba(20, 30, 46, 0.44);
+  --glass-line: rgba(180, 208, 236, 0.14);
+  --glass-line-strong: rgba(190, 216, 240, 0.24);
+  --glass-blur: 18px;
+  --glass-sh: 0 40px 90px -50px rgba(3, 8, 16, 0.9);
+
+  /* Encre sur fond sombre. */
+  --d-ink: #eef4fa;
+  --d-slate: #a8b8c9;
+  --d-mute: #71829a;
+
+  /* Bleu d'accent, plus clair que --c-electric pour tenir sur du sombre. */
+  --d-accent: #3b8bff;
+  --d-accent-soft: rgba(59, 139, 255, 0.14);
+
+  /* Angles : la maquette est franchement arrondie. Réservé aux cartes
+     sombres — les pages de cours gardent --r-1 et --r-2. */
+  --r-card: 18px;
+  --r-tile: 12px;
+  --r-btn: 10px;
+}

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom'
 import Intro from '@/sections/intro/Intro'
 import Axes from '@/sections/Axes'
 import Final from '@/sections/Final'
+import Discover from '@/sections/Discover'
 import { useReveal } from '@/hooks/useReveal'
 import { LABS } from '@/data/labs'
 
@@ -45,6 +46,8 @@ export default function Home() {
       <Intro />
       <Axes />
       <LabTeaser />
+      {/* Le site se découvre : maquette blizzard, bascule de la marque. */}
+      <Discover />
       <Final />
     </>
   )

@@ -2,14 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, Link } from 'react-router-dom'
 import { scrollDriver } from '@/lib/scroll'
 import { INTRO } from '@/sections/intro/timeline'
+import Logo from '@/components/Logo'
+import { NAV } from '@/data/sections'
 
-const LINKS = [
-  { to: '/formation/bia', label: 'Formation' },
-  { to: '/lab', label: 'Lab' },
-  { to: '/lab/aircraft', label: 'Aircraft' },
-  { to: '/journey', label: 'Journey' },
-  { to: '/logbook', label: 'Flight log' },
-]
+/**
+ * La barre reste courte, comme sur la maquette fournie, et déroule le reste en
+ * sous-menus : décision de l'auteur du projet, afin que rien du programme ne
+ * disparaisse du site sans que le menu devienne illisible.
+ */
+const LINKS = NAV
 
 export default function Nav() {
   const { pathname } = useLocation()
@@ -126,23 +127,36 @@ export default function Nav() {
         data-solid="false"
         aria-label="Navigation principale"
       >
-        <Link to="/" className="nav__mark" aria-label="AERO//LAB — accueil">
-          <span>AERO</span>
-          <span className="nav__slash">//</span>
-          <span>LAB</span>
+        {/* La marque bascule : glyphe de sommet tant qu'on est dans les scènes
+            de montagne de l'introduction, aile en chevron dès que le site est
+            découvert. La bascule est un moment, pas un hasard de page. */}
+        <Link to="/" className="nav__mark" aria-label="AERO LAB — accueil">
+          <Logo variant={isHome ? 'summit' : 'chevron'} size={18} />
         </Link>
 
         <ul className="nav__links">
           {LINKS.map((l) => (
-            <li key={l.to}>
+            <li key={l.to} className={l.children ? 'has-sub' : undefined}>
               <NavLink
                 to={l.to}
+                end={l.to === '/'}
                 className={({ isActive }) =>
                   isActive ? 'nav__link is-active' : 'nav__link'
                 }
               >
                 {l.label}
+                {l.children && <i className="nav__caret" aria-hidden="true" />}
               </NavLink>
+
+              {l.children && (
+                <ul className="nav__sub">
+                  {l.children.map((c) => (
+                    <li key={c.to}>
+                      <Link to={c.to}>{c.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>
@@ -168,6 +182,17 @@ export default function Nav() {
                 </span>
                 {l.label}
               </Link>
+              {/* Sur mobile, un sous-menu au survol n'existe pas : les entrées
+                  sont dépliées d'emblée. */}
+              {l.children && (
+                <ul className="nav-overlay__sub">
+                  {l.children.map((c) => (
+                    <li key={c.to}>
+                      <Link to={c.to}>{c.label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </li>
           ))}
         </ul>
