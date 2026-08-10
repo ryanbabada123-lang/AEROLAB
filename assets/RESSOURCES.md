@@ -273,12 +273,66 @@ englobantes en coordonnées monde (X = longueur, nez en X +37 ; Y = hauteur,
    rendu mat et plastique. À retoucher pour que le fuselage réagisse comme une
    tôle peinte sous la lumière froide des montagnes.
 
-### En attente
+### 🎯 Poste de pilotage — choisi, à télécharger
 
-| Modèle | Usage | Licence | État |
-| --- | --- | --- | --- |
-| Modèle incluant un **poste de pilotage** | Scène 2 de l'intro | à vérifier | 🔴 **seul verrou restant pour l'introduction.** Aucun des liens de référence ne convient : le seul modèle annoncé « avec intérieur » (A350-900 par SQUIR3D) est en licence *Editorial* et non téléchargeable. |
-| **Tecnam P2008** | PPL pratique | à vérifier | ❌ attendu, non urgent. |
+**Airbus Military A400M Grizzly Flight Deck**, par **NG**.
+`https://sketchfab.com/models/b873e5300da24f79baa315385419d9a7`
+334 032 faces · **28 textures** · CC Attribution · téléchargeable.
+
+Retenu après un balayage de 29 requêtes sur l'API Sketchfab : 122 modèles
+téléchargeables en CC0 ou CC-BY, dont 22 cockpits ou intérieurs de plus de
+80 000 faces, jugés sur leurs rendus.
+
+**Constat qui justifie ce choix : il n'existe aucun poste de pilotage d'A350
+gratuit, téléchargeable et sous licence exploitable.** Toutes les pistes
+mènent soit à un extérieur, soit à une licence *Editorial*, soit à un modèle
+verrouillé. Le seul « A350-900 » libre porte cette description de son auteur :
+*« lots of vertices, no interior, bad topo and some deformations »*.
+
+Le A400M est un **authentique poste de pilotage Airbus** : grands écrans
+PFD/ND/MFD — le *navigation display* affiche réellement une carte sur le rendu
+—, mini-manche latéral, casquette, panneau de plafond, sièges. C'est un avion
+militaire de transport, mais la grammaire est celle d'Airbus, et c'est le seul
+candidat réellement texturé du lot.
+
+Finalistes non retenus, conservés comme repli :
+
+- **Cockpit** par *Mikesmax_3* — 544 640 faces, 1 texture, CC-BY.
+  `https://sketchfab.com/models/4451d39c16d943cfa4e47d598f031f28`
+  Le plus complet et le mieux cadré — vue depuis le siège d'observateur,
+  exactement l'angle de révélation de la scène 2 — mais peu texturé.
+- **A320 Cockpit 2** par *davidmarton1987* — 537 648 faces, 11 textures,
+  CC-BY. `https://sketchfab.com/models/5fb0c671a91042c1a9d8f2cf3e2df021`
+  Libellés authentiques (`AUTO LAND`, `PULL UP / GPWS`, `ATC MSG`). Écrans
+  noirs, sur lesquels un PFD animé pourrait être rendu.
+
+Écartés : le **A340-500 Cockpit Panel** est généré par IA (Meshy), géométrie
+fondue — précisément ce que le cahier des charges interdit. Le **787
+Dreamliner Cockpit**, l'**A320 Part Cockpit**, l'**Air India A321** et
+**Cockpit Vision** sont à 0 texture. L'**A320neo d'Airnz** promet « every
+button working » mais est également à 0 texture.
+
+### 🎯 Avion école — recommandation, à valider
+
+**Le Tecnam P2008 n'existe pas sur Sketchfab** en version téléchargeable sous
+licence exploitable : zéro résultat pour `tecnam p2008` comme pour `p2008`.
+
+En revanche **helijah** publie toute la famille Tecnam en CC Attribution,
+téléchargeable. Auteur reconnu pour la justesse de ses modèles d'aviation
+légère.
+
+| Modèle | Faces | Textures | Pertinence |
+| --- | ---: | ---: | --- |
+| **Tecnam P.92** — `4b1c90cce7f14fa3bcbade0bb8c3d855` | 31 045 | **35** | ✅ **Recommandé.** Aile haute, deux places, texturé, livrée bleu et jaune, lignes de tôle et verrière transparentes. Ancêtre direct du P2008, dont il partage la silhouette. |
+| Tecnam P2010 — `1284afa5a5554e19a91b9d5545ca66a8` | 25 001 | 0 | Style Tecnam actuel, le plus proche du P2008 à l'œil, mais quatre places et **aucune texture**. |
+| Tecnam P2006T — `a0a4d717a8c94a17b958eb69c4efc352` | 48 295 | 0 | Bimoteur. Mauvais appareil. |
+| Tecnam P.92 Amphibius — `ef5ba88af2c84ee8b1e8d08de262b8c2` | 32 978 | 35 | Sur flotteurs. Hors sujet pour une école. |
+
+Réserve à énoncer : le P2008 est une évolution à fuselage carbone de la lignée
+P92 / P2004. Un œil exercé verra que le fuselage du P2008 est plus lisse, son
+empennage légèrement différent et sa verrière plus généreuse. Les 31 000 faces
+du P.92 sont largement suffisantes pour une illustration que l'on fait tourner
+dans la section PPL, et se chargent instantanément.
 
 ### Modèles écartés, et pourquoi
 
@@ -316,16 +370,19 @@ de page.
 ## 5. Reste à fournir
 
 - [ ] 🔴 **La plaque de piste sans aucun avion** — verrou de la scène 3
-- [ ] 🔴 Solution pour le **poste de pilotage** : modèle 3D en CC0 ou CC-BY,
-      ou reconstruction en couches à partir des photos de cockpit déjà
-      présentes dans `assets/source/` — verrou de la scène 2
+- [ ] 🔴 **L'archive du A400M Flight Deck** — verrou de la scène 2. Modèle
+      choisi, il ne reste qu'à le télécharger : le téléchargement Sketchfab
+      exige un compte connecté, l'API renvoie 401 sans authentification.
 - [ ] 🟡 Les trois plaques en 3 840 px de large, si l'outil le permet
 - [ ] 🟡 Provenance des visuels de montagne et de piste (œuvre de l'auteur du
       projet ?)
-- [ ] 🟢 Modèle 3D du Tecnam P2008
+- [ ] 🟢 Validation du **Tecnam P.92** en remplacement du P2008 introuvable,
+      puis son archive
 - [ ] 🟢 Cours PPL théorique, PPL pratique, annales BIA, banque de questions
 - [x] ~~Modèle 3D de l'A350-1000~~ — reçu, vérifié, complet, licence archivée
 - [x] ~~Visuels de montagne supplémentaires~~ — reçus
+- [x] ~~Choix du poste de pilotage~~ — A400M Flight Deck de NG, arrêté
+- [x] ~~Recherche d'un Tecnam~~ — le P2008 n'existe pas, le P.92 est proposé
 
 ## 6. Corrections apportées à cet inventaire
 
