@@ -40,9 +40,6 @@ export default function Nav() {
       if (el.dataset.tone !== next) el.dataset.tone = next
     }
 
-    const darkSections = Array.from(
-      document.querySelectorAll<HTMLElement>('[data-nav-tone="dark"]'),
-    )
     const crossing = new Set<Element>()
     const io = new IntersectionObserver(
       (entries) => {
@@ -56,7 +53,34 @@ export default function Nav() {
       // Bande de quelques pixels juste sous la barre.
       { rootMargin: '-70px 0px -100% 0px', threshold: 0 },
     )
-    for (const s of darkSections) io.observe(s)
+
+    /*
+     * Les zones sombres ne sont PAS toutes présentes quand cet effet s'exécute.
+     * Les pages sont chargées en différé : au changement de route, la barre se
+     * réaffiche avant que la page arrive, si bien qu'un simple relevé à
+     * l'exécution ne trouve rien et laisse une barre blanche sur une page
+     * sombre. C'est le cas de l'espace élève.
+     *
+     * On relève donc à l'exécution ET à chaque mutation du contenu, en tenant
+     * la liste de ce qui est déjà observé pour ne pas doubler les entrées.
+     */
+    const observed = new WeakSet<Element>()
+    const scan = () => {
+      const found = document.querySelectorAll<HTMLElement>('[data-nav-tone="dark"]')
+      let added = false
+      for (const s of found) {
+        if (observed.has(s)) continue
+        observed.add(s)
+        io.observe(s)
+        added = true
+      }
+      if (added) apply()
+    }
+    scan()
+
+    const main = document.getElementById('main') ?? document.body
+    const mo = new MutationObserver(scan)
+    mo.observe(main, { childList: true, subtree: true })
 
     let unsub: (() => void) | undefined
     if (isHome) {
@@ -85,6 +109,7 @@ export default function Nav() {
     apply()
     return () => {
       io.disconnect()
+      mo.disconnect()
       unsub?.()
     }
   }, [isHome, pathname])
@@ -160,6 +185,14 @@ export default function Nav() {
             </li>
           ))}
         </ul>
+
+        {/* Espace élève : bouton en haut à droite, comme sur la maquette. Il
+            mène à un profil local — il n'y a pas de compte, et la page l'écrit
+            franchement, faute de serveur pour authentifier quoi que ce soit. */}
+        <Link to="/espace-eleve" className="nav__cta">
+          Espace élève
+          <i className="nav__arrow" aria-hidden="true" />
+        </Link>
 
         <button
           className="nav__burger"

@@ -117,6 +117,16 @@ export const flightLog = {
   reset() {
     commit(empty())
   },
+
+  /**
+   * Remplace tout le carnet. Sert à l'import d'un fichier d'élève : on ne
+   * fusionne pas deux progressions, car on ne saurait pas laquelle croire sur un
+   * même chapitre. Le fichier importé fait autorité, et l'interface avertit
+   * avant d'écraser.
+   */
+  replace(next: FlightLog) {
+    commit({ ...empty(), ...next, version: 1 })
+  },
 }
 
 export function useFlightLog(): FlightLog {

@@ -2586,3 +2586,414 @@ a.card:hover .card__state {
     display: none;
   }
 }
+
+/* ============================================================
+   ESPACE ÉLÈVE
+   ============================================================ */
+
+.nav__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  margin-left: auto;
+  padding: 0.6em 1em;
+  border: 1px solid var(--d-accent);
+  border-radius: var(--r-btn);
+  color: var(--d-accent);
+  font-size: var(--t-small);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background var(--d-fast) var(--e-out),
+    color var(--d-fast) var(--e-out);
+}
+
+.nav__cta:hover {
+  background: var(--d-accent);
+  color: #fff;
+}
+
+.nav[data-tone='light'] .nav__cta {
+  border-color: var(--c-electric);
+  color: var(--c-electric);
+}
+
+.nav[data-tone='light'] .nav__cta:hover {
+  background: var(--c-electric);
+  color: #fff;
+}
+
+.nav__arrow {
+  width: 14px;
+  height: 8px;
+  background: currentColor;
+  clip-path: polygon(0 42%, 62% 42%, 62% 0, 100% 50%, 62% 100%, 62% 58%, 0 58%);
+}
+
+@media (max-width: 860px) {
+  .nav__cta {
+    display: none;
+  }
+}
+
+/* ---- la page ---- */
+
+.eleve {
+  position: relative;
+  isolation: isolate;
+  min-height: 100vh;
+  padding: clamp(var(--s-9), 12vh, var(--s-11)) 0 var(--s-9);
+  background:
+    radial-gradient(110% 80% at 50% -8%, #16233a 0%, transparent 58%),
+    linear-gradient(180deg, var(--d-deep) 0%, var(--d-base) 50%, var(--d-deep) 100%);
+  color: var(--d-ink);
+  overflow: clip;
+}
+
+.eleve::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background:
+    image-set(
+        url('/images/montagne-brume-1024.avif') type('image/avif'),
+        url('/images/montagne-brume-1024.webp') type('image/webp')
+      )
+      center / cover no-repeat;
+  opacity: 0.22;
+  filter: saturate(0.5);
+}
+
+.eleve__weather {
+  position: absolute;
+  inset: -10% -10% 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+.eleve__inner {
+  position: relative;
+  display: grid;
+  gap: clamp(var(--s-5), 2.5vw, var(--s-6));
+  width: min(100% - 2 * var(--gutter), 940px);
+  margin-inline: auto;
+}
+
+.eleve__head {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-3);
+  margin-bottom: var(--s-2);
+}
+
+.eleve__head h1 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-d2);
+  font-weight: 800;
+  line-height: var(--lh-tight);
+  letter-spacing: var(--ls-display);
+}
+
+.eleve__lede {
+  margin: 0;
+  color: var(--d-slate);
+}
+
+/* ---- l'avertissement, volontairement lisible ---- */
+
+.eleve__notice {
+  padding: clamp(var(--s-5), 2.4vw, var(--s-6));
+  border: 1px solid rgba(154, 106, 0, 0.42);
+  border-left-width: 3px;
+  border-radius: var(--r-card);
+  background: rgba(48, 34, 8, 0.42);
+  backdrop-filter: blur(var(--glass-blur));
+}
+
+.eleve__notice h2 {
+  margin: 0 0 var(--s-3);
+  font-size: var(--t-h3);
+  letter-spacing: var(--ls-tight);
+}
+
+.eleve__notice p {
+  margin: 0 0 var(--s-4);
+  color: #e6d9bd;
+  line-height: var(--lh-body);
+}
+
+.eleve__notice ul {
+  margin: 0;
+  padding-left: 1.15em;
+  display: grid;
+  gap: var(--s-2);
+  color: #d3c5a8;
+  font-size: var(--t-small);
+  line-height: 1.55;
+}
+
+/* ---- blocs ---- */
+
+.eleve__block {
+  display: grid;
+  gap: var(--s-4);
+  padding: clamp(var(--s-5), 2.4vw, var(--s-7));
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-card);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  box-shadow: var(--glass-sh);
+}
+
+.eleve__block h2 {
+  margin: 0;
+  font-size: var(--t-h3);
+  letter-spacing: var(--ls-tight);
+}
+
+.eleve__block > p {
+  margin: 0;
+  max-width: 62ch;
+  color: var(--d-slate);
+  line-height: var(--lh-body);
+}
+
+.eleve__danger {
+  border-color: rgba(179, 38, 30, 0.36);
+}
+
+/* ---- formulaire ---- */
+
+.field {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.field > span,
+.field legend {
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+
+.field input[type='text'],
+.field input[type='date'] {
+  padding: 0.78em 0.95em;
+  border: 1px solid var(--glass-line-strong);
+  border-radius: var(--r-btn);
+  background: rgba(6, 10, 17, 0.55);
+  color: var(--d-ink);
+  font: inherit;
+}
+
+.field input:focus-visible {
+  outline: 2px solid var(--d-accent);
+  outline-offset: 1px;
+}
+
+.field--short input {
+  max-width: 240px;
+}
+
+.field--choices {
+  display: grid;
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.choice {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--s-3);
+  align-items: start;
+  padding: var(--s-4);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-tile);
+  cursor: pointer;
+  transition: border-color var(--d-fast) var(--e-out);
+}
+
+.choice[data-selected='true'] {
+  border-color: var(--d-accent);
+  background: var(--d-accent-soft);
+}
+
+.choice strong {
+  display: block;
+  font-size: var(--t-small);
+}
+
+.choice em {
+  display: block;
+  margin-top: 2px;
+  font-style: normal;
+  font-size: var(--t-small);
+  color: var(--d-slate);
+}
+
+/* ---- chiffres ---- */
+
+.eleve__stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: var(--s-3);
+}
+
+.eleve__stat {
+  display: grid;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-tile);
+  background: var(--glass-bg-soft);
+}
+
+.eleve__slabel {
+  font-family: var(--f-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+
+.eleve__svalue {
+  font-family: var(--f-display);
+  font-size: var(--t-h2);
+  font-weight: 700;
+  letter-spacing: var(--ls-tight);
+}
+
+/* ---- listes ---- */
+
+.eleve__progress,
+.eleve__weak {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eleve__progress li,
+.eleve__weak li {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 0.85em 0;
+  border-bottom: 1px solid var(--glass-line);
+}
+
+.eleve__progress li:last-child,
+.eleve__weak li:last-child {
+  border-bottom: 0;
+}
+
+.eleve__pname a {
+  color: var(--d-ink);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.eleve__pname a:hover {
+  border-bottom-color: var(--d-accent);
+}
+
+.eleve__progress li[data-state='awaiting'] .eleve__pname {
+  color: var(--d-mute);
+}
+
+.eleve__pstate {
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+
+.eleve__progress li[data-done='true'] .eleve__pstate {
+  color: var(--c-ok);
+}
+
+.eleve__empty {
+  margin: 0;
+  color: var(--d-mute);
+  font-size: var(--t-small);
+  line-height: var(--lh-body);
+}
+
+/* ---- actions ---- */
+
+.eleve__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+.eleve .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.78em 1.15em;
+  border: 1px solid transparent;
+  border-radius: var(--r-btn);
+  font-size: var(--t-small);
+  font-weight: 600;
+  font-family: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background var(--d-fast) var(--e-out);
+}
+
+.eleve .btn--primary {
+  background: var(--d-accent);
+  color: #fff;
+}
+
+.eleve .btn--primary:hover:not(:disabled) {
+  background: #2f7cf0;
+}
+
+.eleve .btn--primary:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.eleve .btn--ghost {
+  border-color: var(--glass-line-strong);
+  background: transparent;
+  color: var(--d-ink);
+}
+
+.eleve .btn--ghost:hover {
+  background: rgba(190, 216, 240, 0.08);
+}
+
+.eleve .btn--danger {
+  border-color: rgba(179, 38, 30, 0.55);
+  background: transparent;
+  color: #f0a7a2;
+  justify-self: start;
+}
+
+.eleve .btn--danger:hover {
+  background: rgba(179, 38, 30, 0.16);
+}
+
+.eleve__message {
+  margin: 0;
+  font-size: var(--t-small);
+  color: var(--c-ok);
+}
+
+.eleve__message[data-ok='false'] {
+  color: #f0a7a2;
+}
