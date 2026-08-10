@@ -1,31 +1,45 @@
-import { useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { P3 } from './palette'
 import { clamp } from '@/lib/math'
+import {
+  POSE,
+  aileronGeometry,
+  bladeGeometry,
+  canopyGeometry,
+  elevatorGeometry,
+  finGeometry,
+  flapGeometry,
+  fuselageGeometry,
+  mainLegGeometry,
+  noseLegGeometry,
+  rudderGeometry,
+  spatGeometry,
+  spinnerGeometry,
+  stabGeometry,
+  wheelGeometry,
+  wingGeometry,
+} from './tecnam'
 
 /**
- * AVION — forme stylisée (§51.4).
+ * L'AVION — Tecnam P2008JC (voir tecnam.ts pour le niveau de fidélité).
  *
- * Silhouette reconnaissable d'un monomoteur d'école : aile haute, dérive
- * marquée, hélice. Primitives, faces planes, matériaux mats. L'émotion
- * vient de la lumière et du mouvement de caméra, pas du détail du modèle.
+ * La géométrie est partagée avec la vue éclatée : c'est le même appareil
+ * partout sur le site.
  *
- * Orientation : nez vers -Z.
- *
- * `getCut` (0 → 1) dissout l'appareil pièce par pièce pour la bascule vers
- * l'aile (§08). La dissolution est pilotée en useFrame, jamais par un
- * setState : aucun re-render pendant l'animation.
+ * `getCut` (0 → 1) le dissout pièce par pièce pour la bascule vers le
+ * profil d'aile (§08). Piloté en useFrame, jamais par un setState : aucun
+ * re-render pendant l'animation.
  */
 
-type Role = 'shell' | 'dark' | 'glass' | 'accent'
+type Role = 'shell' | 'dark' | 'glass' | 'accent' | 'tyre'
 
 /** Ordre de disparition : 0 part en dernier, 4 en premier. */
 const ORDERS = [0, 1, 2, 3, 4] as const
 
 export interface AircraftProps {
   density?: number
-  /** Lue chaque frame ; renvoie l'avancement de la dissolution 0→1. */
   getCut?: () => number
   propSpin?: () => number
 }
@@ -36,29 +50,57 @@ export default function Aircraft({
   propSpin,
   ...groupProps
 }: AircraftProps & React.ComponentProps<'group'>) {
-  const seg = Math.max(6, Math.round(12 * density))
-  const propRef = useRef<THREE.Mesh>(null)
+  const q = Math.max(0.45, density)
+  const propRef = useRef<THREE.Group>(null)
 
-  // Une instance de matériau par (rôle × ordre de dissolution) : c'est ce qui
-  // permet de faire disparaître le train avant l'aile, sans toucher au reste.
+  /* ---------------------------------------------------------- géométrie */
+
+  const geo = useMemo(
+    () => ({
+      fuselage: fuselageGeometry(q),
+      wing: wingGeometry(q),
+      aileron: aileronGeometry(),
+      flap: flapGeometry(),
+      canopy: canopyGeometry(q),
+      fin: finGeometry(q),
+      rudder: rudderGeometry(),
+      stab: stabGeometry(q),
+      elevator: elevatorGeometry(),
+      spinner: spinnerGeometry(q),
+      blade: bladeGeometry(),
+      legR: mainLegGeometry(1),
+      legL: mainLegGeometry(-1),
+      noseLeg: noseLegGeometry(),
+      wheel: wheelGeometry(0.155, q),
+      noseWheel: wheelGeometry(0.125, q),
+      spat: spatGeometry(),
+    }),
+    [q],
+  )
+
+  useEffect(() => {
+    const g = geo
+    return () => {
+      for (const item of Object.values(g)) item.dispose()
+    }
+  }, [geo])
+
+  /* --------------------------------------------------------- matériaux */
+
+  // Une instance par (rôle × ordre) : c'est ce qui permet d'effacer le
+  // train avant l'aile sans toucher au reste.
   const mats = useMemo(() => {
     const base: Record<Role, THREE.MeshStandardMaterialParameters> = {
-      shell: { color: P3.snow, metalness: 0.14, roughness: 0.42, flatShading: true },
-      dark: { color: P3.graphite, metalness: 0.5, roughness: 0.35, flatShading: true },
+      shell: { color: P3.snow, metalness: 0.08, roughness: 0.34 },
+      dark: { color: P3.graphite, metalness: 0.55, roughness: 0.38 },
       glass: {
-        color: P3.glacierDeep,
-        metalness: 0.7,
-        roughness: 0.12,
-        opacity: 0.72,
-        flatShading: true,
+        color: new THREE.Color('#243447'),
+        metalness: 0.35,
+        roughness: 0.06,
+        opacity: 0.62,
       },
-      accent: {
-        color: P3.electric,
-        metalness: 0.2,
-        roughness: 0.4,
-        emissive: P3.electric,
-        emissiveIntensity: 0.3,
-      },
+      accent: { color: P3.electric, metalness: 0.15, roughness: 0.4 },
+      tyre: { color: new THREE.Color('#14181d'), metalness: 0.05, roughness: 0.85 },
     }
     const map = {} as Record<Role, THREE.MeshStandardMaterial[]>
     for (const role of Object.keys(base) as Role[]) {
@@ -72,21 +114,18 @@ export default function Aircraft({
   }, [])
 
   const baseOpacity = useMemo<Record<Role, number>>(
-    () => ({ shell: 1, dark: 1, glass: 0.72, accent: 1 }),
+    () => ({ shell: 1, dark: 1, glass: 0.62, accent: 1, tyre: 1 }),
     [],
   )
 
-  // Hélice : à bas régime on voit les pales, à haut régime on ne voit plus
-  // qu'un disque translucide. C'est ce que l'œil perçoit réellement, et
-  // cela évite la barre noire qui traverse le nez.
+  // Hélice : pales visibles au ralenti, disque translucide en régime.
   const bladeMat = useMemo(
     () =>
       new THREE.MeshStandardMaterial({
-        color: P3.graphite,
+        color: new THREE.Color('#1b2027'),
         metalness: 0.5,
-        roughness: 0.35,
+        roughness: 0.4,
         transparent: true,
-        flatShading: true,
       }),
     [],
   )
@@ -102,8 +141,7 @@ export default function Aircraft({
     [],
   )
 
-  useMemo(() => {
-    // Libération des matériaux au démontage.
+  useEffect(() => {
     return () => {
       for (const list of Object.values(mats)) for (const m of list) m.dispose()
       bladeMat.dispose()
@@ -111,11 +149,12 @@ export default function Aircraft({
     }
   }, [mats, bladeMat, discMat])
 
+  /* ------------------------------------------------------------ animation */
+
   useFrame((_, dt) => {
     const cut = getCut ? clamp(getCut()) : 0
     for (const role of Object.keys(mats) as Role[]) {
       for (const order of ORDERS) {
-        // Les pièces secondaires (train, mâts) s'effacent en premier.
         const start = (4 - order) * 0.1
         const o = 1 - clamp((cut - start) / 0.36)
         const m = mats[role][order]
@@ -123,13 +162,13 @@ export default function Aircraft({
         m.visible = m.opacity > 0.015
       }
     }
-    // Fondu pale → disque selon le régime.
+
     const rpm = propSpin ? propSpin() : 0
     const blur = clamp((rpm - 6) / 16)
     const alive = 1 - clamp((cut - 0.3) / 0.36)
-    bladeMat.opacity = (1 - blur * 0.92) * alive
+    bladeMat.opacity = (1 - blur * 0.9) * alive
     bladeMat.visible = bladeMat.opacity > 0.02
-    discMat.opacity = blur * 0.13 * alive
+    discMat.opacity = blur * 0.12 * alive
     discMat.visible = discMat.opacity > 0.01
 
     if (propRef.current) propRef.current.rotation.z += dt * rpm
@@ -139,102 +178,62 @@ export default function Aircraft({
 
   return (
     <group {...groupProps}>
-      {/* ---- FUSELAGE ---- */}
-      {/* Le cylindre de Three.js est orienté sur Y : on le couche sur Z. */}
-      <mesh material={M('shell', 1)} position={[0, 0, 0.2]} rotation={[Math.PI / 2, 0, 0]}>
-        <cylinderGeometry args={[0.3, 0.34, 3.1, seg]} />
-      </mesh>
-      <mesh
-        material={M('shell', 1)}
-        position={[0, 0, -1.72]}
-        rotation={[-Math.PI / 2, 0, 0]}
-      >
-        <coneGeometry args={[0.34, 0.9, seg]} />
-      </mesh>
-      <mesh
-        material={M('shell', 2)}
-        position={[0, 0.06, 2.05]}
-        rotation={[Math.PI / 2, 0, 0]}
-      >
-        <coneGeometry args={[0.3, 1.5, seg]} />
-      </mesh>
+      {/* ---- CELLULE ---- */}
+      <mesh geometry={geo.fuselage} material={M('shell', 1)} position={POSE.fuselage} />
+      <mesh geometry={geo.canopy} material={M('glass', 0)} position={POSE.canopy} />
 
-      {/* ---- VERRIÈRE ---- */}
-      <mesh material={M('glass', 0)} position={[0, 0.3, -0.34]}>
-        <boxGeometry args={[0.6, 0.34, 1.25]} />
-      </mesh>
-
-      {/* ---- AILE HAUTE ---- */}
-      <mesh material={M('shell', 0)} position={[0, 0.44, -0.16]}>
-        <boxGeometry args={[7.4, 0.11, 1.06]} />
-      </mesh>
-      <mesh material={M('shell', 0)} position={[3.72, 0.44, -0.16]} rotation={[0, 0, 0.06]}>
-        <boxGeometry args={[0.36, 0.09, 0.86]} />
-      </mesh>
-      <mesh material={M('shell', 0)} position={[-3.72, 0.44, -0.16]} rotation={[0, 0, -0.06]}>
-        <boxGeometry args={[0.36, 0.09, 0.86]} />
-      </mesh>
-      <mesh material={M('dark', 3)} position={[1.15, 0.14, 0.16]} rotation={[0, 0, -0.36]}>
-        <boxGeometry args={[1.5, 0.05, 0.08]} />
-      </mesh>
-      <mesh material={M('dark', 3)} position={[-1.15, 0.14, 0.16]} rotation={[0, 0, 0.36]}>
-        <boxGeometry args={[1.5, 0.05, 0.08]} />
-      </mesh>
+      {/* ---- VOILURE : cantilever, aucun mât.
+             Chaque demi-aile est un GROUPE : aileron et volet y sont
+             placés en coordonnées locales et suivent donc le dièdre.
+             Posés en absolu, ils pendaient sous l'aile. ---- */}
+      {([
+        [POSE.wingA, -0.028, 1],
+        [POSE.wingB, 0.028, -1],
+      ] as const).map(([pos, dihedral, mirror], i) => (
+        <group key={i} position={pos} rotation={[0, 0, dihedral]} scale={[mirror, 1, 1]}>
+          <mesh geometry={geo.wing} material={M('shell', 0)} />
+          <mesh geometry={geo.aileron} material={M('accent', 3)} position={POSE.aileronLocal} />
+          <mesh geometry={geo.flap} material={M('shell', 3)} position={POSE.flapLocal} />
+        </group>
+      ))}
 
       {/* ---- EMPENNAGE ---- */}
-      <mesh material={M('shell', 2)} position={[0, 0.72, 2.5]} rotation={[0.22, 0, 0]}>
-        <boxGeometry args={[0.09, 1.15, 0.82]} />
-      </mesh>
-      <mesh material={M('accent', 2)} position={[0, 1.22, 2.62]}>
-        <boxGeometry args={[0.1, 0.2, 0.5]} />
-      </mesh>
-      <mesh material={M('shell', 2)} position={[0, 0.24, 2.62]}>
-        <boxGeometry args={[2.5, 0.08, 0.62]} />
+      <mesh geometry={geo.fin} material={M('shell', 2)} position={POSE.fin} />
+      <mesh geometry={geo.rudder} material={M('accent', 2)} position={POSE.rudder} />
+      <mesh geometry={geo.stab} material={M('shell', 2)} position={POSE.stabA} />
+      <mesh
+        geometry={geo.stab}
+        material={M('shell', 2)}
+        position={POSE.stabB}
+        scale={[-1, 1, 1]}
+      />
+      <mesh geometry={geo.elevator} material={M('accent', 2)} position={POSE.elevator} />
+
+      {/* ---- PROPULSION ---- */}
+      <mesh geometry={geo.spinner} material={M('shell', 1)} position={POSE.spinner} />
+      <group ref={propRef} position={POSE.prop}>
+        <mesh geometry={geo.blade} material={bladeMat} />
+        <mesh geometry={geo.blade} material={bladeMat} rotation={[0, 0, Math.PI]} />
+      </group>
+      <mesh material={discMat} position={[0, 0, -2.04]}>
+        <circleGeometry args={[0.68, Math.max(12, Math.round(30 * q))]} />
       </mesh>
 
-      {/* ---- MOTEUR / HÉLICE ---- */}
+      {/* ---- TRAIN TRICYCLE ---- */}
+      <mesh geometry={geo.legR} material={M('shell', 4)} position={POSE.mainLegRight} />
+      <mesh geometry={geo.legL} material={M('shell', 4)} position={POSE.mainLegLeft} />
+      <mesh geometry={geo.wheel} material={M('tyre', 4)} position={POSE.wheelRight} />
+      <mesh geometry={geo.wheel} material={M('tyre', 4)} position={POSE.wheelLeft} />
+      <mesh geometry={geo.spat} material={M('shell', 4)} position={POSE.wheelRight} />
+      <mesh geometry={geo.spat} material={M('shell', 4)} position={POSE.wheelLeft} />
+      <mesh geometry={geo.noseLeg} material={M('dark', 4)} position={POSE.noseLeg} />
+      <mesh geometry={geo.noseWheel} material={M('tyre', 4)} position={POSE.noseWheel} />
       <mesh
-        material={M('dark', 1)}
-        position={[0, 0, -2.18]}
-        rotation={[Math.PI / 2, 0, 0]}
-      >
-        <cylinderGeometry args={[0.12, 0.16, 0.2, seg]} />
-      </mesh>
-      <mesh ref={propRef} material={bladeMat} position={[0, 0, -2.3]}>
-        <boxGeometry args={[0.075, 1.34, 0.03]} />
-      </mesh>
-      <mesh material={discMat} position={[0, 0, -2.31]}>
-        <circleGeometry args={[0.68, Math.max(12, Math.round(28 * density))]} />
-      </mesh>
-
-      {/* ---- TRAIN FIXE ---- */}
-      <mesh material={M('dark', 4)} position={[0.78, -0.52, -0.3]} rotation={[0, 0, 0.34]}>
-        <boxGeometry args={[0.05, 0.62, 0.05]} />
-      </mesh>
-      <mesh material={M('dark', 4)} position={[-0.78, -0.52, -0.3]} rotation={[0, 0, -0.34]}>
-        <boxGeometry args={[0.05, 0.62, 0.05]} />
-      </mesh>
-      <mesh
-        material={M('dark', 4)}
-        position={[0.9, -0.8, -0.3]}
-        rotation={[0, 0, Math.PI / 2]}
-      >
-        <cylinderGeometry args={[0.16, 0.16, 0.09, seg]} />
-      </mesh>
-      <mesh
-        material={M('dark', 4)}
-        position={[-0.9, -0.8, -0.3]}
-        rotation={[0, 0, Math.PI / 2]}
-      >
-        <cylinderGeometry args={[0.16, 0.16, 0.09, seg]} />
-      </mesh>
-      <mesh
-        material={M('dark', 4)}
-        position={[0, -0.62, 2.3]}
-        rotation={[0, 0, Math.PI / 2]}
-      >
-        <cylinderGeometry args={[0.1, 0.1, 0.07, seg]} />
-      </mesh>
+        geometry={geo.spat}
+        material={M('shell', 4)}
+        position={POSE.noseWheel}
+        scale={[0.85, 0.85, 0.85]}
+      />
     </group>
   )
 }
