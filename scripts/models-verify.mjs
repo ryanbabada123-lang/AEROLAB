@@ -39,6 +39,45 @@ const EXPECTED = {
   'a350-1000.glb': { long: 73.83, env: 64.91, haut: 17.46 },
 }
 
+/**
+ * Matériaux dont l'existence est vérifiée nommément.
+ *
+ * Sur un modèle livré sans ses textures, le nom du matériau est la SEULE chose
+ * qui dise à quoi sert une surface. La déduplication les avait un temps
+ * fusionnés — dix-sept réduits à trois sur le Tecnam — faisant disparaître en
+ * silence l'identité de chaque instrument. Ce contrôle existe pour que cela ne
+ * se reproduise pas.
+ */
+const REQUIRED_MATERIALS = {
+  'tecnam-p2010.glb': {
+    count: 17,
+    names: [
+      'DefaultWhite_ai.png',
+      'DefaultWhite_alt.png',
+      'DefaultWhite_asi.png',
+      'DefaultWhite_pfd.png',
+      'DefaultWhite_mfd.png',
+      'DefaultWhite_map.png',
+      'None_alt.tape.png',
+      'None_pitchscale.png',
+      'DefaultWhite_panel.png.001',
+      'transparent',
+    ],
+  },
+  'a400m-flightdeck.glb': {
+    count: 71,
+    names: [
+      'CPit_seats',
+      'COCKPIT_PANELS_BASE',
+      'Panels_Text_Decals',
+      'FakeDisplay',
+      'BUTTONS_NEW',
+      'SWITCH_METAL.003',
+      'Pedestal',
+    ],
+  },
+}
+
 async function load(p) {
   await MeshoptDecoder.ready
   const io = new NodeIO()
@@ -178,6 +217,26 @@ for (const file of files) {
       const ok = present.has(nm)
       if (!ok) failures++
       console.log(`    ${ok ? '✓' : '✗'} ${nm.padEnd(10)} ${role}`)
+    }
+  }
+
+  const req = REQUIRED_MATERIALS[file]
+  if (req) {
+    const mats = doc.getRoot().listMaterials().map((m) => m.getName())
+    const okCount = mats.length >= req.count
+    if (!okCount) failures++
+    console.log(
+      `  ${okCount ? '✓' : '✗'} matériaux : ${mats.length} conservés ` +
+        `(au moins ${req.count} attendus)`,
+    )
+    const missing = req.names.filter((n) => !mats.includes(n))
+    if (missing.length) {
+      failures += missing.length
+      console.log(`    ✗ absents : ${missing.join(', ')}`)
+    } else {
+      console.log(
+        `    ✓ les ${req.names.length} matériaux nommément requis sont présents`,
+      )
     }
   }
 

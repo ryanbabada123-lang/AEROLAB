@@ -65,9 +65,21 @@ const INSIDE = [
   },
 ]
 
+/*
+ * Tecnam P2010 : X est l'axe longitudinal, le nez vers les X négatifs, et la
+ * planche de bord est un plan à X = -1,77. Les places avant sont donc autour de
+ * X = -1, tournées vers les X négatifs.
+ */
+const TECNAM_INSIDE = [
+  { label: 'planche-de-bord', abs: 'px=-0.75&py=0.62&pz=0&tx=-1.85&ty=0.42&tz=0&fov=62' },
+  { label: 'place-gauche', abs: 'px=-0.8&py=0.6&pz=-0.35&tx=-1.85&ty=0.4&tz=-0.2&fov=66' },
+  { label: 'poste-large', abs: 'px=0.4&py=0.85&pz=0.1&tx=-1.85&ty=0.4&tz=0&fov=58' },
+]
+
 /** Quels jeux de vues pour quel modèle. Par défaut, l'extérieur. */
 const VIEWS_FOR = {
   'a400m-flightdeck.glb': [...INSIDE, ...OUTSIDE.slice(0, 2)],
+  'tecnam-p2010.glb': [...OUTSIDE, ...TECNAM_INSIDE],
 }
 
 /* ------------------------------------------------------------------- serveur */

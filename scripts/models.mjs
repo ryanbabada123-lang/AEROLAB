@@ -20,7 +20,7 @@
  * Usage : node scripts/models.mjs [nom]
  */
 
-import { NodeIO } from '@gltf-transform/core'
+import { NodeIO, PropertyType } from '@gltf-transform/core'
 import { ALL_EXTENSIONS } from '@gltf-transform/extensions'
 import {
   dedup,
@@ -95,6 +95,14 @@ const RECIPES = {
     dir: 'tecnam-p2010-helijah',
     out: 'tecnam-p2010.glb',
     optional: true,
+    // Les 15 textures ne sont pas fournies. Leurs références sont retirées,
+    // mais les noms de matériaux sont conservés et valent une notice : ils
+    // désignent un à un les instruments de la planche de bord — horizon,
+    // altimètre, anémomètre, PFD, MFD, carte, bande d'altitude, échelle de
+    // tangage — chacun porté par son propre mesh. C'est ce découpage qui
+    // permettra d'y peindre des instruments vivants et justes.
+    stripTextures: true,
+    // 43 401 triangles seulement : rien à simplifier, tout est utile.
     keep: {},
     default: 1,
   },
@@ -323,9 +331,28 @@ async function build(name, recipe) {
   }
 
   /* --- nettoyage --------------------------------------------------------- */
+  //
+  // Sur un modèle privé de ses textures, la déduplication des MATÉRIAUX est un
+  // piège : dépouillés de ce qui les distinguait, ils deviennent identiques et
+  // se font fusionner. Le Tecnam y perdait ses dix-sept matériaux réduits à
+  // trois, et avec eux l'identité de chaque instrument — horizon, altimètre,
+  // anémomètre, PFD — qui est justement ce qui permettra de les peindre.
+  // On déduplique donc tout sauf les matériaux dans ce cas.
+  const dedupTypes = recipe.stripTextures
+    ? [PropertyType.ACCESSOR, PropertyType.MESH, PropertyType.SKIN]
+    : undefined
+
   await doc.transform(
-    dedup(),
-    prune({ keepAttributes: false, keepLeaves: false }),
+    dedup(dedupTypes ? { propertyTypes: dedupTypes } : {}),
+    prune({
+      keepAttributes: false,
+      keepLeaves: false,
+      // `prune` retirerait aussi les matériaux devenus « inutiles » à ses yeux.
+      // Sur les modèles dépouillés, ils portent la seule information qui reste.
+      propertyTypes: recipe.stripTextures
+        ? [PropertyType.ACCESSOR, PropertyType.NODE, PropertyType.MESH, PropertyType.PRIMITIVE]
+        : undefined,
+    }),
   )
 
   /* --- textures ---------------------------------------------------------- */
