@@ -134,17 +134,58 @@ schémas légendés.
 
 ### `montagnes/`
 
-| Fichier | Dimensions | État |
+| Fichier | Dimensions | Rôle |
 | --- | --- | --- |
-| `montagne-brume-01-1152x768.png` | 1 152 × 768 | Référence d'étalonnage. **Insuffisant pour un fond plein écran** (mou au-delà de 1152 px de large). |
+| `montagne-brume-01-1536x1024.png` | 1 536 × 1 024 (3:2) | **Scène 1 — « Un rêve. »** Blancs délavés, brume noyant la vallée, lumière plate et froide, rochers au premier plan. |
+| `montagne-ciel-bleu-02-1672x941.png` | 1 672 × 941 (16:9) | **Scène 2 — « Une machine. »** Même massif, ciel dégagé, soleil rasant à gauche, contraste et relief nettement plus marqués. |
 
-Direction artistique qu'il fixe : blancs délavés, brume noyant la vallée,
-lumière plate et froide, premier plan de rochers enneigés donnant la
-profondeur.
+Les deux plaques forment une progression lumineuse voulue : brouillard froid,
+puis ciel qui s'ouvre, puis l'or du couchant sur la piste (voir `pistes/`).
+Le rêve s'éclaire à mesure que l'on descend dans la page.
 
-**En attente :** visuels de montagne supplémentaires (angles et brumes
-différents) pour les fonds récurrents du site. Provenance à documenter à la
-réception.
+Réserve commune : **1 672 px de large au maximum**, sous la barre des
+1 920 px. Utilisables en plan lointain avec premier plan et brume reconstruits
+en 3D par-dessus ; une version en 3 840 px reste préférable pour un fond
+plein écran sur grand écran ou vidéoprojecteur.
+
+### `pistes/`
+
+| Fichier | Dimensions | Rôle |
+| --- | --- | --- |
+| `piste-montagne-coucher-soleil-1672x941.png` | 1 672 × 941 (16:9) | **Scène 3 — le décollage.** Décor validé par l'auteur du projet. |
+
+Ce que la plaque apporte, et qui est excellent : piste 27 vue dans l'axe,
+seuil à touches de piano, feux de seuil verts, feux de bord et d'axe, rampe
+d'approche, aérogare et tour de contrôle éclairées, clôture périmétrique au
+premier plan, alpenglow sur les sommets et mer de nuages dans la vallée. La
+fuite est symétrique et le point de fuite tombe sur l'axe vertical de l'image,
+ce qui permet de résoudre la caméra (focale, hauteur, assiette) à partir de la
+largeur de piste normalisée et d'y asseoir le modèle 3D sans glissement.
+
+**Quatre réserves relevées, à traiter avant intégration :**
+
+1. **La plaque contient déjà un avion**, et il occupe la moitié de la largeur
+   du cadre (x 690 à 1 560 sur 1 672). Y poser le modèle 3D donnerait deux
+   appareils dans le même plan. Un recadrage ne sauve rien : l'appareil est au
+   centre du ciel, avec le sommet.
+2. **La livrée porte une marque déposée mal reproduite** — le titre « AIR
+   FRANCE » est déformé par la génération, l'immatriculation est illisible.
+   Une livrée Air France approximative sur un site présenté à des écoles est
+   un risque inutile.
+3. **L'appareil est en configuration d'atterrissage**, train sorti, en
+   descente vers le seuil. La scène demandée est un décollage.
+4. **Filigrane de génération** dans le coin inférieur droit : logo circulaire
+   et texte, faibles mais visibles en plein écran. Une bande d'environ
+   300 × 90 px suffit à le retirer, la zone étant de la neige uniforme.
+
+→ Ce dont j'ai besoin : **la même plaque, sans aucun avion.** Même invite,
+même graine si l'outil le permet, appareil retiré. Le décor est parfait ; il
+doit juste être vide pour que le décollage soit joué par le modèle 3D.
+
+En attendant, la plaque actuelle reste utilisable telle quelle comme visuel
+d'ambiance **ailleurs** sur le site — en-tête du parcours « Devenir pilote de
+ligne » par exemple — où la présence de son propre avion n'est pas un
+problème, mais où le filigrane et la livrée déformée restent à corriger.
 
 ### Autres visuels
 
@@ -166,6 +207,16 @@ que les maquettes de direction artistique. Leurs déclinaisons optimisées
 | **Source** | https://sketchfab.com/3d-models/a350-70899867e2e34d8da02c89d0f4f888e9 |
 | **Licence** | **CC-BY-4.0** — usage commercial autorisé, pas de clause non commerciale, pas de partage à l'identique. **Seule obligation : créditer l'auteur.** |
 | **Exporté par** | Sketchfab 17.8.0, glTF 2.0 |
+
+Le fichier de licence d'origine est conservé tel quel dans
+`license.txt`. Il impose de reproduire **mot pour mot** la mention suivante
+partout où le modèle est diffusé — elle doit figurer sur la page de crédits
+du site :
+
+> This work is based on "a350"
+> (https://sketchfab.com/3d-models/a350-70899867e2e34d8da02c89d0f4f888e9)
+> by Newbie99999993 (https://sketchfab.com/Newbie99999993) licensed under
+> CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
 
 **Intégrité vérifiée le 10/08/2026 — les trois fichiers sont complets et cohérents :**
 
@@ -259,14 +310,26 @@ de page.
   Montpellier et de Lille**. Certains schémas de gouvernes : *NASA*
   (domaine public).
 - **Modèle 3D de l'Airbus A350-1000** — *a350* par **Newbie99999993**,
-  sous licence **CC-BY-4.0**. Mention obligatoire au titre de la licence.
+  sous licence **CC-BY-4.0**. Mention obligatoire, reproduite mot pour mot
+  depuis `license.txt` (voir §3).
 
 ## 5. Reste à fournir
 
-- [ ] 🔴 Modèle 3D incluant un **poste de pilotage**, licence CC0 ou CC-BY —
-      seul verrou restant pour l'introduction
-- [ ] 🟡 Visuels de montagne supplémentaires, 3 840 px de large si possible
-- [ ] 🟡 Provenance du visuel `montagne-brume-01` (œuvre de l'auteur du projet ?)
+- [ ] 🔴 **La plaque de piste sans aucun avion** — verrou de la scène 3
+- [ ] 🔴 Solution pour le **poste de pilotage** : modèle 3D en CC0 ou CC-BY,
+      ou reconstruction en couches à partir des photos de cockpit déjà
+      présentes dans `assets/source/` — verrou de la scène 2
+- [ ] 🟡 Les trois plaques en 3 840 px de large, si l'outil le permet
+- [ ] 🟡 Provenance des visuels de montagne et de piste (œuvre de l'auteur du
+      projet ?)
 - [ ] 🟢 Modèle 3D du Tecnam P2008
 - [ ] 🟢 Cours PPL théorique, PPL pratique, annales BIA, banque de questions
-- [x] ~~Modèle 3D de l'A350-1000~~ — reçu, vérifié, complet
+- [x] ~~Modèle 3D de l'A350-1000~~ — reçu, vérifié, complet, licence archivée
+- [x] ~~Visuels de montagne supplémentaires~~ — reçus
+
+## 6. Corrections apportées à cet inventaire
+
+- **10/08/2026.** `montagne-brume-01` avait été inventorié à 1 152 × 768 px.
+  L'entête PNG donne **1 536 × 1 024 px** : la première mesure venait d'une
+  lecture en points typographiques et non en pixels. Le fichier a été renommé
+  en conséquence. La réserve sur le plein écran demeure, mais atténuée.

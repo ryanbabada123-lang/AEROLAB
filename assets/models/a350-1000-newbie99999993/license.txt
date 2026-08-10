@@ -1,0 +1,11 @@
+Model Information:
+* title:	a350
+* source:	https://sketchfab.com/3d-models/a350-70899867e2e34d8da02c89d0f4f888e9
+* author:	Newbie99999993 (https://sketchfab.com/Newbie99999993)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "a350" (https://sketchfab.com/3d-models/a350-70899867e2e34d8da02c89d0f4f888e9) by Newbie99999993 (https://sketchfab.com/Newbie99999993) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
