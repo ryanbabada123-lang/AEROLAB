@@ -1,0 +1,182 @@
+<!doctype html>
+<!--
+  BANC DE CONTRÔLE VISUEL DES MODÈLES
+
+  Page de développement, servie par scripts/models-preview.mjs. Elle charge un
+  `.glb` de public/models/ et le rend sous plusieurs angles, afin de vérifier
+  qu'une compression n'a pas abîmé ce qu'elle prétendait épargner.
+
+  Elle n'est jamais incluse dans le site : rien ne l'importe.
+-->
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Contrôle visuel des modèles</title>
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "/node_modules/three/build/three.module.js",
+          "three/addons/": "/node_modules/three/examples/jsm/"
+        }
+      }
+    </script>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: #0b0f14;
+        overflow: hidden;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import * as THREE from 'three'
+      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
+      import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js'
+      import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
+
+      const q = new URLSearchParams(location.search)
+      const file = q.get('model')
+      const W = +(q.get('w') || 900)
+      const H = +(q.get('h') || 560)
+      // Angles en degrés : azimut, élévation. Le cadrage est ensuite calculé
+      // pour que le modèle remplisse la vue quelle que soit sa taille.
+      const az = +(q.get('az') || 35)
+      const el = +(q.get('el') || 12)
+      const zoom = +(q.get('zoom') || 1)
+      const wire = q.get('wire') === '1'
+
+      const renderer = new THREE.WebGLRenderer({ antialias: true })
+      renderer.setSize(W, H)
+      renderer.setPixelRatio(1)
+      renderer.toneMapping = THREE.ACESFilmicToneMapping
+      renderer.toneMappingExposure = 1.05
+      document.body.appendChild(renderer.domElement)
+
+      const scene = new THREE.Scene()
+      scene.background = new THREE.Color(0x0b0f14)
+
+      const pmrem = new THREE.PMREMGenerator(renderer)
+      scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture
+
+      scene.add(new THREE.HemisphereLight(0xdfe9f5, 0x1b2430, 1.1))
+      const key = new THREE.DirectionalLight(0xffffff, 2.2)
+      key.position.set(-1, 0.8, 0.6)
+      scene.add(key)
+      const rim = new THREE.DirectionalLight(0x9fc4ff, 1.3)
+      rim.position.set(1, 0.2, -0.9)
+      scene.add(rim)
+
+      const camera = new THREE.PerspectiveCamera(38, W / H, 0.01, 5000)
+
+      const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder)
+
+      loader.load(
+        `/public/models/${file}`,
+        (gltf) => {
+          const root = gltf.scene
+          scene.add(root)
+
+          if (wire) {
+            root.traverse((o) => {
+              if (o.isMesh) {
+                o.material = new THREE.MeshBasicMaterial({
+                  color: 0x8fb6ff,
+                  wireframe: true,
+                  transparent: true,
+                  opacity: 0.5,
+                })
+              }
+            })
+          }
+
+          // Cadrage : on centre sur la boîte englobante et on recule assez
+          // pour la contenir entièrement, l'angle de champ étant fixe.
+          const box = new THREE.Box3().setFromObject(root)
+          const size = box.getSize(new THREE.Vector3())
+          const center = box.getCenter(new THREE.Vector3())
+          const radius = size.length() / 2
+
+          if (q.has('px')) {
+            // Position et cible en coordonnées ABSOLUES du modèle. Seul mode
+            // fiable pour un intérieur : la boîte englobante d'un poste de
+            // pilotage englobe aussi la structure qui l'entoure, donc des
+            // fractions de boîte ne tombent pas là où on croit.
+            camera.position.set(+q.get('px'), +q.get('py'), +q.get('pz'))
+            camera.lookAt(+(q.get('tx') || 0), +(q.get('ty') || 0), +(q.get('tz') || 0))
+            camera.fov = +(q.get('fov') || 62)
+            camera.near = 0.01
+            camera.far = 200
+            camera.updateProjectionMatrix()
+          } else if (q.get('inside') === '1') {
+            // Vue intérieure : la caméra se place DANS la boîte englobante et
+            // regarde vers un bord. Indispensable pour un poste de pilotage,
+            // qu'un cadrage extérieur ne montre jamais — on n'en voit que la
+            // coque. `fx`, `fy`, `fz` sont des fractions de la boîte, comprises
+            // entre -0,5 et 0,5, et `look` désigne l'axe visé.
+            const fx = +(q.get('fx') || 0)
+            const fy = +(q.get('fy') || 0.1)
+            const fz = +(q.get('fz') || 0.2)
+            camera.position.set(
+              center.x + size.x * fx,
+              center.y + size.y * fy,
+              center.z + size.z * fz,
+            )
+            const look = q.get('look') || '-z'
+            const dir = {
+              '-z': [0, 0, -1],
+              '+z': [0, 0, 1],
+              '-x': [-1, 0, 0],
+              '+x': [1, 0, 0],
+            }[look] ?? [0, 0, -1]
+            camera.lookAt(
+              camera.position.x + dir[0] * radius,
+              camera.position.y + dir[1] * radius,
+              camera.position.z + dir[2] * radius,
+            )
+            camera.fov = +(q.get('fov') || 62)
+            camera.near = 0.01
+            camera.far = radius * 8
+            camera.updateProjectionMatrix()
+          } else {
+            const a = (az * Math.PI) / 180
+            const e = (el * Math.PI) / 180
+            const dist = (radius / Math.sin((camera.fov * Math.PI) / 360)) / zoom
+            camera.position.set(
+              center.x + dist * Math.cos(e) * Math.sin(a),
+              center.y + dist * Math.sin(e),
+              center.z + dist * Math.cos(e) * Math.cos(a),
+            )
+            camera.lookAt(center)
+            camera.near = dist / 100
+            camera.far = dist * 10
+            camera.updateProjectionMatrix()
+          }
+
+          let tris = 0
+          root.traverse((o) => {
+            if (o.isMesh && o.geometry?.index) tris += o.geometry.index.count / 3
+          })
+
+          renderer.render(scene, camera)
+
+          // Le script de capture attend ce drapeau : il garantit qu'on
+          // photographie une image rendue, et pas un canvas encore vide.
+          window.__ready = {
+            file,
+            triangles: Math.round(tris),
+            size: size.toArray().map((n) => +n.toFixed(2)),
+          }
+        },
+        undefined,
+        (err) => {
+          window.__error = String(err?.message || err)
+        },
+      )
+    </script>
+  </body>
+</html>

@@ -1,0 +1,11 @@
+Model Information:
+* title:	Airbus Military A400M Grizzly Flight Deck
+* source:	https://sketchfab.com/3d-models/airbus-military-a400m-grizzly-flight-deck-b873e5300da24f79baa315385419d9a7
+* author:	CourseDesign (https://sketchfab.com/CourseDesign)
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Airbus Military A400M Grizzly Flight Deck" (https://sketchfab.com/3d-models/airbus-military-a400m-grizzly-flight-deck-b873e5300da24f79baa315385419d9a7) by CourseDesign (https://sketchfab.com/CourseDesign) licensed under CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
