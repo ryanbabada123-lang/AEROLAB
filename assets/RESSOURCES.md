@@ -155,33 +155,118 @@ que les maquettes de direction artistique. Leurs déclinaisons optimisées
 
 ---
 
-## 3. Modèles 3D — en attente
+## 3. Modèles 3D
+
+### ✅ Airbus A350-1000 — `assets/models/a350-1000-newbie99999993/`
+
+| | |
+| --- | --- |
+| **Titre** | *a350* |
+| **Auteur** | **Newbie99999993** — https://sketchfab.com/Newbie99999993 |
+| **Source** | https://sketchfab.com/3d-models/a350-70899867e2e34d8da02c89d0f4f888e9 |
+| **Licence** | **CC-BY-4.0** — usage commercial autorisé, pas de clause non commerciale, pas de partage à l'identique. **Seule obligation : créditer l'auteur.** |
+| **Exporté par** | Sketchfab 17.8.0, glTF 2.0 |
+
+**Intégrité vérifiée le 10/08/2026 — les trois fichiers sont complets et cohérents :**
+
+| Fichier | Taille | Contrôle |
+| --- | ---: | --- |
+| `scene.gltf` | 19 676 o | 8 meshes, 8 matériaux, 1 texture, 30 nœuds |
+| `scene.bin` | 20 613 100 o | **exactement** le `byteLength` déclaré → non tronqué |
+| `textures/Material.014_baseColor.png` | 2 304 090 o | 4096 × 4096, chunks IHDR/IDAT/IEND, **tous les CRC valides** |
+
+La texture est replacée au chemin relatif exact qu'attend le glTF
+(`textures/…`), sans quoi le fichier ne se résoudrait pas.
+
+**Fidélité dimensionnelle — le point décisif.** Mesuré sur la géométrie, après
+composition des matrices de nœuds :
+
+| | Modèle mesuré | A350-1000 réel | Écart |
+| --- | ---: | ---: | ---: |
+| Longueur | 73,83 m | 73,79 m | 4 cm |
+| Envergure | 64,91 m | 64,75 m | 16 cm |
+| Hauteur | 17,46 m | 17,08 m | 38 cm |
+| Rayon de fuselage | 2,90 – 3,00 m | 2,98 m | ~ 5 cm |
+
+C'est un modèle construit sur les cotes réelles, pas une approximation.
+
+**Volumétrie :** 626 981 triangles, 409 936 sommets. Trop lourd pour le web en
+l'état → compression meshopt ou Draco + texture en KTX2, cible 3 à 5 Mo sans
+perte visible.
+
+**Découpage des meshes — ce qui est animable.** Relevé par analyse des boîtes
+englobantes en coordonnées monde (X = longueur, nez en X +37 ; Y = hauteur,
++Y vers le haut ; Z = envergure) :
+
+| Mesh | Triangles | Identification | Animable ? |
+| --- | ---: | --- | --- |
+| `Object_0` / `Object_1` | 102 396 ×2 | Soufflantes des deux moteurs, à Z ± 10,5 m, Ø 3,3 m — le cône à spirale Rolls-Royce est dans l'atlas | ✅ rotation possible, meshes dédiés |
+| `Object_2` / `Object_3` | 90 868 ×2 | **Atterrisseurs principaux**, bogies à Z ± 6 m, pneus sculptés (photo de pneu dans l'atlas) | ✅ **rentrée du train possible**, meshes dédiés |
+| `Object_4` | 97 042 | Atterrisseur avant (X +32, dans l'axe) mêlé à d'autres éléments | ⚠️ séparation de mesh nécessaire |
+| `Object_5` / `Object_6` | 79 803 / 60 274 | Cellule : fuselage, ailes, empennage, dérive | — |
+| `Object_7` | 3 334 | Coque fine, **sans aucune texture** (`material_0.004`) | à retexturer |
+
+**Limites à traiter :**
+
+1. **Aucun intérieur. Établi par la mesure, non par déduction :** en coupe
+   transversale au niveau du poste de pilotage (X de 28 à 31 m), les
+   260 sommets présents se situent tous entre 2,57 et 3,01 m de l'axe du
+   fuselage — une coque unique, **zéro géométrie à l'intérieur**. Même
+   constat en cabine avant et arrière. Le poste de pilotage demandé au §1.2
+   du cahier des charges n'existe pas dans ce modèle.
+2. **Rien n'est gréé :** 0 animation, 0 caméra, aucun nœud nommé
+   *gear*, *flap*, *aileron* ou *door*. Toute la séquence de décollage —
+   rotation, rentrée du train, gouvernes, rotation des soufflantes — est à
+   animer, ce que le découpage ci-dessus rend possible.
+3. **Réglages PBR à revoir :** les 8 matériaux sont en `metallicFactor = 0`,
+   rendu mat et plastique. À retoucher pour que le fuselage réagisse comme une
+   tôle peinte sous la lumière froide des montagnes.
+
+### En attente
 
 | Modèle | Usage | Licence | État |
 | --- | --- | --- | --- |
-| **Airbus A350-1000** — *[FREE] Airbus A350-1000* par **hakai315** | Introduction cinématique | **CC Attribution** — citation de l'auteur obligatoire | ❌ **attendu.** Téléchargement impossible sans compte Sketchfab connecté (l'API renvoie 401). 1 973 821 faces / 1 061 377 sommets : décimation, KTX2 et compression Draco obligatoires avant intégration. |
-| Modèle incluant un **poste de pilotage** | Vue intérieure de l'intro | à vérifier | ❌ **attendu.** Aucun des liens de référence ne convient : le seul modèle annoncé « avec intérieur » (A350-900 par SQUIR3D) est en licence *Editorial* et non téléchargeable. |
+| Modèle incluant un **poste de pilotage** | Scène 2 de l'intro | à vérifier | 🔴 **seul verrou restant pour l'introduction.** Aucun des liens de référence ne convient : le seul modèle annoncé « avec intérieur » (A350-900 par SQUIR3D) est en licence *Editorial* et non téléchargeable. |
 | **Tecnam P2008** | PPL pratique | à vérifier | ❌ attendu, non urgent. |
 
-Modèles écartés, et pourquoi :
+### Modèles écartés, et pourquoi
+
+À ne pas réexaminer :
 
 - **A350-900 par SQUIR3D** — licence *Editorial*, `isDownloadable: false`.
   Inutilisable, juridiquement et techniquement.
 - **A350-1000 et A350-900 par OUTPISTON** — CC BY-**NC-SA**, 12 568 et
   11 864 faces. Niveau de détail insuffisant, et licence à la fois non
-  commerciale et virale : écartés.
+  commerciale et virale.
+- **A350-1000 par hakai315** — écarté par la disponibilité d'un modèle
+  meilleur : 1 973 821 faces contre 626 981, pour des cotes équivalentes, et
+  téléchargement fermé sans compte connecté. Le modèle de Newbie99999993 le
+  remplace avantageusement.
 
 Tout modèle intégré au site verra sa licence et son auteur consignés ici et
 sur la page de crédits.
 
 ---
 
-## 4. Reste à fournir
+## 4. Crédits à porter sur la page de crédits du site
 
-- [ ] Archive du modèle A350-1000 de hakai315 (lien Dropbox ou Google Drive —
-      trop volumineux pour l'interface web de GitHub)
-- [ ] Modèle 3D incluant un poste de pilotage, licence CC0 ou CC-BY
-- [ ] Visuels de montagne supplémentaires, 3 840 px de large si possible
-- [ ] Provenance du visuel `montagne-brume-01` (œuvre de l'auteur du projet ?)
-- [ ] Modèle 3D du Tecnam P2008
-- [ ] Cours PPL théorique, PPL pratique, annales BIA, banque de questions
+Décision : attribution regroupée sur une page unique accessible depuis le pied
+de page.
+
+- **Cours BIA** — André PARIS, *Comité Départemental Aéronautique 35*,
+  éditions 2022 et 2024.
+- **Cours d'anglais aéronautique** — André PARIS, avec les **CIRAS de
+  Montpellier et de Lille**. Certains schémas de gouvernes : *NASA*
+  (domaine public).
+- **Modèle 3D de l'Airbus A350-1000** — *a350* par **Newbie99999993**,
+  sous licence **CC-BY-4.0**. Mention obligatoire au titre de la licence.
+
+## 5. Reste à fournir
+
+- [ ] 🔴 Modèle 3D incluant un **poste de pilotage**, licence CC0 ou CC-BY —
+      seul verrou restant pour l'introduction
+- [ ] 🟡 Visuels de montagne supplémentaires, 3 840 px de large si possible
+- [ ] 🟡 Provenance du visuel `montagne-brume-01` (œuvre de l'auteur du projet ?)
+- [ ] 🟢 Modèle 3D du Tecnam P2008
+- [ ] 🟢 Cours PPL théorique, PPL pratique, annales BIA, banque de questions
+- [x] ~~Modèle 3D de l'A350-1000~~ — reçu, vérifié, complet
