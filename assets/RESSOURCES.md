@@ -152,31 +152,27 @@ plein écran sur grand écran ou vidéoprojecteur.
 
 | Fichier | Dimensions | Rôle |
 | --- | --- | --- |
-| `piste-sans-avion-1672x380.png` | 1 672 × 380 | ✅ **La plaque de travail.** Bande sol, sans avion ni filigrane. |
-| `piste-montagne-coucher-soleil-1672x941.png` | 1 672 × 941 (16:9) | Plaque d'origine, conservée comme référence et pour un usage d'ambiance ailleurs sur le site. |
+| `piste-sans-avion-1672x941.png` | 1 672 × 941 (16:9) | ✅ **La plaque de travail.** Régénérée sans aucun appareil : cadre complet, sommet et ciel compris. |
+| `piste-montagne-coucher-soleil-1672x941.png` | 1 672 × 941 (16:9) | Première version, avec son avion. Conservée comme référence d'ambiance. |
 
-### Comment l'avion a été retiré : par la découpe, sans rien effacer
+La régénération a rendu inutile la découpe `1672x380` produite en dépannage,
+qui a été supprimée : le cadre complet est désormais disponible, avec le sommet
+et le ciel du couchant qu'il fallait sinon reconstruire.
 
-Aucune retouche, aucun bouchage, aucun pixel inventé — l'appareil n'est
-simplement pas dans la zone conservée. Mesures relevées sur l'image :
+**Vérification du vide.** Recherche de blanc neutre de type fuselage dans la
+zone qu'occupait l'appareil (x 600–1 650, y 0–520) : 0,58 % des pixels, contre
+1,20 % dans la version précédente, et l'examen visuel confirme qu'il ne reste
+que des nuages éclairés et de la neige. Le ciel est vide. Une traînée de
+condensation ténue subsiste en haut à droite ; elle est cohérente avec la scène
+et sans conséquence.
 
-| Élément | Position mesurée |
-| --- | --- |
-| Point le plus bas de l'appareil (roues du train principal) | y ≈ 497 |
-| Filigrane de génération (logo et texte) | x ≥ 1 530, y ≥ 895 |
-| **Découpe retenue** | **y 510 → 890, pleine largeur → 1 672 × 380** |
-
-La bande conservée contient **tout l'aéroport** : la piste 27 et son seuil à
-touches de piano, les feux d'axe, de bord et de seuil, l'aérogare et la tour
-éclairées, les avions légers au parking, le village et ses chalets allumés à
-droite, le mât de la rampe d'approche, la clôture périmétrique au premier plan,
-la mer de nuages dans la vallée et l'alpenglow sur la crête à gauche.
-
-Ce qui est perdu au-dessus de y 510 : le sommet et le ciel du couchant. Ils
-seront reconstruits — le ciel par un dégradé et des nuages volumétriques, le
-sommet depuis les deux plaques de `montagnes/`, l'ensemble étalonné à la même
-heure dorée. C'est la partie la plus facile à refaire de façon convaincante,
-et la seule qui contenait l'avion.
+**Un seul défaut subsiste : le filigrane de génération**, au même endroit que
+sur la première version — logo circulaire et texte, autour de **x ≥ 1 530,
+y ≥ 895**. Deux traitements possibles, le premier étant préféré : rogner les
+55 derniers pixels du bas, qui ne contiennent que de la neige sans relief, ou
+le recouvrir par recopie d'une zone de neige voisine — un bouchage qui, ici,
+serait invisible, le fond étant lisse et son dégradé régulier. Rien de commun
+avec l'effacement d'un avion sur un sommet, qui avait été écarté.
 
 ### Pourquoi la piste sera reconstruite en 3D
 
@@ -224,12 +220,50 @@ d'ambiance **ailleurs** sur le site — en-tête du parcours « Devenir pilote d
 ligne » par exemple — où la présence de son propre avion n'est pas un
 problème, mais où le filigrane et la livrée déformée restent à corriger.
 
+### Maquettes de direction artistique — la référence de style
+
+Quatre maquettes décrivent l'introduction voulue, numérotées 01 à 04. Deux ont
+été refournies en haute définition, et **sans appareil** : les scènes 02 et 04
+y sont des décors vides, prêts à recevoir le modèle 3D.
+
+| Scène | Titre | Fichier | Définition |
+| --- | --- | --- | --- |
+| 01 | **UN RÊVE.** | `maquette-un-reve.jpeg` | 682 × 455 |
+| 02 | **UNE MACHINE.** | `maquette-une-machine-hd-1515x518.jpeg` | **1 515 × 518**, sans appareil |
+| 02 | *(version d'origine, avec l'appareil)* | `maquette-une-machine.jpeg` | 681 × 469 |
+| 03 | **UN CIEL.** | `maquette-un-ciel.jpeg` | 688 × 512 |
+| 04 | **UNE PREMIÈRE FOIS.** | `maquette-une-premiere-fois-hd-1515x504.jpeg` | **1 515 × 504**, sans appareil |
+| 04 | *(version d'origine, avec l'appareil)* | `maquette-une-premiere-fois.jpeg` | 671 × 446 |
+
+**Le système graphique qu'elles fixent**, et qui doit être suivi à la lettre :
+
+- **Marque** `AERO // LAB`, centrée en haut, capitales fines très espacées,
+  précédée d'un glyphe de sommet montagneux. Les deux barres obliques sont
+  bleutées, le reste blanc.
+- **Filet vertical fin** sous la marque, comme une amorce de descente.
+- **Titre** en très gros caractères sans empattement, condensés, gras, blanc
+  pur, ponctué d'un **point final** — « UN RÊVE. », « UNE MACHINE. » — cadré
+  à gauche ou centré selon la scène, et débordant volontairement du cadre.
+- **Numéro de scène** en bas à gauche, deux chiffres : `01`, `02`, `03`, `04`.
+- **Micro-libellés** en bas, capitales espacées, très discrets :
+  `SCROLL TO BEGIN` en 01, `FREE TO FLY` à droite en 03,
+  `TECNAM P2008 JC` en bas à droite en 02.
+- **Palette** froide et sombre, quasi monochrome, hautes lumières écrasées ;
+  la chaleur n'apparaît qu'en 03 et 04, par le soleil rasant à droite.
+
+**Réserve technique à connaître : le texte est incrusté dans les images.** Ces
+maquettes valent donc comme **référence de composition**, pas comme fonds
+directement exploitables — sur un site piloté par le défilement, la typographie
+doit être du texte vivant pour être animée, nette à toute résolution, adaptée
+au mobile et lisible par un lecteur d'écran. Les fonds viendront des plaques de
+`montagnes/` et de `pistes/`, et la typographie sera rebâtie à l'identique.
+
 ### Autres visuels
 
 `assets/source/` contient par ailleurs les photographies de cockpit, de
-planche de bord, d'instruments et de Tecnam fournies antérieurement, ainsi
-que les maquettes de direction artistique. Leurs déclinaisons optimisées
-(`avif` / `webp` / `jpg`, 640 et 1024 px) sont dans `public/images/`.
+planche de bord, d'instruments et de Tecnam fournies antérieurement. Leurs
+déclinaisons optimisées (`avif` / `webp` / `jpg`, 640 et 1024 px) sont dans
+`public/images/`.
 
 ---
 
@@ -423,7 +457,12 @@ de page.
 - [x] ~~Visuels de montagne supplémentaires~~ — reçus
 - [x] ~~Choix du poste de pilotage~~ — A400M Flight Deck de NG, arrêté
 - [x] ~~Recherche d'un Tecnam~~ — le P2008 n'existe pas ; **P2010 choisi**
-- [x] ~~La plaque de piste sans avion~~ — obtenue par découpe, rien à regénérer
+- [ ] 🔴 **Trancher quel appareil joue l'introduction** — A350 seul, ou Tecnam
+      et A350 en duo comme le suggèrent les maquettes (voir §7)
+- [x] ~~La plaque de piste sans avion~~ — **régénérée par l'auteur du projet,
+      cadre 16:9 complet, ciel vérifié vide**
+- [x] ~~Maquettes en haute définition~~ — 02 et 04 refournies en 1 515 px et
+      sans appareil
 
 ## 7. Décisions de mise en scène
 
@@ -435,6 +474,37 @@ de page.
 - **L'A350 de Newbie99999993 est le modèle de l'introduction**, confirmé
   explicitement : découverte en scène 2, décollage puis atterrissage en
   scène 3, rotation libre autour de l'appareil.
+
+### ⚠️ Question ouverte : quel appareil joue l'introduction ?
+
+Les maquettes et les consignes ne disent pas la même chose, et l'écart n'est
+pas mineur.
+
+| Source | Appareil de l'introduction | Séquence |
+| --- | --- | --- |
+| **Cahier des charges §1** | Airbus **A350-1000** | Un rêve → Une machine (poste de pilotage d'A350) → décollage → accroches |
+| **Maquettes 01 à 04** | **Tecnam P2008 JC** immatriculé **F-HOOT** | Un rêve → Une machine → Un ciel → Une première fois |
+| **Consigne verbale ultérieure** | **A350**, explicitement, « décolle et atterrit » | — |
+
+Les maquettes 02 et 04 mettent en scène un Tecnam P2008 JC portant
+l'immatriculation **F-HOOT**, et la scène 02 le nomme en pied de cadre. Les
+maquettes ajoutent par ailleurs une scène **03 « UN CIEL. »** et intitulent le
+décollage **« UNE PREMIÈRE FOIS. »**, ce que le cahier des charges ne prévoyait
+pas.
+
+Deux lectures possibles, à trancher par l'auteur du projet :
+
+1. **L'A350 remplace le Tecnam** dans les scènes 02 et 04. Les maquettes
+   dataient d'avant le choix du modèle 3D. Séquence : Un rêve → Une machine
+   (l'A350 sur la piste) → Un ciel → Une première fois (décollage puis
+   atterrissage).
+2. **Les deux appareils cohabitent**, et c'est narrativement plus fort : le
+   Tecnam est *la machine*, celle sur laquelle on apprend réellement ; l'A350
+   est *le rêve* et *la première fois*, l'horizon du parcours. Le site
+   raconterait alors exactement le chemin qu'il enseigne.
+
+Tant que ce point n'est pas tranché, le storyboard détaillé de l'introduction
+ne peut pas être écrit.
 
 ## 6. Corrections apportées à cet inventaire
 
