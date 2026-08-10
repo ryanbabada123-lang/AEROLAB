@@ -152,7 +152,44 @@ plein écran sur grand écran ou vidéoprojecteur.
 
 | Fichier | Dimensions | Rôle |
 | --- | --- | --- |
-| `piste-montagne-coucher-soleil-1672x941.png` | 1 672 × 941 (16:9) | **Scène 3 — le décollage.** Décor validé par l'auteur du projet. |
+| `piste-sans-avion-1672x380.png` | 1 672 × 380 | ✅ **La plaque de travail.** Bande sol, sans avion ni filigrane. |
+| `piste-montagne-coucher-soleil-1672x941.png` | 1 672 × 941 (16:9) | Plaque d'origine, conservée comme référence et pour un usage d'ambiance ailleurs sur le site. |
+
+### Comment l'avion a été retiré : par la découpe, sans rien effacer
+
+Aucune retouche, aucun bouchage, aucun pixel inventé — l'appareil n'est
+simplement pas dans la zone conservée. Mesures relevées sur l'image :
+
+| Élément | Position mesurée |
+| --- | --- |
+| Point le plus bas de l'appareil (roues du train principal) | y ≈ 497 |
+| Filigrane de génération (logo et texte) | x ≥ 1 530, y ≥ 895 |
+| **Découpe retenue** | **y 510 → 890, pleine largeur → 1 672 × 380** |
+
+La bande conservée contient **tout l'aéroport** : la piste 27 et son seuil à
+touches de piano, les feux d'axe, de bord et de seuil, l'aérogare et la tour
+éclairées, les avions légers au parking, le village et ses chalets allumés à
+droite, le mât de la rampe d'approche, la clôture périmétrique au premier plan,
+la mer de nuages dans la vallée et l'alpenglow sur la crête à gauche.
+
+Ce qui est perdu au-dessus de y 510 : le sommet et le ciel du couchant. Ils
+seront reconstruits — le ciel par un dégradé et des nuages volumétriques, le
+sommet depuis les deux plaques de `montagnes/`, l'ensemble étalonné à la même
+heure dorée. C'est la partie la plus facile à refaire de façon convaincante,
+et la seule qui contenait l'avion.
+
+### Pourquoi la piste sera reconstruite en 3D
+
+La plaque sert de décor, **pas de sol**. La piste elle-même est rebâtie en
+géométrie : une bande plane, ses marquages et ses points lumineux, texturée
+par redressement homographique de la piste de la plaque — la piste est un
+rectangle de largeur normalisée, et sa fuite est symétrique avec le point de
+fuite sur l'axe vertical de l'image, ce qui rend le calcul direct.
+
+Sans cela, ni le décollage ni l'atterrissage ne tiennent : sur une photo plane,
+l'appareil ne peut ni rouler, ni cabrer autour de son train principal, ni se
+poser en un point précis du sol avec la bonne perspective. En 3D, les deux
+manœuvres deviennent naturelles.
 
 Ce que la plaque apporte, et qui est excellent : piste 27 vue dans l'axe,
 seuil à touches de piano, feux de seuil verts, feux de bord et d'axe, rampe
@@ -323,16 +360,21 @@ légère.
 
 | Modèle | Faces | Textures | Pertinence |
 | --- | ---: | ---: | --- |
-| **Tecnam P.92** — `4b1c90cce7f14fa3bcbade0bb8c3d855` | 31 045 | **35** | ✅ **Recommandé.** Aile haute, deux places, texturé, livrée bleu et jaune, lignes de tôle et verrière transparentes. Ancêtre direct du P2008, dont il partage la silhouette. |
-| Tecnam P2010 — `1284afa5a5554e19a91b9d5545ca66a8` | 25 001 | 0 | Style Tecnam actuel, le plus proche du P2008 à l'œil, mais quatre places et **aucune texture**. |
+| **Tecnam P2010** — `1284afa5a5554e19a91b9d5545ca66a8` | 25 001 | 0 | ✅ **Choisi.** Style Tecnam actuel, le plus proche du P2008 à l'œil : fuselage lisse, aile haute, verrière généreuse. |
+| Tecnam P.92 — `4b1c90cce7f14fa3bcbade0bb8c3d855` | 31 045 | 35 | Ancêtre direct du P2008, deux places, déjà texturé. Conservé comme repli. |
 | Tecnam P2006T — `a0a4d717a8c94a17b958eb69c4efc352` | 48 295 | 0 | Bimoteur. Mauvais appareil. |
 | Tecnam P.92 Amphibius — `ef5ba88af2c84ee8b1e8d08de262b8c2` | 32 978 | 35 | Sur flotteurs. Hors sujet pour une école. |
 
-Réserve à énoncer : le P2008 est une évolution à fuselage carbone de la lignée
-P92 / P2004. Un œil exercé verra que le fuselage du P2008 est plus lisse, son
-empennage légèrement différent et sa verrière plus généreuse. Les 31 000 faces
-du P.92 sont largement suffisantes pour une illustration que l'on fait tourner
-dans la section PPL, et se chargent instantanément.
+**Conséquences du choix du P2010, à assumer :** le modèle n'a **aucune
+texture**, tout son habillage est donc à construire — ce qui, ici, sert le
+projet plutôt qu'il ne le pénalise. Une cellule blanche aux matériaux bien
+réglés donne le rendu d'une photographie de presse constructeur, s'accorde à la
+palette froide du site, et écarte toute question de livrée de compagnie. Le
+coût est du travail de matériaux, pas un obstacle.
+
+Réserve d'exactitude à énoncer sur la page du cours : le P2010 est un
+**quatre places**, le P2008 un deux places. Les deux partagent l'aile haute et
+le langage de dessin actuel de Tecnam, mais ce n'est pas le même appareil.
 
 ### Modèles écartés, et pourquoi
 
@@ -369,20 +411,30 @@ de page.
 
 ## 5. Reste à fournir
 
-- [ ] 🔴 **La plaque de piste sans aucun avion** — verrou de la scène 3
-- [ ] 🔴 **L'archive du A400M Flight Deck** — verrou de la scène 2. Modèle
-      choisi, il ne reste qu'à le télécharger : le téléchargement Sketchfab
-      exige un compte connecté, l'API renvoie 401 sans authentification.
-- [ ] 🟡 Les trois plaques en 3 840 px de large, si l'outil le permet
+- [ ] 🔴 **L'archive du A400M Flight Deck** — dernier verrou. Modèle choisi, il
+      ne reste qu'à le télécharger : Sketchfab exige un compte connecté,
+      l'API renvoie 401 sans authentification.
+- [ ] 🟢 **L'archive du Tecnam P2010** — même démarche, pas urgent
+- [ ] 🟡 Les plaques en 3 840 px de large, si l'outil le permet
 - [ ] 🟡 Provenance des visuels de montagne et de piste (œuvre de l'auteur du
       projet ?)
-- [ ] 🟢 Validation du **Tecnam P.92** en remplacement du P2008 introuvable,
-      puis son archive
 - [ ] 🟢 Cours PPL théorique, PPL pratique, annales BIA, banque de questions
 - [x] ~~Modèle 3D de l'A350-1000~~ — reçu, vérifié, complet, licence archivée
 - [x] ~~Visuels de montagne supplémentaires~~ — reçus
 - [x] ~~Choix du poste de pilotage~~ — A400M Flight Deck de NG, arrêté
-- [x] ~~Recherche d'un Tecnam~~ — le P2008 n'existe pas, le P.92 est proposé
+- [x] ~~Recherche d'un Tecnam~~ — le P2008 n'existe pas ; **P2010 choisi**
+- [x] ~~La plaque de piste sans avion~~ — obtenue par découpe, rien à regénérer
+
+## 7. Décisions de mise en scène
+
+- **L'A350 doit décoller *et* atterrir.** Demande ajoutée par l'auteur du
+  projet après le cahier des charges initial, qui ne prévoyait que le
+  décollage. Le critère qu'il a posé est « que ce soit propre » : c'est ce qui
+  commande la reconstruction de la piste en 3D plutôt qu'une animation posée
+  sur une photographie plane.
+- **L'A350 de Newbie99999993 est le modèle de l'introduction**, confirmé
+  explicitement : découverte en scène 2, décollage puis atterrissage en
+  scène 3, rotation libre autour de l'appareil.
 
 ## 6. Corrections apportées à cet inventaire
 
