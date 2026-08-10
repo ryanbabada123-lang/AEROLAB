@@ -11,7 +11,7 @@
  */
 
 import { chromium } from 'playwright'
-import http from 'node:http'
+import { createServer } from 'vite'
 import fs from 'node:fs/promises'
 import fss from 'node:fs'
 import path from 'node:path'
@@ -19,15 +19,6 @@ import path from 'node:path'
 const ROOT = path.resolve(import.meta.dirname, '..')
 const OUT = process.argv[2] || path.join(ROOT, '.preview')
 const PORT = 8123
-
-const MIME = {
-  '.html': 'text/html; charset=utf-8',
-  '.js': 'text/javascript; charset=utf-8',
-  '.mjs': 'text/javascript; charset=utf-8',
-  '.glb': 'model/gltf-binary',
-  '.json': 'application/json',
-  '.wasm': 'application/wasm',
-}
 
 /* --------------------------------------------------------------- vues à faire */
 
@@ -66,47 +57,62 @@ const INSIDE = [
 ]
 
 /*
- * Tecnam P2010 : X est l'axe longitudinal, le nez vers les X négatifs, et la
- * planche de bord est un plan à X = -1,77. Les places avant sont donc autour de
- * X = -1, tournées vers les X négatifs.
+ * Tecnam P2010, repères mesurés en coordonnées monde et en mètres :
+ *   — X est l'axe longitudinal, le nez vers les X négatifs ;
+ *   — la cabine (`_interior.png`) occupe X [-2,32 ; 0,70]  Y [-0,59 ; 0,56]
+ *     Z [-0,61 ; 0,61] ;
+ *   — la planche de bord est un plan à X = -1,77, et chaque face d'instrument
+ *     y mesure 8 cm, soit un cadran de 3 pouces 1/8.
+ *
+ * L'œil du pilote se place donc autour de X -0,9 et Y +0,22 : au-dessus, on
+ * sort par le toit de la cabine et l'on ne photographie plus que le fuselage.
  */
 const TECNAM_INSIDE = [
-  { label: 'planche-de-bord', abs: 'px=-0.75&py=0.62&pz=0&tx=-1.85&ty=0.42&tz=0&fov=62' },
-  { label: 'place-gauche', abs: 'px=-0.8&py=0.6&pz=-0.35&tx=-1.85&ty=0.4&tz=-0.2&fov=66' },
-  { label: 'poste-large', abs: 'px=0.4&py=0.85&pz=0.1&tx=-1.85&ty=0.4&tz=0&fov=58' },
+  { label: 'planche-de-bord', abs: 'px=-0.95&py=0.22&pz=0.02&tx=-1.80&ty=0.10&tz=0.04&fov=58' },
+  { label: 'place-gauche', abs: 'px=-0.85&py=0.24&pz=-0.24&tx=-1.80&ty=0.08&tz=-0.10&fov=64' },
+  { label: 'poste-large', abs: 'px=-0.10&py=0.30&pz=0.30&tx=-1.80&ty=0.05&tz=0&fov=70' },
 ]
+
+/**
+ * Vues habillées : les mêmes cadrages, mais en appliquant les règles de
+ * matériaux du site. Sur les modèles livrés sans leurs textures, c'est la seule
+ * comparaison qui vaut — le rendu brut ne montre qu'une masse blanche.
+ */
+const dressed = (views) =>
+  views.map((v) => ({ ...v, label: `${v.label}-habille`, dress: true }))
 
 /** Quels jeux de vues pour quel modèle. Par défaut, l'extérieur. */
 const VIEWS_FOR = {
-  'a400m-flightdeck.glb': [...INSIDE, ...OUTSIDE.slice(0, 2)],
-  'tecnam-p2010.glb': [...OUTSIDE, ...TECNAM_INSIDE],
+  'a400m-flightdeck.glb': [
+    ...INSIDE.slice(0, 4),
+    ...dressed(INSIDE.slice(0, 4)),
+  ],
+  'tecnam-p2010.glb': [
+    ...TECNAM_INSIDE,
+    ...dressed(TECNAM_INSIDE),
+    ...dressed(OUTSIDE.slice(0, 3)),
+  ],
 }
 
 /* ------------------------------------------------------------------- serveur */
 
-const server = http.createServer(async (req, res) => {
-  try {
-    const rel = decodeURIComponent(req.url.split('?')[0])
-    const file = path.join(ROOT, rel === '/' ? '/scripts/preview-model.html' : rel)
-    if (!file.startsWith(ROOT)) {
-      res.writeHead(403).end()
-      return
-    }
-    const body = await fs.readFile(file)
-    res.writeHead(200, {
-      'Content-Type': MIME[path.extname(file)] || 'application/octet-stream',
-    })
-    res.end(body)
-  } catch {
-    res.writeHead(404).end('introuvable')
-  }
+// Le banc passe par Vite plutôt que par un serveur statique : la page doit
+// pouvoir importer `src/three/modelMaterials.ts` pour vérifier l'habillage réel
+// du site, ce qu'un serveur de fichiers ne sait pas transpiler.
+const server = await createServer({
+  root: ROOT,
+  configFile: path.join(ROOT, 'vite.config.ts'),
+  server: { port: PORT, host: '127.0.0.1', strictPort: true },
+  logLevel: 'warn',
 })
-await new Promise((r) => server.listen(PORT, '127.0.0.1', r))
+await server.listen()
 
 /* -------------------------------------------------------------------- capture */
 
 await fs.mkdir(OUT, { recursive: true })
+const only = process.argv[3]
 const models = (await fs.readdir(path.join(ROOT, 'public/models')))
+  .filter((f) => !only || f.includes(only))
   .filter((f) => f.endsWith('.glb'))
   .sort()
 
@@ -139,7 +145,8 @@ for (const model of models) {
         : v.inside
           ? `&inside=1&${v.inside}`
           : `&az=${v.az}&el=${v.el}`) +
-      (v.wire ? '&wire=1' : '')
+      (v.wire ? '&wire=1' : '') +
+      (v.dress ? '&dress=1' : '')
     await page.goto(url, { waitUntil: 'load', timeout: 60000 })
 
     let info = null
@@ -167,7 +174,7 @@ for (const model of models) {
 }
 
 await browser.close()
-server.close()
+await server.close()
 
 /* ------------------------------------------------------------------- planches */
 

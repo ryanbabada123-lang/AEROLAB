@@ -12,14 +12,6 @@
   <head>
     <meta charset="utf-8" />
     <title>Contrôle visuel des modèles</title>
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "/node_modules/three/build/three.module.js",
-          "three/addons/": "/node_modules/three/examples/jsm/"
-        }
-      }
-    </script>
     <style>
       html,
       body {
@@ -35,9 +27,10 @@
   <body>
     <script type="module">
       import * as THREE from 'three'
-      import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js'
-      import { MeshoptDecoder } from 'three/addons/libs/meshopt_decoder.module.js'
-      import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js'
+      import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js'
+      import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
+      import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+      import { dressModel } from '/src/three/modelMaterials.ts'
 
       const q = new URLSearchParams(location.search)
       const file = q.get('model')
@@ -76,10 +69,20 @@
       const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder)
 
       loader.load(
-        `/public/models/${file}`,
+        // `public/` est servi à la racine, en développement comme en
+        // production : c'est le chemin qu'utilisera l'application.
+        `/models/${file}`,
         (gltf) => {
           const root = gltf.scene
           scene.add(root)
+
+          // `dress=1` applique l'habillage réel du site : c'est la seule façon
+          // de vérifier que les règles de matériaux tiennent sur un modèle
+          // livré sans ses textures.
+          let dressReport = null
+          if (q.get('dress') === '1') {
+            dressReport = dressModel(root)
+          }
 
           if (wire) {
             root.traverse((o) => {
@@ -170,6 +173,7 @@
             file,
             triangles: Math.round(tris),
             size: size.toArray().map((n) => +n.toFixed(2)),
+            dress: dressReport,
           }
         },
         undefined,
