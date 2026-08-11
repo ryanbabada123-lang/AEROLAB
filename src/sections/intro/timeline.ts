@@ -62,11 +62,22 @@ export const INTRO = {
   /** Rotation autour du train principal, au cœur de la scène 05. */
   takeoff: 0.62,
   /**
-   * Bascule nuit → jour. Le storyboard la place en scène 02 : « la brume se
-   * dissipe, le ciel s'ouvre, le relief se durcit ». C'est aussi le seuil
-   * où l'encre des textes passe du clair au sombre.
+   * Seuil d'encre des textes : clair au-dessus d'un ciel sombre, sombre
+   * au-dessus d'un ciel clair.
+   *
+   * ⚠️ CE REPÈRE NE PILOTE PAS LE CIEL. Il ne fait que dire à quel moment
+   * l'encre bascule ; le ciel, lui, s'éclaircit dans Stage.tsx selon ses
+   * propres marques. Les deux doivent donc s'accorder À LA MAIN.
+   *
+   * Le storyboard place la venue de la lumière en scène 02. Y poser le
+   * seuil a rendu le titre « UNE MACHINE. » ILLISIBLE — texte sombre sur
+   * ciel encore noir de 20 % à 45 %. Le seuil est donc calé sur le moment
+   * où le ciel s'éclaircit réellement au rendu, en scène 04.
+   *
+   * À reprendre le jour où les plaques de montagne du storyboard seront
+   * posées : c'est elles qui devront porter la bascule nuit → jour.
    */
-  skyTurnsWhite: 0.2,
+  skyTurnsWhite: 0.5,
   /** Au-dessus de la mer de nuages — scène 04. */
   dreamHigh: SCENES.ciel[0],
   /** Orbite libre autour de l'A350 — scène 06. */
