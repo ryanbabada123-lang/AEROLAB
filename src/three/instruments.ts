@@ -117,25 +117,38 @@ function label(
 /* --------------------------------------------------------------- anémomètre */
 
 /**
- * Bornes des arcs, exprimées en nœuds sur une échelle générique.
+ * Bornes des arcs de l'anémomètre du Tecnam P2010, en nœuds indiqués.
  *
- * La seule valeur SOURCÉE est la VNE : le cours écrit « sur l'anémomètre
- * ci-dessous, nous distinguons la VNE à 163 Kt ». Les autres bornes servent à
- * tracer les arcs et ne sont pas présentées comme les vitesses d'un appareil
- * réel — sur le cadran, ce sont les symboles qui apparaissent, pas ces nombres.
- * Les valeurs propres à un appareil viennent de son manuel de vol.
+ * SOURCE : Tecnam P2010 Aircraft Flight Manual, 2nd Edition Rev.1, section 2
+ * « Limitations », tableau « Airspeed Indicator Markings » page 2-6. Ce sont les
+ * marquages publiés de l'appareil, non des valeurs plausibles.
+ *
+ * Le manuel écrit :
+ *   arc blanc  50 – 91   « Positive Flap Operating Range », borne basse VS0,
+ *                        borne haute vitesse maxi volets d'atterrissage sortis
+ *   arc vert   59 – 132  « Normal Operating Range », borne basse VS1, borne
+ *                        haute VNO
+ *   arc jaune  132 – 166 manœuvres avec prudence et en air calme seulement
+ *   trait rouge 166      vitesse maximale toutes opérations
+ *
+ * Ces valeurs recoupent exactement la structure décrite par le cours 3 de
+ * l'auteur du projet, ce qui permet d'afficher un instrument à la fois juste et
+ * conforme à ce qui est enseigné.
+ *
+ * Une vérification a évité une erreur : une première recherche donnait la VNE à
+ * 169 kt. Le manuel officiel dit 166. C'est cette valeur qui est retenue.
  */
 export const ASI_ARCS = {
   min: 0,
   max: 180,
-  /** Arc blanc : de VSO à VFE. */
-  vso: 45,
-  vfe: 90,
-  /** Arc vert : de VS à VNO. */
-  vs: 52,
-  vno: 122,
-  /** Trait rouge : VNE, seule valeur donnée par le cours. */
-  vne: 163,
+  /** Arc blanc : VS0 → vitesse maxi volets sortis. */
+  vso: 50,
+  vfe: 91,
+  /** Arc vert : VS1 → VNO. */
+  vs: 59,
+  vno: 132,
+  /** Trait rouge : VNE. */
+  vne: 166,
 } as const
 
 function asiAngle(kt: number): number {

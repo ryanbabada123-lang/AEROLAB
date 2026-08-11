@@ -1,8 +1,9 @@
-import { useLayoutEffect, useMemo, useRef } from 'react'
+import { useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
-import Aircraft from '@/three/Aircraft'
-import Cockpit from '@/three/Cockpit'
+import { Suspense } from 'react'
+import Model, { preloadModels } from '@/three/Model'
+import { restingState, type FlightState } from '@/three/instruments'
 import WingSection from '@/three/WingSection'
 import { CloudField, DustField, GroundPlane } from '@/three/Atmosphere'
 import { P3, skyColor } from '@/three/palette'
@@ -22,6 +23,35 @@ import { lerp, ramp, remap, window4 } from '@/lib/math'
  */
 
 const p = () => scrollDriver.smooth
+
+/*
+ * Les modèles sont préchargés dès l'import du module, donc pendant les deux
+ * premières scènes qui n'ont besoin d'aucun appareil. Au moment où le Tecnam
+ * doit apparaître, il est déjà là.
+ */
+preloadModels('tecnam', 'a350')
+
+/**
+ * État de vol déduit de la progression, pour les instruments du Tecnam.
+ *
+ * Les valeurs suivent la narration plutôt qu'un modèle de vol : l'appareil est à
+ * l'arrêt sur la piste au début, puis prend de la vitesse et cabre. Les bornes
+ * viennent des marquages publiés du P2010 — décrochage lisse à 59 kt, plage
+ * normale jusqu'à 132 — de sorte que l'aiguille traverse l'arc vert et non un
+ * intervalle inventé.
+ */
+function flightAt(prog: number): FlightState {
+  const roll = ramp(prog, INTRO.takeoff, 0.62)
+  return {
+    ...restingState(),
+    ias: lerp(0, 95, ramp(prog, INTRO.planeAppears, 0.55)),
+    altitude: lerp(0, 3200, roll),
+    pitch: window4(prog, INTRO.takeoff, 0.51, 0.56, 0.64) * 9,
+    roll: Math.sin(prog * 22) * 4 * roll,
+    heading: 270,
+    vs: roll * 700,
+  }
+}
 
 /* ---------------------------------------------------------------- CAMÉRA */
 
@@ -174,11 +204,60 @@ function PlaneRig({ density }: { density: number }) {
 
   return (
     <group ref={rig}>
-      <Aircraft
-        density={density}
-        getCut={() => ramp(p(), INTRO.dissolve, 0.87)}
-        propSpin={() => lerp(2, 34, ramp(p(), 0.2, 0.5))}
-      />
+      {/* Le vrai Tecnam P2010, non plus une cellule bâtie en primitives : le
+          §3 du cahier des charges l'exige, et le modèle est prêt. L'hélice
+          tourne, le train se replie. */}
+      <Suspense fallback={null}>
+        <Model
+          model="tecnam"
+          instruments
+          getFlight={() => flightAt(p())}
+          getSpin={() => lerp(2, 34, ramp(p(), 0.2, 0.5))}
+          getGear={() => ramp(p(), INTRO.takeoff + 0.02, INTRO.takeoff + 0.09)}
+          scale={density < 0.7 ? 0.42 : 0.46}
+          rotation={[0, Math.PI / 2, 0]}
+        />
+      </Suspense>
+    </group>
+  )
+}
+
+/* --------------------------------------------------------------- COCKPIT */
+
+/**
+ * Le poste de pilotage, monté seulement pendant sa fenêtre.
+ *
+ * Ses 333 500 triangles n'ont rien à faire dans les scènes où l'on est dehors :
+ * on le démonte alors entièrement plutôt que de le rendre invisible, ce qui
+ * libère aussi son coût de dessin.
+ */
+function CockpitRig() {
+  const [mounted, setMounted] = useState(false)
+  const group = useRef<THREE.Group>(null)
+
+  useFrame(() => {
+    const prog = p()
+    const near = prog > 0.28 && prog < 0.5
+    if (near !== mounted) setMounted(near)
+
+    const g = group.current
+    if (!g) return
+    const fade = window4(prog, 0.315, 0.35, 0.435, 0.465)
+    g.visible = fade > 0.01
+    // On avance dans le poste à mesure que la séquence intérieure progresse.
+    g.position.z = lerp(-2.4, -1.1, remap(prog, 0.3, 0.45, 0, 1))
+  })
+
+  return (
+    <group ref={group} position={[0, 0.1, -1.05]}>
+      {mounted && (
+        <Model
+          model="cockpit"
+          scale={0.34}
+          rotation={[0, Math.PI, 0]}
+          position={[0, -0.42, 0]}
+        />
+      )}
     </group>
   )
 }
@@ -202,12 +281,12 @@ function Contents({ density, shadows }: { density: number; shadows: boolean }) {
 
       <PlaneRig density={density} />
 
-      <Cockpit
-        density={density}
-        position={[0, 0.1, -1.05]}
-        getFade={() => window4(p(), 0.315, 0.35, 0.435, 0.465)}
-        getPower={() => remap(p(), 0.33, 0.44, 0, 1)}
-      />
+      {/* Le poste de pilotage A400M remplace le cockpit en primitives. Il n'est
+          monté que pendant sa fenêtre : 333 500 triangles ne doivent pas peser
+          sur les scènes où on ne les voit pas. */}
+      <Suspense fallback={null}>
+        <CockpitRig />
+      </Suspense>
 
       <CloudField
         count={Math.round(26 * density)}

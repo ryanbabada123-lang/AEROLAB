@@ -449,9 +449,13 @@ de page.
       ne reste qu'à le télécharger : Sketchfab exige un compte connecté,
       l'API renvoie 401 sans authentification.
 - [ ] 🟢 **L'archive du Tecnam P2010** — même démarche, pas urgent
-- [ ] 🟡 Les plaques en 3 840 px de large, si l'outil le permet
-- [ ] 🟡 Provenance des visuels de montagne et de piste (œuvre de l'auteur du
-      projet ?)
+- [x] ~~Les plaques en 3 840 px~~ — **impossible**, l'auteur du projet ne peut
+      pas les produire à cette taille. Les plaques restent donc en 1 672 px et
+      servent de plan lointain, brume et premier plan étant reconstruits en 3D
+      par-dessus.
+- [x] ~~Provenance des visuels~~ — **générés par ChatGPT**, l'auteur du projet
+      indique en avoir l'usage. Consigné tel qu'il l'a déclaré ; la page de
+      crédits mentionnera qu'ils sont produits par outil génératif.
 - [ ] 🟢 Cours PPL théorique, PPL pratique, annales BIA, banque de questions
 - [x] ~~Modèle 3D de l'A350-1000~~ — reçu, vérifié, complet, licence archivée
 - [x] ~~Visuels de montagne supplémentaires~~ — reçus
@@ -463,6 +467,25 @@ de page.
       cadre 16:9 complet, ciel vérifié vide**
 - [x] ~~Maquettes en haute définition~~ — 02 et 04 refournies en 1 515 px et
       sans appareil
+
+## 6 bis. Sources documentaires extérieures
+
+**Manuel de vol du Tecnam P2010.** L'auteur du projet demande de prendre les
+données sur des sources libres. Les marquages de l'anémomètre viennent du
+*Tecnam P2010 Aircraft Flight Manual*, 2nd Edition Rev.1, section 2
+« Limitations », tableau « Airspeed Indicator Markings » page 2-6 :
+
+| Marquage | KIAS | Signification |
+| --- | --- | --- |
+| Arc blanc | 50 – 91 | Plage d'utilisation des volets ; borne basse VS0, borne haute vitesse maxi volets d'atterrissage sortis |
+| Arc vert | 59 – 132 | Plage d'utilisation normale ; borne basse VS1, borne haute VNO |
+| Arc jaune | 132 – 166 | Manœuvres avec prudence, en air calme seulement |
+| Trait rouge | 166 | Vitesse maximale toutes opérations |
+
+Une vérification a évité une erreur : une première recherche donnait la VNE à
+169 kt, le manuel officiel dit **166**. C'est la valeur retenue. Ces marquages
+recoupent exactement la structure décrite par le cours 3, ce qui permet
+d'afficher un instrument à la fois juste et conforme à ce qui est enseigné.
 
 ## 7. Décisions de mise en scène
 
