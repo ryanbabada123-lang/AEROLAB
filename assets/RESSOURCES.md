@@ -570,3 +570,19 @@ froid » est annoncé par le texte mais **invisible** : il est posé aux mêmes
 coordonnées que la coupe du front froid, dessinée par-dessus. Le contenu est
 intact dans le fichier ; il a été récupéré depuis l'image d'origine et restitué
 dans le cours, accompagné de la mention du défaut.
+
+### Plaque de la scène 06 — `mer-de-nuages-couchant-1190x806.png`
+
+Fournie par l'auteur du projet **pour cette scène précisément** : « pour
+l'image le ciel est à toi mets celle-là ». Mer de nuages au couchant, sommets
+qui percent, lumière rasante venant de la gauche.
+
+Elle remplace la maquette `maquette-un-ciel.jpeg`, qui ne faisait que 688 px
+de large — trop peu pour un fond plein écran.
+
+**Livrée sous forme de capture d'écran** : le cadre du moniteur occupait le
+bas de l'image et une icône d'interface le coin inférieur droit. Rognée à
+1 190 × 806 px pour les retirer, sans autre retouche.
+
+Même réserve que les autres plaques : sous les 1 920 px, donc bonne en plan
+lointain, juste sur un vidéoprojecteur.

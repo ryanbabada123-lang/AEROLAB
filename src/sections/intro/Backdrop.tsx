@@ -88,8 +88,10 @@ const PLATES: Plate[] = [
   },
   {
     id: 'ciel-haut',
-    file: 'ciel-nuages',
-    sizes: [688],
+    file: 'mer-de-nuages',
+    // Plaque fournie par l'auteur du projet pour cette scène précisément.
+    // Elle remplace la maquette de 688 px, trop petite pour un plein écran.
+    sizes: [1024, 1190],
     // Scène 06 « LE CIEL EST À TOI. » — le storyboard demande « le massif
     // très loin en dessous ». La mer de nuages revient donc ici : le décor
     // ne retombe jamais sur du noir.
