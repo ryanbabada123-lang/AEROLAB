@@ -1,3 +1,38 @@
+/**
+ * AUDIT RESPONSIVE — 14 routes × 3 gabarits, joué au rendu.
+ *
+ * POURQUOI UN SCRIPT ET PAS UN COUP D'ŒIL. Trois des quatre défauts trouvés
+ * sur ce site étaient INVISIBLES à l'écran :
+ *
+ *   — un calque de menu à `opacity: 0` mais toujours sensible au toucher,
+ *     qui interceptait chaque doigt posé sur n'importe quelle page ;
+ *   — un mot de 450 px — un nom de fichier de l'auteur, sans césure
+ *     possible — qui élargissait la page entière à 470 px pour 390 d'écran ;
+ *   — un bouton de la barre de modes du cockpit rogné par un
+ *     `overflow: hidden`, donc inatteignable au doigt.
+ *
+ * Aucun ne se voit sur une capture. Il faut mesurer.
+ *
+ * CE QUI EST MESURÉ, PAR ROUTE ET PAR GABARIT
+ *   1. le débordement horizontal du document ;
+ *   2. les éléments qui sortent du cadre, avec leur position ;
+ *   3. le plus petit corps de texte visible — plancher de 12 px sur tactile ;
+ *   4. les cibles interactives sous 44 × 44, la règle d'Apple ;
+ *   5. QUI REÇOIT LE DOIGT en cinq points de l'écran — le seul contrôle qui
+ *      révèle un calque transparent posé sur toute la page ;
+ *   6. les erreurs JavaScript et de console.
+ *
+ * USAGE
+ *     npx vite --port 5199 &
+ *     node scripts/audit-responsive.mjs
+ *
+ * Une ligne « ok » signifie qu'aucun des six contrôles n'a rien à signaler.
+ * Trois signalements sont volontaires et connus : les plaques de parallaxe
+ * de l'introduction et la neige de l'espace élève débordent de quelques
+ * pixels mais sont rognées, et le sommaire des cours défile horizontalement
+ * dans son cadre.
+ */
+
 import { chromium } from 'playwright'
 
 const ROUTES = [

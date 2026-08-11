@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import ErrorBoundary from '@/components/ErrorBoundary'
 import { dressModel, type DressReport } from './modelMaterials'
 import { createInstruments, type FlightState, type InstrumentSet } from './instruments'
 
@@ -112,7 +113,26 @@ export function useModel(
 }
 
 /** Précharge les modèles pendant les scènes qui n'en ont pas besoin. */
+/**
+ * LES MODÈLES SONT-ILS SEULEMENT ATTEIGNABLES ?
+ *
+ * Sous `file://`, `fetch` est refusé par tous les navigateurs : c'est une
+ * règle d'origine, pas un fichier manquant, et aucun réglage ne la lève.
+ * Tenter le chargement n'y produit donc qu'une promesse rejetée — qui
+ * remonte à travers Suspense jusqu'à la première frontière d'erreur et
+ * emporte TOUTE la scène avec elle.
+ *
+ * C'est exactement ce qui se passait : le document mono-fichier ouvert d'un
+ * double-clic perdait l'intégralité de son introduction en 3D à cause d'un
+ * seul `.glb` inaccessible, et le repli discret de la frontière effaçait
+ * jusqu'à la trace de l'incident. On préfère ne pas essayer.
+ */
+export function modelesAtteignables(): boolean {
+  return typeof location === 'undefined' || location.protocol !== 'file:'
+}
+
 export function preloadModels(...keys: ModelKey[]) {
+  if (!modelesAtteignables()) return
   for (const k of keys) useGLTF.preload(MODELS[k])
 }
 
@@ -130,19 +150,43 @@ export interface ModelProps {
   getSpin?: () => number
 }
 
+type ModelToutesProps = ModelProps &
+  Omit<React.ComponentProps<'group'>, 'children'>
+
 /**
- * Pose un modèle dans la scène et anime ce qui doit l'être. Toutes les valeurs
- * sont lues par fonction dans `useFrame`, jamais reçues en props changeantes :
- * c'est le principe du dépôt, aucun rendu React pendant le défilement.
+ * Pose un modèle dans la scène — ou ne pose rien du tout.
+ *
+ * DEUX GARDES, ET CHACUNE A SA RAISON. La première évite d'appeler le
+ * chargeur quand les fichiers ne peuvent pas être atteints : sous `file://`
+ * la promesse serait rejetée et emporterait la scène entière. La seconde est
+ * une frontière d'erreur PAR MODÈLE : si l'un des trois manque ou est
+ * corrompu, lui seul disparaît, et l'introduction garde ses autres objets.
+ *
+ * Le repli est `null` et non un `<div>` : à l'intérieur d'un canevas
+ * three.js, le réconciliateur ne connaît que des objets de scène.
  */
-export default function Model({
+export default function Model(props: ModelToutesProps) {
+  if (!modelesAtteignables()) return null
+  return (
+    <ErrorBoundary silent>
+      <ModelCharge {...props} />
+    </ErrorBoundary>
+  )
+}
+
+/**
+ * Charge le modèle et anime ce qui doit l'être. Toutes les valeurs sont lues
+ * par fonction dans `useFrame`, jamais reçues en props changeantes : c'est le
+ * principe du dépôt, aucun rendu React pendant le défilement.
+ */
+function ModelCharge({
   model,
   instruments = false,
   getFlight,
   getGear,
   getSpin,
   ...groupProps
-}: ModelProps & Omit<React.ComponentProps<'group'>, 'children'>) {
+}: ModelToutesProps) {
   const { scene, parts, instruments: set } = useModel(model, { instruments })
   const spin = useRef(0)
   const lastFlight = useRef<string>('')
