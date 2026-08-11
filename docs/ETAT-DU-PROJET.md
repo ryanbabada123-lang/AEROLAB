@@ -104,15 +104,14 @@ la portance — une notion sur les onze sections du Cours 2. L'auteur du projet 
 La construction passe : `npm run build` et `npm run single` réussissent, et le
 fichier autonome pèse 2,99 Mo avec sa feuille de style et son script intégrés.
 
-**Mais il n'est pas encore auto-suffisant pour la 3D.** Le §8 veut un site
-ouvrable d'un double-clic, donc servi par `file://`, où un chemin absolu comme
-`/models/x.glb` désigne la racine du disque. Les modèles ne se chargeaient donc
-pas, et rien ne le signalait à la construction — ni erreur, ni avertissement.
+Le défaut qui s'y cachait : le §8 veut un site ouvrable d'un double-clic, donc
+servi par `file://`, où un chemin absolu comme `/models/x.glb` désigne la racine
+du disque. Les modèles ne se chargeaient pas, et rien ne le signalait à la
+construction — ni erreur, ni avertissement.
 
-Ce qui est déjà corrigé : les chemins sont bâtis sur `import.meta.env.BASE_URL`
-et le build mono-fichier pose sa base à `./`. Ils sortent désormais relatifs.
-
-**C'est réglé, et prouvé.** `npm run single` copie désormais `models/` et
+Deux corrections l'ont levé. Les chemins sont bâtis sur
+`import.meta.env.BASE_URL`, le build mono-fichier posant sa base à `./` :
+ils sortent relatifs. `npm run single` copie désormais `models/` et
 `images/` auprès du document, et le style intégré voit ses chemins réécrits — la
 feuille venait de `assets/` où elle désignait ses images par `../images/`, ce qui
 remontait d'un cran de trop une fois intégrée.
