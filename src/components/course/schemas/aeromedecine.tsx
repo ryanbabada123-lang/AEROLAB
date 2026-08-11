@@ -772,3 +772,150 @@ export function FacteursDeCharge() {
     </svg>
   )
 }
+
+/**
+ * p. 4 — surpression pulmonaire au cours d'une décompression.
+ *
+ * Le titre reprend l'orthographe de l'auteur, « Supression », qui n'est pas
+ * corrigée ici : le comparatif doit rendre le document tel qu'il est.
+ *
+ * Les deux contours pulmonaires ne sont pas dessinés d'après l'idée qu'on se
+ * fait d'un poumon. Ils sont RELEVÉS : l'intérieur de chaque poumon a été
+ * isolé sur l'original par remplissage depuis le bord de l'image, puis son
+ * bord externe et son bord médial lus ligne à ligne. Les points ci-dessous
+ * sont ces relevés, une ligne sur huit.
+ *
+ * L'arbre bronchique, lui, est schématisé. L'original en donne un dessin
+ * très découpé, dont le détail n'enseigne rien de plus que la ramification
+ * elle-même.
+ */
+export function SurpressionPulmonaire() {
+  /** Bord externe du poumon gauche, du sommet vers la base. */
+  const gaucheExterne: [number, number][] = [
+    [216, 38], [205, 42], [188, 52], [176, 62], [166, 72], [157, 82], [150, 92],
+    [144, 102], [139, 112], [134, 122], [130, 132], [126, 142], [123, 152],
+    [121, 162], [118, 172], [116, 182], [112, 192], [106, 202], [103, 212],
+    [101, 222], [100, 232], [101, 242], [102, 252], [104, 262], [106, 272],
+    [109, 282], [111, 292], [115, 302], [126, 308], [144, 306],
+  ]
+  /** Bord médial du poumon gauche, de la base vers le sommet. */
+  const gaucheMedial: [number, number][] = [
+    [160, 296], [186, 288], [204, 280], [215, 272], [223, 264], [229, 256],
+    [233, 248], [237, 240], [239, 232], [241, 224], [242, 216], [243, 208],
+    [242, 200], [241, 192], [241, 184], [240, 176], [239, 168], [237, 160],
+    [236, 152], [234, 144], [229, 128], [226, 112], [228, 104], [231, 96],
+    [232, 88], [233, 80], [233, 72], [233, 64], [232, 56], [231, 48], [225, 41],
+  ]
+  /** Bord médial du poumon droit, du sommet vers la base. */
+  const droitMedial: [number, number][] = [
+    [286, 42], [277, 48], [278, 56], [277, 64], [277, 72], [277, 80], [278, 88],
+    [280, 96], [282, 104], [284, 112], [283, 120], [278, 132], [275, 144],
+    [273, 152], [272, 160], [271, 168], [270, 176], [269, 184], [269, 192],
+    [268, 200], [268, 208], [269, 216], [270, 224], [271, 232], [273, 240],
+    [277, 248], [281, 256], [287, 264], [296, 272], [310, 282], [332, 292],
+    [356, 302], [376, 308],
+  ]
+  /** Bord externe du poumon droit, de la base vers le sommet. */
+  const droitExterne: [number, number][] = [
+    [392, 304], [399, 294], [401, 284], [404, 274], [407, 264], [408, 254],
+    [410, 244], [411, 234], [411, 224], [409, 214], [406, 204], [401, 194],
+    [396, 184], [393, 174], [391, 164], [388, 154], [385, 144], [382, 134],
+    [378, 124], [374, 114], [368, 104], [362, 94], [355, 84], [347, 74],
+    [337, 64], [324, 54], [310, 46], [298, 42],
+  ]
+
+  const poumon = (a: [number, number][], b: [number, number][]) =>
+    `${courbe(a)} ${courbe(b).replace(/^M[\d.,-]+/, 'L' + b[0].join(','))} Z`
+
+  /** Petite flèche fine : la dilatation du gaz vers la paroi. */
+  const pousse = (x0: number, y0: number, x1: number, y1: number) => {
+    const l = Math.hypot(x1 - x0, y1 - y0)
+    const ux = (x1 - x0) / l
+    const uy = (y1 - y0) / l
+    const nx = -uy
+    const ny = ux
+    const bx = x1 - ux * 9
+    const by = y1 - uy * 9
+    return (
+      <g key={`${x0},${y0}`} stroke="#5a6068" strokeWidth="2" fill="none">
+        <line x1={x0} y1={y0} x2={x1} y2={y1} />
+        <path d={`M${bx + nx * 4},${by + ny * 4} L${x1},${y1} L${bx - nx * 4},${by - ny * 4}`} />
+      </g>
+    )
+  }
+
+  return (
+    <svg
+      viewBox="0 0 638 325"
+      role="img"
+      aria-label="Surpression pulmonaire au cours d’une décompression : les deux poumons, l’arbre bronchique et la trachée. Des flèches montrent le gaz qui se dilate et pousse sur la paroi, le volume pulmonaire d’un côté, la surface d’ouverture de la trachée de l’autre."
+    >
+      <rect x="0" y="0" width="638" height="325" fill="#ffffff" />
+
+      <Etiquette x={44} y={28} w={583} taille={24}>
+        Supression pulmonaire au cours d’une décompression
+      </Etiquette>
+
+      {/* Les deux poumons. */}
+      <g fill="#ffffff" stroke="#101418" strokeWidth="4" strokeLinejoin="round">
+        <path d={poumon(gaucheExterne, gaucheMedial)} />
+        <path d={poumon(droitMedial, droitExterne)} />
+      </g>
+
+      {/*
+        Trachée et arbre bronchique. La bifurcation est relevée à y = 108 —
+        au tiers supérieur, et non à mi-hauteur — et les branches partent
+        vers le bas ET vers l'extérieur, en s'amincissant. Le détail des
+        ramifications de l'original, lui, est schématisé : il n'enseigne rien
+        de plus que la ramification elle-même.
+      */}
+      <g fill="none" stroke="#101418" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M255,40 L255,100" strokeWidth="18" />
+        <path d="M252,100 L228,124 L212,146" strokeWidth="13" />
+        <path d="M258,100 L282,124 L298,146" strokeWidth="13" />
+        <path d="M212,146 L206,178 L200,214" strokeWidth="10" />
+        <path d="M298,146 L304,178 L310,214" strokeWidth="10" />
+        <path d="M222,134 L198,138 L176,134" strokeWidth="8" />
+        <path d="M288,134 L312,138 L334,134" strokeWidth="8" />
+        <path d="M208,164 L186,172 L170,170" strokeWidth="7" />
+        <path d="M302,164 L324,172 L340,170" strokeWidth="7" />
+        <path d="M204,190 L182,198 L168,198" strokeWidth="6" />
+        <path d="M306,190 L328,198 L342,198" strokeWidth="6" />
+        <path d="M200,214 L184,222 L172,220" strokeWidth="5" />
+        <path d="M310,214 L326,222 L338,220" strokeWidth="5" />
+        <path d="M200,214 L196,228" strokeWidth="7" />
+        <path d="M310,214 L314,228" strokeWidth="7" />
+      </g>
+
+      {/* La poussée du gaz sur la paroi, en huit points. */}
+      {[
+        [190, 92, 166, 72],
+        [172, 124, 148, 110],
+        [160, 158, 136, 150],
+        [154, 196, 128, 192],
+        [150, 234, 126, 240],
+        [158, 268, 136, 280],
+        [190, 288, 178, 300],
+        [318, 96, 342, 78],
+        [332, 128, 356, 116],
+        [344, 160, 368, 154],
+        [352, 198, 378, 196],
+        [354, 236, 380, 240],
+        [344, 268, 364, 278],
+        [308, 288, 318, 300],
+      ].map(([a, b, c, e]) => pousse(a, b, c, e))}
+
+      {/* Les deux amorces et leurs libellés. */}
+      <g stroke="#101418" strokeWidth="3">
+        <line x1="258" y1="54" x2="352" y2="50" />
+        <line x1="222" y1="253" x2="432" y2="247" />
+      </g>
+      <Etiquette x={355} y={60} w={255} taille={22}>
+        Surface ouverture trachée
+      </Etiquette>
+      <Etiquette x={435} y={256} w={188} taille={22}>
+        Volume pulmonaire
+      </Etiquette>
+    </svg>
+  )
+}

@@ -63,6 +63,7 @@ export type SchemaId =
   | 'illusions-piste'
   | 'pressurisation-cabine'
   | 'facteurs-de-charge'
+  | 'surpression-pulmonaire'
 
 export interface Source {
   /** Intitulé exact de la source. */

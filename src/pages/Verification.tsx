@@ -71,6 +71,7 @@ const SETS: Record<
   aeromedecine: {
     titre: 'Aéromédecine et facteurs humains',
     schemas: [
+      { id: 'surpression-pulmonaire', page: 4 },
       { id: 'pressurisation-cabine', page: 4 },
       { id: 'saturation-oxygene', page: 6 },
       { id: 'seuils-hypoxie', page: 6 },

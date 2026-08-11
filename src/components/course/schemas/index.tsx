@@ -30,6 +30,7 @@ import {
   PressurisationCabine,
   SaturationOxygene,
   SeuilsHypoxie,
+  SurpressionPulmonaire,
 } from './aeromedecine'
 
 /**
@@ -71,6 +72,7 @@ export const SCHEMAS: Record<SchemaId, () => ReactElement> = {
   'illusions-piste': IllusionsPiste,
   'pressurisation-cabine': PressurisationCabine,
   'facteurs-de-charge': FacteursDeCharge,
+  'surpression-pulmonaire': SurpressionPulmonaire,
 }
 
 /** Intitulé de chaque schéma — sert au comparatif et aux légendes. */
@@ -106,6 +108,7 @@ export const SCHEMA_TITLES: Record<SchemaId, string> = {
   'illusions-piste': 'Illusions d’approche selon la largeur de piste',
   'pressurisation-cabine': 'Principes de pressurisation cabine',
   'facteurs-de-charge': 'Les facteurs de charge Gx, Gy et Gz sur le pilote',
+  'surpression-pulmonaire': 'Surpression pulmonaire au cours d’une décompression',
 }
 
 export function Schema({ id }: { id: SchemaId }) {
