@@ -31,6 +31,7 @@ import {
   SaturationOxygene,
   SeuilsHypoxie,
   SurpressionPulmonaire,
+  TemperatureTropopause,
 } from './aeromedecine'
 
 /**
@@ -73,6 +74,7 @@ export const SCHEMAS: Record<SchemaId, () => ReactElement> = {
   'pressurisation-cabine': PressurisationCabine,
   'facteurs-de-charge': FacteursDeCharge,
   'surpression-pulmonaire': SurpressionPulmonaire,
+  'temperature-tropopause': TemperatureTropopause,
 }
 
 /** Intitulé de chaque schéma — sert au comparatif et aux légendes. */
@@ -109,6 +111,7 @@ export const SCHEMA_TITLES: Record<SchemaId, string> = {
   'pressurisation-cabine': 'Principes de pressurisation cabine',
   'facteurs-de-charge': 'Les facteurs de charge Gx, Gy et Gz sur le pilote',
   'surpression-pulmonaire': 'Surpression pulmonaire au cours d’une décompression',
+  'temperature-tropopause': 'Décroissance de la température jusqu’à la tropopause',
 }
 
 export function Schema({ id }: { id: SchemaId }) {

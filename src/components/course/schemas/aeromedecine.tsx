@@ -919,3 +919,180 @@ export function SurpressionPulmonaire() {
     </svg>
   )
 }
+
+/**
+ * p. 1 — décroissance de la température avec l'altitude, jusqu'à la
+ * tropopause.
+ *
+ * CE QUI N'EST PAS REPRODUIT : le fond. L'auteur a posé son graphique sur
+ * une PHOTOGRAPHIE de mer de nuages. Une photographie ne se redessine pas —
+ * on en fabriquerait une autre. Le fond est donc un aplat neutre, et tout le
+ * reste — axes, graduations, grille, droite verte, bulles et leur texte —
+ * est relevé sur l'original.
+ *
+ * LA GÉOMÉTRIE, ELLE, EST EXACTE ET SE VÉRIFIE. Les quatre altitudes
+ * graduées tombent précisément sur les quatre températures graduées :
+ * 11 km ↔ −56,5 °C, 6,9 ↔ −30, 4,6 ↔ −15, 2,3 ↔ 0, et le sol ↔ +15. C'est
+ * la droite de −6,5 °C par 1 000 m, et les abscisses des graduations sont
+ * donc simplement les points où la droite verte coupe chaque niveau.
+ */
+export function TemperatureTropopause() {
+  const AXE_X = 122
+  const SOL = 561
+
+  /** Les quatre niveaux gradués : altitude, ordonnée, température, abscisse. */
+  const niveaux = [
+    { km: '11', y: 112, deg: '- 56,5°', x: 161 },
+    { km: '6,9', y: 282, deg: '- 30° C', x: 362 },
+    { km: '4,6', y: 382, deg: '- 15° C', x: 480 },
+    { km: '2,3', y: 471, deg: '0° C', x: 585 },
+  ]
+
+  /** Une bulle : ellipse à dégradé, pointe vers ce qu'elle commente. */
+  const bulle = (
+    cx: number,
+    cy: number,
+    rx: number,
+    ry: number,
+    remplissage: string,
+    queue: string,
+  ) => (
+    <g stroke="#101418" strokeWidth="2" strokeLinejoin="round">
+      <path d={queue} fill={`url(#${remplissage})`} />
+      <ellipse cx={cx} cy={cy} rx={rx} ry={ry} fill={`url(#${remplissage})`} />
+    </g>
+  )
+
+  return (
+    <svg
+      viewBox="0 0 803 635"
+      role="img"
+      aria-label="Décroissance de la température avec l’altitude jusqu’à la tropopause. La droite passe de plus 15 degrés au sol à moins 56,5 degrés à 11 kilomètres, soit moins 2 degrés par 1 000 pieds ou moins 6,5 degrés par 1 000 mètres. Au-dessus de la tropopause la température ne varie plus."
+    >
+      <defs>
+        <linearGradient id="tt-orange" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#e4632c" />
+          <stop offset="0.55" stopColor="#f0a06a" />
+          <stop offset="1" stopColor="#fdf3c8" />
+        </linearGradient>
+        <linearGradient id="tt-jaune" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#b8b800" />
+          <stop offset="0.45" stopColor="#e8e800" />
+          <stop offset="1" stopColor="#fbfb3a" />
+        </linearGradient>
+        <linearGradient id="tt-vert" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#8fae68" />
+          <stop offset="0.55" stopColor="#cfe0bd" />
+          <stop offset="1" stopColor="#eef5e6" />
+        </linearGradient>
+      </defs>
+
+      <rect x="0" y="0" width="803" height="635" fill="#ffffff" />
+      <rect x="48" y="4" width="749" height="623" fill="#f3f7fb" stroke="#1b2b6b" strokeWidth="2" />
+
+      {/* Grille : une horizontale de l'axe à la droite, une verticale jusqu'au sol. */}
+      <g stroke="#3a3f45" strokeWidth="1.6">
+        {niveaux.map((n) => (
+          <g key={n.km}>
+            <line x1={AXE_X} y1={n.y} x2={n.x} y2={n.y} />
+            <line x1={n.x} y1={n.y} x2={n.x} y2={SOL} />
+          </g>
+        ))}
+      </g>
+
+      {/* L'axe des altitudes, en bleu. */}
+      <g stroke="#0c328c" strokeWidth="5" fill="#0c328c">
+        <line x1={AXE_X} y1={SOL} x2={AXE_X} y2="34" />
+        <path d={`M${AXE_X - 10},36 L${AXE_X},14 L${AXE_X + 10},36 Z`} />
+      </g>
+      <g fontFamily="var(--f-sans)" fontSize="21" fontWeight="700" fill="#0c328c">
+        <text x="66" y="52">Alti</text>
+        <text x="52" y="76">en Km</text>
+      </g>
+
+      {/* L'axe des températures, en rouge. */}
+      <g stroke="#cf0f17" strokeWidth="5" fill="#cf0f17">
+        <line x1={AXE_X} y1={SOL} x2="758" y2={SOL} />
+        <path d={`M758,${SOL - 11} L788,${SOL} L758,${SOL + 11} Z`} />
+      </g>
+
+      {/*
+        La droite. Verticale au-dessus de la tropopause — la température n'y
+        varie plus — puis −6,5 °C par 1 000 m jusqu'au sol.
+      */}
+      <path
+        d={`M159,25 L159,114 L692,${SOL}`}
+        fill="none"
+        stroke="#0d7a12"
+        strokeWidth="9"
+        strokeLinejoin="miter"
+      />
+
+      {/* Les graduations d'altitude, surlignées de jaune comme sur la planche. */}
+      {niveaux.map((n) => (
+        <g key={`km-${n.km}`}>
+          <rect x={72} y={n.y - 15} width={44} height={26} fill="#fbe94a" />
+          <text
+            x={114}
+            y={n.y + 6}
+            textAnchor="end"
+            fontFamily="var(--f-sans)"
+            fontSize="22"
+            fontWeight="700"
+            fill="#101418"
+          >
+            {n.km}
+          </text>
+        </g>
+      ))}
+
+      {/* Les graduations de température, inclinées comme sur la planche. */}
+      <g fontFamily="var(--f-sans)" fontSize="22" fontWeight="700" fill="#cf0f17">
+        {niveaux.map((n) => (
+          <text key={`deg-${n.km}`} transform={`translate(${n.x - 20},${SOL + 14}) rotate(31)`}>
+            {n.deg}
+          </text>
+        ))}
+        <text transform={`translate(672,${SOL + 14}) rotate(31)`}>+ 15° C</text>
+      </g>
+      <rect x="726" y="546" width="68" height="26" fill="#fbe94a" />
+      <text x="730" y="567" fontFamily="var(--f-sans)" fontSize="22" fontWeight="700" fill="#cf0f17">
+        Degré
+      </text>
+
+      {/* Les trois bulles. */}
+      {bulle(373, 93, 171, 41, 'tt-orange', 'M212,107 L219,129 L161,115 Z')}
+      <g fontFamily="var(--f-sans)" fontSize="22" fontWeight="700" fill="#3b3a94" textAnchor="middle">
+        <text x="373" y="95" textLength="290" lengthAdjust="spacingAndGlyphs">
+          A la tropopause, la température
+        </text>
+        <text x="373" y="122" textLength="218" lengthAdjust="spacingAndGlyphs">
+          de - 56,5° ne varie plus
+        </text>
+      </g>
+
+      {bulle(594, 247, 171, 42, 'tt-jaune', 'M470,278 L540,290 L447,330 Z')}
+      <g fontFamily="var(--f-sans)" fontSize="22" fontWeight="700" fill="#8a1a0d" textAnchor="middle">
+        <text x="594" y="237" textLength="202" lengthAdjust="spacingAndGlyphs">
+          Décroissance  linéaire
+        </text>
+        <text x="594" y="266" textLength="310" lengthAdjust="spacingAndGlyphs">
+          - 2° C / 1 000 Ft ou – 6,5° C / 1 000 M
+        </text>
+      </g>
+
+      {bulle(668, 414, 101, 44, 'tt-vert', 'M646,446 L690,444 L686,550 Z')}
+      <g fontFamily="var(--f-sans)" fontSize="21" fontWeight="700" fill="#d4231a" textAnchor="middle">
+        <text x="668" y="400" textLength="170" lengthAdjust="spacingAndGlyphs">
+          Au sol, la moyenne
+        </text>
+        <text x="668" y="425" textLength="165" lengthAdjust="spacingAndGlyphs">
+          annuelle  terrestre
+        </text>
+        <text x="668" y="450" textLength="113" lengthAdjust="spacingAndGlyphs">
+          est de + 15°
+        </text>
+      </g>
+    </svg>
+  )
+}
