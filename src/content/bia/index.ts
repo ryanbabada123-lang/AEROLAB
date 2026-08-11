@@ -16,10 +16,14 @@ import { histoire } from './histoire'
  * passage — de 99,1 % à 100,0 % des signes non blancs, le reste étant du
  * pied de page et des marques de puce.
  *
- * CE QU'IL LEUR MANQUE, ET QUI EST ASSUMÉ : leurs schémas ne sont pas
- * encore redessinés. Le chapitre 1 montre ce que cela demande — 20 figures
- * pour 49 pages. Les six autres totalisent 294 pages et 1 535 images. Leur
- * statut est donc `demo` et non `ready`, et chaque page l'affiche.
+ * CE QU'IL LEUR MANQUE, ET QUI EST ASSUMÉ : la plupart de leurs schémas ne
+ * sont pas encore redessinés. Leur statut est donc `text-only` et non
+ * `ready`, et chaque page l'affiche.
+ *
+ * Le reste à faire est chiffré dans docs/INVENTAIRE-FIGURES.md : 404 grandes
+ * figures pour les sept cours — et NON 1 731, chiffre qui comptait les puces
+ * et les logos. Le tri entre schémas à redessiner et images demandant une
+ * source libre se fait à l'œil, planche-contact par planche-contact.
  */
 
 const PARIS = (fichier: string, pages: number, signes: number): Source => ({

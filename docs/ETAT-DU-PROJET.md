@@ -429,6 +429,14 @@ Il n'y a pas de raccourci, et il ne faut pas en chercher un — un classificateu
 qui se trompe ferait redessiner des photographies et laisserait passer des
 schémas.
 
+Le tri est donc fait à la main, et consigné dans `docs/INVENTAIRE-FIGURES.md`.
+Pour qu'il soit tenable, `scripts/cours-planches.py` monte des
+**planches-contact** de douze figures repérées `pNN·i` : trier un cours de
+83 pages demande sept coups d'œil au lieu de quatre-vingt-neuf. Le premier
+cours trié en entier, l'Aéromédecine, donne **8 schémas sur 16 figures** — la
+moitié, le reste étant des planches anatomiques qui demandent des sources
+libres.
+
 ### Le reste à faire, honnêtement
 
 Sur les **404 grandes figures** des sept cours BIA, **26 sont redessinées**
