@@ -1,4 +1,8 @@
 import type { Course, Source } from '@/content/types'
+import { avecComplements } from './complements'
+import { aerodynamiqueComplements } from './complements/aerodynamique'
+import { aeromedecineComplements } from './complements/aeromedecine'
+import { aeronefsComplements } from './complements/aeronefs'
 import { meteorologie } from './meteo'
 import { histoire } from './histoire'
 
@@ -15,6 +19,13 @@ import { histoire } from './histoire'
  * exactement ce qui est écrit. Le script mesure sa propre fidélité à chaque
  * passage — de 99,1 % à 100,0 % des signes non blancs, le reste étant du
  * pied de page et des marques de puce.
+ *
+ * CE QUI LEUR EST RECOLLÉ. La couche texte d'un PDF ne contient ni les
+ * figures ni les tableaux mis en image. Les schémas redessinés et les
+ * tableaux relevés à l'écran vivent donc dans `complements/`, à côté des
+ * fichiers extraits — qu'on ne peut pas modifier sans perdre la garantie
+ * qui fait leur valeur — et `avecComplements` les rattache au chargement, à
+ * la section que leur page du document source désigne.
  *
  * CE QU'IL LEUR MANQUE, ET QUI EST ASSUMÉ : la plupart de leurs schémas ne
  * sont pas encore redessinés. Leur statut est donc `text-only` et non
@@ -61,7 +72,9 @@ export const aerodynamique: Course = {
   },
   sections: [],
   loadSections: () =>
-    import('./generated/aerodynamique').then((m) => m.aerodynamiqueSections),
+    import('./generated/aerodynamique').then((m) =>
+      avecComplements(m.aerodynamiqueSections, aerodynamiqueComplements),
+    ),
   sources: [PARIS('Aérodynamique et mécanique du vol', 64, 123316), EXTRACTION],
 }
 
@@ -82,7 +95,9 @@ export const aeronefs: Course = {
   },
   sections: [],
   loadSections: () =>
-    import('./generated/aeronefs').then((m) => m.aeronefsSections),
+    import('./generated/aeronefs').then((m) =>
+      avecComplements(m.aeronefsSections, aeronefsComplements),
+    ),
   sources: [PARIS('Connaissance des aéronefs', 83, 173123), EXTRACTION],
 }
 
@@ -132,7 +147,10 @@ export const aeromedecine: Course = {
   subject: 'facteurs-humains',
   title: 'Aéromédecine et facteurs humains',
   claim: 'Les limites du pilote font partie des limites de l’avion.',
-  status: 'text-only',
+  // Premier cours dont le tri des figures est achevé : ses 8 schémas sont
+  // redessinés et sa check-list transcrite. Ne restent que les 5 planches
+  // anatomiques en couleurs, qui demandent des sources libres.
+  status: 'schemas-ok',
   minutes: 55,
   origin: {
     file: 'assets/cours/bia/BIA-Cours4C-Aeromedecine-2024-06-15.pdf',
@@ -143,7 +161,9 @@ export const aeromedecine: Course = {
   },
   sections: [],
   loadSections: () =>
-    import('./generated/aeromedecine').then((m) => m.aeromedecineSections),
+    import('./generated/aeromedecine').then((m) =>
+      avecComplements(m.aeromedecineSections, aeromedecineComplements),
+    ),
   sources: [PARIS('Aéromédecine', 16, 55097), EXTRACTION],
 }
 

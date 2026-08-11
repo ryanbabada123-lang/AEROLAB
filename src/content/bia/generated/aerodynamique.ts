@@ -3351,7 +3351,7 @@ export const aerodynamiqueSections: CourseSection[] = [
     ]
   },
   {
-    "id": "a-l-equilibre",
+    "id": "a-l-equilibre-2",
     "number": "",
     "title": "A l’équilibre",
     "pages": [

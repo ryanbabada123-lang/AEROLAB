@@ -320,6 +320,29 @@ def build(doc, start, verbose=False):
             flush(buf, blocks)
 
     close_section()
+    return dedupe_ids(sections)
+
+
+def dedupe_ids(sections):
+    """
+    Rend chaque identifiant de section unique.
+
+    Un auteur réutilise ses intitulés — l'Aérodynamique a deux sections « À
+    l'équilibre » — et deux sections de même identifiant cassent deux choses
+    à la fois : l'ancre du sommaire, qui renvoie toujours à la première, et
+    la liste React de la page de cours, qui refuse les clés dupliquées.
+
+    Le premier porteur garde l'identifiant nu ; les suivants reçoivent un
+    suffixe numéroté. L'ordre des sections étant celui du document, ces
+    suffixes sont stables d'une extraction à l'autre.
+    """
+    vus = {}
+    for s in sections:
+        base = s["id"]
+        n = vus.get(base, 0)
+        vus[base] = n + 1
+        if n:
+            s["id"] = f"{base}-{n + 1}"
     return sections
 
 

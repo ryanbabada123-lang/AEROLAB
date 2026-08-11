@@ -2098,7 +2098,7 @@ export const navigationSections: CourseSection[] = [
     ]
   },
   {
-    "id": "les-cartes",
+    "id": "les-cartes-2",
     "number": "",
     "title": "Les cartes",
     "pages": [

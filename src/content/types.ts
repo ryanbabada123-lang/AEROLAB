@@ -161,6 +161,14 @@ export type CourseStatus =
    */
   | 'text-only'
   /**
+   * Texte intégral de l'auteur ET tous les schémas triés redessinés. Ne
+   * manquent que les figures qui ne relèvent PAS du redessin — planches
+   * anatomiques, photographies, documents officiels — et qui demandent une
+   * source libre. Distinct de `ready`, qui ne promettrait plus rien à
+   * chercher. L'Aéromédecine est le premier cours dans ce cas.
+   */
+  | 'schemas-ok'
+  /**
    * Rédigé pour ce site d'après des sources publiques citées, faute de
    * fiche de l'auteur — et PAS ENCORE RELU PAR UN INSTRUCTEUR. Le cours
    * d'histoire est dans ce cas.
