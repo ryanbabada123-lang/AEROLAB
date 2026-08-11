@@ -372,8 +372,7 @@ redessin :
    faut une autorisation de reproduction.
 
 **Le compte de « 1 535 schémas restants » est donc faux, et largement
-surévalué.** Le nombre réel de figures redessinables reste à établir cours par
-cours — c'est le premier travail à faire avant d'annoncer un reste.
+surévalué.** L'inventaire a été fait : `python3 scripts/cours-inventaire.py`.
 
 ### Le rythme constaté
 
@@ -384,3 +383,56 @@ une flèche de décrochage pointant à droite au lieu du bas, des barbules de
 vent mal orientées, une silhouette d'avion qui rendait en étoile, et une
 colonne de températures collée à l'échelle des altitudes. Aucune de ces
 erreurs n'était visible dans le code.
+
+
+---
+
+## 3 sexies. L'inventaire des figures — et pourquoi il s'arrête à mi-chemin
+
+`scripts/cours-inventaire.py` recense les figures des huit cours et des deux
+sources d'histoire.
+
+| Cours | Pages | Grandes figures | Moyennes | Vignettes |
+| --- | ---: | ---: | ---: | ---: |
+| Météorologie | 49 | 60 | 51 | 85 |
+| Aérodynamique | 64 | 55 | 60 | 420 |
+| Étude des aéronefs | 83 | 89 | 105 | 333 |
+| Réglementation | 34 | 37 | 9 | 105 |
+| Navigation | 32 | 27 | 15 | 31 |
+| Aéromédecine | 16 | 13 | 6 | 18 |
+| Anglais aéronautique | 65 | 123 | 10 | 79 |
+| **Total des sept cours BIA** | **343** | **404** | **256** | **1 071** |
+
+**404 grandes figures pour les sept cours**, et non 1 731. Les 1 071 vignettes
+sont des puces, des logos et des filets : hors sujet. Le chiffre annoncé
+jusqu'ici comptait tout.
+
+### Ce que l'inventaire n'a pas réussi à faire, et c'est instructif
+
+Il ne sépare **pas** automatiquement les schémas des photographies. Deux
+heuristiques ont été écrites, calibrées sur des cas dont la réponse était
+connue, et **rejetées** :
+
+1. **Part d'aplats.** La photographie de cumulus donne 0,64 — le ciel est un
+   grand aplat — et la chaîne barométrique, qui est un schéma, 0,70. Les deux
+   se recouvrent.
+2. **Continuité locale**, la part des pixels voisins identiques. Le schéma du
+   VOR donne 0,273 et la carte des isobares, qui est une image, 0,291. Elles
+   se croisent.
+
+La raison est de fond : dans ces documents, **tout est une illustration
+couleur tramée** — le schéma au trait comme le rendu photoréaliste. Ce qui les
+sépare n'est pas une texture mesurable mais ce que la figure *représente*.
+
+**Conclusion à retenir pour la suite : le tri demande un œil, page par page.**
+Il n'y a pas de raccourci, et il ne faut pas en chercher un — un classificateur
+qui se trompe ferait redessiner des photographies et laisserait passer des
+schémas.
+
+### Le reste à faire, honnêtement
+
+Sur les **404 grandes figures** des sept cours BIA, **26 sont redessinées**
+(20 en météo, 4 en aérodynamique, 2 en aéronefs). Combien des 378 restantes
+sont des schémas plutôt que des photographies ou des documents officiels, seul
+un passage à l'œil le dira — mais le Cours 3 laisse penser qu'une bonne moitié
+n'en sont pas.
