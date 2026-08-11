@@ -13,6 +13,10 @@ import { fileURLToPath, URL } from 'node:url'
  * c'est lui qui compte pour un déploiement réel.
  */
 export default defineConfig({
+  // Base relative : indispensable pour que le fichier autonome retrouve ses
+  // modèles 3D sous le protocole `file://`, où un chemin absolu désigne la
+  // racine du disque.
+  base: './',
   plugins: [react()],
   resolve: {
     alias: { '@': fileURLToPath(new URL('./src', import.meta.url)) },

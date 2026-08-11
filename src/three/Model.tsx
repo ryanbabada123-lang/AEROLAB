@@ -25,10 +25,22 @@ import { createInstruments, type FlightState, type InstrumentSet } from './instr
  *      soufflantes.
  */
 
+/*
+ * Les chemins sont construits sur la base du site, jamais écrits en absolu.
+ *
+ * Le §8 du cahier des charges veut un site ouvrable d'un double-clic, donc
+ * servi par le protocole `file://`. Or un chemin absolu comme `/models/x.glb`
+ * y désigne la racine du disque : les modèles ne se chargeaient pas, et rien ne
+ * le signalait à la construction. En passant par `BASE_URL`, le build
+ * mono-fichier — qui pose sa base à `./` — produit des chemins relatifs qui
+ * fonctionnent aussi bien depuis un dossier que depuis un serveur.
+ */
+const BASE = import.meta.env.BASE_URL || '/'
+
 export const MODELS = {
-  a350: '/models/a350-1000.glb',
-  tecnam: '/models/tecnam-p2010.glb',
-  cockpit: '/models/a400m-flightdeck.glb',
+  a350: `${BASE}models/a350-1000.glb`,
+  tecnam: `${BASE}models/tecnam-p2010.glb`,
+  cockpit: `${BASE}models/a400m-flightdeck.glb`,
 } as const
 
 export type ModelKey = keyof typeof MODELS
@@ -80,7 +92,9 @@ export function useModel(
     const instruments = withInstruments ? createInstruments() : undefined
 
     const report = dressModel(scene, {
-      model: MODELS[key].replace(/^\/models\//, '').replace(/\.glb$/, ''),
+      // Identifiant du modèle pour les règles de livrée : le nom de fichier nu,
+      // indépendamment de la base.
+      model: MODELS[key].split('/').pop()!.replace(/\.glb$/, ''),
       displays: instruments?.textures,
     })
 

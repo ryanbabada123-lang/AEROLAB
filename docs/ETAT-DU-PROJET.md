@@ -99,6 +99,34 @@ la portance — une notion sur les onze sections du Cours 2. L'auteur du projet 
 
 ---
 
+## 3 bis. À REPRENDRE EN PREMIER — le fichier autonome et ses modèles
+
+La construction passe : `npm run build` et `npm run single` réussissent, et le
+fichier autonome pèse 2,99 Mo avec sa feuille de style et son script intégrés.
+
+**Mais il n'est pas encore auto-suffisant pour la 3D.** Le §8 veut un site
+ouvrable d'un double-clic, donc servi par `file://`, où un chemin absolu comme
+`/models/x.glb` désigne la racine du disque. Les modèles ne se chargeaient donc
+pas, et rien ne le signalait à la construction — ni erreur, ni avertissement.
+
+Ce qui est déjà corrigé : les chemins sont bâtis sur `import.meta.env.BASE_URL`
+et le build mono-fichier pose sa base à `./`. Ils sortent désormais relatifs.
+
+Ce qui reste à faire, et c'est le premier point de la reprise :
+
+1. Le HTML est écrit dans `.preview/aerolab.html` tandis que les modèles sont
+   copiés dans `dist-single/models/`. **Le fichier doit voisiner un dossier
+   `models/`** — soit en écrivant le HTML dans `dist-single/`, soit en copiant
+   les modèles à côté de lui.
+2. Vérifier l'ouverture réelle en `file://`, avec une capture. C'est la seule
+   preuve qui vaille : la construction ne dit rien de ce protocole.
+3. Trancher ensuite entre deux lectures du §8. Un HTML **plus** un dossier de
+   modèles satisfait l'esprit — aucun serveur à lancer — mais pas la lettre. Un
+   fichier littéralement unique demanderait d'intégrer les 5,1 Mo de modèles en
+   base64, soit environ 6,8 Mo de plus. À soumettre à l'auteur du projet.
+
+---
+
 ## 4. Pièges déjà rencontrés — ne pas les refaire
 
 **La déduplication efface les matériaux des modèles sans textures.** Dépouillés
@@ -130,6 +158,9 @@ repères des deux postes sont notés dans `scripts/models-preview.mjs`.
 **Les zones sombres n'existent pas quand la barre s'initialise.** Les pages sont
 chargées en différé : la barre relève les zones à l'exécution *et* à chaque
 mutation du contenu.
+
+**Un chemin absolu casse le `file://`.** Voir §3 bis : rien ne le signale à la
+construction, et le symptôme n'apparaît qu'au double-clic.
 
 **Vérifier au rendu, pas au raisonnement.** Chaque affirmation visuelle de ce
 projet a été contrôlée par une capture, et plusieurs erreurs n'ont été trouvées
