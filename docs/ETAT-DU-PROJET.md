@@ -99,7 +99,7 @@ la portance — une notion sur les onze sections du Cours 2. L'auteur du projet 
 
 ---
 
-## 3 bis. À REPRENDRE EN PREMIER — le fichier autonome et ses modèles
+## 3 bis. Le fichier autonome — RÉSOLU, avec un reste mineur
 
 La construction passe : `npm run build` et `npm run single` réussissent, et le
 fichier autonome pèse 2,99 Mo avec sa feuille de style et son script intégrés.
@@ -112,18 +112,24 @@ pas, et rien ne le signalait à la construction — ni erreur, ni avertissement.
 Ce qui est déjà corrigé : les chemins sont bâtis sur `import.meta.env.BASE_URL`
 et le build mono-fichier pose sa base à `./`. Ils sortent désormais relatifs.
 
-Ce qui reste à faire, et c'est le premier point de la reprise :
+**C'est réglé, et prouvé.** `npm run single` copie désormais `models/` et
+`images/` auprès du document, et le style intégré voit ses chemins réécrits — la
+feuille venait de `assets/` où elle désignait ses images par `../images/`, ce qui
+remontait d'un cran de trop une fois intégrée.
 
-1. Le HTML est écrit dans `.preview/aerolab.html` tandis que les modèles sont
-   copiés dans `dist-single/models/`. **Le fichier doit voisiner un dossier
-   `models/`** — soit en écrivant le HTML dans `dist-single/`, soit en copiant
-   les modèles à côté de lui.
-2. Vérifier l'ouverture réelle en `file://`, avec une capture. C'est la seule
-   preuve qui vaille : la construction ne dit rien de ce protocole.
-3. Trancher ensuite entre deux lectures du §8. Un HTML **plus** un dossier de
-   modèles satisfait l'esprit — aucun serveur à lancer — mais pas la lettre. Un
-   fichier littéralement unique demanderait d'intégrer les 5,1 Mo de modèles en
-   base64, soit environ 6,8 Mo de plus. À soumettre à l'auteur du projet.
+Vérifié en ouvrant réellement `file:///…/aerolab.html` dans un navigateur : les
+**trois modèles se chargent** et le Tecnam s'affiche. C'était la seule preuve
+qui valait, la construction ne disant rien de ce protocole.
+
+Le livrable est donc un document de 2,99 Mo accompagné de `models/` (4,86 Mo) et
+`images/` (1,80 Mo). **Reste à soumettre à l'auteur du projet** : cette forme
+satisfait l'esprit du §8 — aucun serveur à lancer, ça s'ouvre au double-clic —
+mais pas sa lettre. Un fichier littéralement unique demanderait d'intégrer les
+modèles en base64, pour près de sept mégaoctets de plus.
+
+**Reste mineur** : une variante d'image en AVIF n'est pas résolue à l'ouverture,
+son équivalent WebP prenant le relais sans conséquence visible. À élucider sans
+urgence.
 
 ---
 

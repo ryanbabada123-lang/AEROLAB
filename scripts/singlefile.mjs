@@ -82,10 +82,23 @@ const bodyRaw = html.match(/<body[^>]*>([\s\S]*)<\/body>/)?.[1] ?? ''
 const STYLE_RE = /<style>[\s\S]*?<\/style>/g
 const SCRIPT_RE = /<script(?![^>]*\ssrc=)[^>]*>[\s\S]*?<\/script>/g
 
-const styles = [
-  ...[...headInner.matchAll(STYLE_RE)].map((m) => m[0]),
-  ...[...bodyRaw.matchAll(STYLE_RE)].map((m) => m[0]),
-].join('\n')
+/*
+ * Les chemins du style intégré doivent être RÉÉCRITS.
+ *
+ * La feuille venait de `assets/`, où elle désignait ses images par `../images/`.
+ * Une fois intégrée au document, ce chemin remonte d'un cran de trop et pointe
+ * à côté du dossier. Le symptôme ne se voyait qu'à l'ouverture en `file://` :
+ * un fond de montagne absent, sans autre signe qu'un `ERR_FILE_NOT_FOUND` dans
+ * la console.
+ */
+const rebase = (css) => css.replace(/url\((['"]?)\.\.\//g, 'url($1./')
+
+const styles = rebase(
+  [
+    ...[...headInner.matchAll(STYLE_RE)].map((m) => m[0]),
+    ...[...bodyRaw.matchAll(STYLE_RE)].map((m) => m[0]),
+  ].join('\n'),
+)
 
 const scripts = [
   ...[...headInner.matchAll(SCRIPT_RE)].map((m) => m[0]),
@@ -126,6 +139,40 @@ ${scripts}
 
 fs.mkdirSync(path.dirname(OUT), { recursive: true })
 fs.writeFileSync(OUT, out)
+
+/*
+ * LES MODÈLES DOIVENT VOISINER LE FICHIER.
+ *
+ * Un `.glb` ne peut pas être intégré au document : il est binaire, et le
+ * transformer en base64 ajouterait près de sept mégaoctets. Il reste donc un
+ * fichier à côté — et les chemins du site sont relatifs pour cela.
+ *
+ * Encore faut-il qu'il soit là. Sans cette copie, le document ouvert d'un
+ * double-clic cherchait ses modèles dans un dossier absent, sans qu'aucune
+ * erreur de construction ne le signale : le §8 du cahier des charges n'était
+ * satisfait qu'en apparence.
+ */
+function copyBeside(folder) {
+  const src = path.join(ROOT, 'public', folder)
+  if (!fs.existsSync(src) || FRAGMENT) return
+  const dest = path.join(path.dirname(OUT), folder)
+  fs.mkdirSync(dest, { recursive: true })
+  let bytes = 0
+  let n = 0
+  for (const f of fs.readdirSync(src)) {
+    const from = path.join(src, f)
+    if (!fs.statSync(from).isFile()) continue
+    fs.copyFileSync(from, path.join(dest, f))
+    bytes += fs.statSync(from).size
+    n++
+  }
+  console.log(
+    `· ${folder}/ copié auprès du document — ${(bytes / 1024 / 1024).toFixed(2)} Mo, ${n} fichiers`,
+  )
+}
+
+copyBeside('models')
+copyBeside('images')
 
 console.log(
   `· ${path.relative(ROOT, OUT)} — ${(Buffer.byteLength(out) / 1024 / 1024).toFixed(2)} Mo ` +
