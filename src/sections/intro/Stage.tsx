@@ -4,7 +4,6 @@ import * as THREE from 'three'
 import { Suspense } from 'react'
 import Model, { preloadModels } from '@/three/Model'
 import { restingState, type FlightState } from '@/three/instruments'
-import WingSection from '@/three/WingSection'
 import { CloudField, DustField, GroundPlane } from '@/three/Atmosphere'
 import { P3, skyColor } from '@/three/palette'
 import { scrollDriver } from '@/lib/scroll'
@@ -362,12 +361,15 @@ function Contents({ density, shadows }: { density: number; shadows: boolean }) {
         getSpeed={() => 1}
       />
 
-      <WingSection
-        density={density}
-        position={[0, 0.1, 0]}
-        getReveal={() => window4(p(), INTRO.wing, 0.845, 0.985, 1.0)}
-        getAlpha={() => lerp(2, 8, ramp(p(), 0.85, 0.95))}
-      />
+      {/* PLUS DE PROFIL D'AILE DANS L'INTRO.
+          Il venait de l'ancienne narration, où la séquence basculait du
+          fuselage vers l'aile pour amener « il faut comprendre le vol ». Il
+          était révélé de 78 % à 100 %, donc il occupait la scène 06 et le
+          final — précisément là où le storyboard veut l'A350 seul, en orbite
+          libre puis en passage devant le titre.
+          Résultat : on croyait voir l'A350 alors qu'on regardait une aile.
+          Le composant WingSection reste dans le dépôt : il a sa place dans
+          une page de cours d'aérodynamique, pas dans l'introduction. */}
     </>
   )
 }
