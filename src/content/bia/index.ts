@@ -52,6 +52,7 @@ export const aerodynamique: Course = {
     author: 'André PARIS',
     edition: '2024',
     pages: 64,
+    verifyId: 'aerodynamique',
   },
   sections: [],
   loadSections: () =>

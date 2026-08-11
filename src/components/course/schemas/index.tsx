@@ -17,6 +17,12 @@ import {
   BrouillardRadiation,
 } from './brouillards'
 import { PriseDeDecision, VisibiliteBrume, VisibiliteSecteurs } from './information'
+import {
+  CompositionForces,
+  Equilibres,
+  PolaireAile,
+  PolaireEtablissement,
+} from './aerodynamique'
 
 /**
  * REGISTRE DES SCHÉMAS REDESSINÉS.
@@ -46,6 +52,10 @@ export const SCHEMAS: Record<SchemaId, () => ReactElement> = {
   'visibilite-secteurs': VisibiliteSecteurs,
   'visibilite-brume': VisibiliteBrume,
   'prise-de-decision': PriseDeDecision,
+  'polaire-aile': PolaireAile,
+  'polaire-etablissement': PolaireEtablissement,
+  'composition-forces': CompositionForces,
+  'equilibres': Equilibres,
 }
 
 /** Intitulé de chaque schéma — sert au comparatif et aux légendes. */
@@ -70,6 +80,10 @@ export const SCHEMA_TITLES: Record<SchemaId, string> = {
   'visibilite-secteurs': 'Visibilité dominante : trois secteurs',
   'visibilite-brume': 'Visibilité dominante réduite par la brume',
   'prise-de-decision': 'Schéma de construction de la prise de décision',
+  'polaire-aile': 'Polaire d’une aile d’avion',
+  'polaire-etablissement': 'Établissement de la polaire',
+  'composition-forces': 'Composition de deux forces perpendiculaires',
+  equilibres: 'Les trois équilibres : stable, indifférent, instable',
 }
 
 export function Schema({ id }: { id: SchemaId }) {

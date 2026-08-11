@@ -49,6 +49,11 @@ export type SchemaId =
   | 'visibilite-secteurs'
   | 'visibilite-brume'
   | 'prise-de-decision'
+  // Cours 2 — Aérodynamique et mécanique du vol
+  | 'polaire-aile'
+  | 'polaire-etablissement'
+  | 'composition-forces'
+  | 'equilibres'
 
 export interface Source {
   /** Intitulé exact de la source. */

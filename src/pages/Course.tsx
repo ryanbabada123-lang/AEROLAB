@@ -135,9 +135,18 @@ export default function Course() {
               {course.origin.pages} pages.{' '}
               {course.origin.verifyId ? (
                 <>
-                  Les schémas sont redessinés en SVG.{' '}
+                  {course.status === 'ready' ? (
+                    'Les schémas sont redessinés en SVG.'
+                  ) : (
+                    <>
+                      Le texte est exact au signe.{' '}
+                      <strong>Seuls quelques schémas sont redessinés</strong> à ce
+                      stade ; les autres figures du document ne sont pas encore
+                      reproduites.
+                    </>
+                  )}{' '}
                   <Link to={`/verification/${course.origin.verifyId}`}>
-                    Comparer chaque schéma à son original ↗
+                    Comparer les schémas redessinés à leurs originaux ↗
                   </Link>
                 </>
               ) : (

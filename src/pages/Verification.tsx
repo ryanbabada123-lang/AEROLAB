@@ -18,35 +18,56 @@ import NotFound from './NotFound'
  * passer.
  */
 
-/** Schémas du cours de météo, dans l'ordre des pages du document source. */
-const METEO_ORDER: { id: SchemaId; page: number }[] = [
-  { id: 'atmosphere-coupe', page: 3 },
-  { id: 'atmosphere-temperature', page: 3 },
-  { id: 'colonne-air', page: 5 },
-  { id: 'vent-forces', page: 12 },
-  { id: 'cellules-hadley', page: 13 },
-  { id: 'fleches-vent', page: 16 },
-  { id: 'gradient-adiabatique', page: 18 },
-  { id: 'stabilite-instabilite', page: 19 },
-  { id: 'symbole-front-chaud', page: 27 },
-  { id: 'front-chaud-coupe', page: 27 },
-  { id: 'symbole-front-froid', page: 28 },
-  { id: 'front-froid-coupe', page: 28 },
-  { id: 'symboles-occlusion', page: 30 },
-  { id: 'brouillard-radiation', page: 31 },
-  { id: 'brouillard-advection', page: 32 },
-  { id: 'brouillard-evaporation', page: 32 },
-  { id: 'brouillard-pente', page: 32 },
-  { id: 'visibilite-secteurs', page: 42 },
-  { id: 'visibilite-brume', page: 42 },
-  { id: 'prise-de-decision', page: 49 },
-]
+/**
+ * Les schémas redessinés, par cours, dans l'ordre des pages du document
+ * source. Ajouter un cours ici lui ouvre sa page de comparatif — c'est le
+ * seul endroit à toucher.
+ */
+const SETS: Record<
+  string,
+  { titre: string; schemas: { id: SchemaId; page: number }[] }
+> = {
+  meteo: {
+    titre: 'Météorologie et aérologie',
+    schemas: [
+      { id: 'atmosphere-coupe', page: 3 },
+      { id: 'atmosphere-temperature', page: 3 },
+      { id: 'colonne-air', page: 5 },
+      { id: 'vent-forces', page: 12 },
+      { id: 'cellules-hadley', page: 13 },
+      { id: 'fleches-vent', page: 16 },
+      { id: 'gradient-adiabatique', page: 18 },
+      { id: 'stabilite-instabilite', page: 19 },
+      { id: 'symbole-front-chaud', page: 27 },
+      { id: 'front-chaud-coupe', page: 27 },
+      { id: 'symbole-front-froid', page: 28 },
+      { id: 'front-froid-coupe', page: 28 },
+      { id: 'symboles-occlusion', page: 30 },
+      { id: 'brouillard-radiation', page: 31 },
+      { id: 'brouillard-advection', page: 32 },
+      { id: 'brouillard-evaporation', page: 32 },
+      { id: 'brouillard-pente', page: 32 },
+      { id: 'visibilite-secteurs', page: 42 },
+      { id: 'visibilite-brume', page: 42 },
+      { id: 'prise-de-decision', page: 49 },
+    ],
+  },
+  aerodynamique: {
+    titre: 'Aérodynamique et mécanique du vol',
+    schemas: [
+      { id: 'composition-forces', page: 8 },
+      { id: 'equilibres', page: 8 },
+      { id: 'polaire-aile', page: 17 },
+      { id: 'polaire-etablissement', page: 18 },
+    ],
+  },
+}
 
 /**
  * Une ligne de comparatif. Le fondu est un `<input type="range">` : au
  * clavier comme à la souris, et sans dépendance.
  */
-function Row({ id, page, base }: { id: SchemaId; page: number; base: string }) {
+function Row({ id, page, base, set }: { id: SchemaId; page: number; base: string; set: string }) {
   const [mix, setMix] = useState(0)
 
   return (
@@ -64,7 +85,7 @@ function Row({ id, page, base }: { id: SchemaId; page: number; base: string }) {
           <figcaption>Original — cours d’André PARIS</figcaption>
           <div className="vf-frame">
             <img
-              src={`${base}verif/meteo/${id}.webp`}
+              src={`${base}verif/${set}/${id}.webp`}
               alt={`Schéma original de la page ${page} : ${SCHEMA_TITLES[id]}`}
               loading="lazy"
             />
@@ -82,7 +103,7 @@ function Row({ id, page, base }: { id: SchemaId; page: number; base: string }) {
       <div className="vf-overlay">
         <div className="vf-frame vf-frame--stack">
           <img
-            src={`${base}verif/meteo/${id}.webp`}
+            src={`${base}verif/${set}/${id}.webp`}
             alt=""
             aria-hidden="true"
             loading="lazy"
@@ -118,7 +139,8 @@ export default function Verification() {
     [verifyId],
   )
 
-  if (!course || verifyId !== 'meteo') return <NotFound />
+  const set = SETS[verifyId]
+  if (!course || !set) return <NotFound />
 
   return (
     <article className="page u-shell">
@@ -128,9 +150,10 @@ export default function Verification() {
         </Link>
         <p className="page__eyebrow">
           <span>Vérification</span>
-          <span>· {METEO_ORDER.length} schémas</span>
+          <span>· {set.schemas.length} schémas</span>
         </p>
         <h1 className="page__title">Comparatif des schémas</h1>
+        <p className="page__eyebrow">{set.titre}</p>
         <p className="page__claim">
           Chaque schéma redessiné en SVG, face à l’original découpé du document
           de l’auteur. Le curseur superpose les deux : c’est là que se voient
@@ -146,17 +169,18 @@ export default function Verification() {
           servent qu’à la vérification.
         </p>
         <p>
-          Ne figurent pas ici les <strong>photographies</strong> du cours — les
-          dix genres de nuages, l’orage, le baromètre : elles ne se redessinent
-          pas. Ni les <strong>documents Météo France et OACI</strong> reproduits
-          en pleine page — tableaux de décodage METAR et TAF, cartes TEMSI,
-          WINTEM, imagerie satellite : les redessiner reviendrait à fabriquer
-          des données aéronautiques.
+          Ne figurent ici que les schémas <strong>déjà redessinés</strong>. Deux
+          familles d’images n’en relèveront jamais : les{' '}
+          <strong>photographies</strong> — genres de nuages, orage, baromètre —
+          qui demandent une source libre et non un dessin ; et les{' '}
+          <strong>documents Météo France, OACI et NASA</strong> reproduits en
+          pleine page, dont le redessin reviendrait à fabriquer des données
+          aéronautiques. Celles-là demandent une autorisation de reproduction.
         </p>
       </div>
 
-      {METEO_ORDER.map((s) => (
-        <Row key={s.id} id={s.id} page={s.page} base={base} />
+      {set.schemas.map((s) => (
+        <Row key={s.id} id={s.id} page={s.page} base={base} set={verifyId} />
       ))}
     </article>
   )
