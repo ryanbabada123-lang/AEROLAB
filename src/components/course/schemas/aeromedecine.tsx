@@ -1115,6 +1115,33 @@ export function TemperatureTropopause() {
  * rendue par un aplat gris : c'est une matière d'illustration, pas une
  * géométrie, et la reproduire point par point n'apprendrait rien.
  */
+/**
+ * Lentille : une membrane vue de profil, tendue entre deux pointes.
+ *
+ * Deux cubiques symétriques, dont les poignées sont placées au tiers de la
+ * longueur et à 1,35 fois la demi-largeur — le facteur qui fait passer une
+ * Bézier au plus près de l'arc de cercle. La forme reste donc pleine sur sa
+ * partie centrale et se ferme franchement aux extrémités, comme le dessin de
+ * l'auteur.
+ */
+function lentille(x0: number, y0: number, x1: number, y1: number, largeur: number): string {
+  const l = Math.hypot(x1 - x0, y1 - y0)
+  const ux = (x1 - x0) / l
+  const uy = (y1 - y0) / l
+  const nx = -uy
+  const ny = ux
+  const t = l / 3
+  const w = (largeur / 2) * 1.35
+  const p = (a: number, b: number) => `${a.toFixed(1)},${b.toFixed(1)}`
+  return (
+    `M${p(x0, y0)}` +
+    ` C${p(x0 + ux * t + nx * w, y0 + uy * t + ny * w)}` +
+    ` ${p(x1 - ux * t + nx * w, y1 - uy * t + ny * w)} ${p(x1, y1)}` +
+    ` C${p(x1 - ux * t - nx * w, y1 - uy * t - ny * w)}` +
+    ` ${p(x0 + ux * t - nx * w, y0 + uy * t - ny * w)} ${p(x0, y0)} Z`
+  )
+}
+
 export function TrompeEustache() {
   /** Contour extérieur du massif, sommet puis bord droit. */
   const massifHaut: [number, number][] = [
@@ -1179,16 +1206,20 @@ export function TrompeEustache() {
         strokeLinejoin="round"
       />
 
-      {/* Le tympan, en travers de la lumière. */}
-      <ellipse
-        cx="316"
-        cy="218"
-        rx="17"
-        ry="48"
-        transform="rotate(12 316 218)"
+      {/*
+        Le tympan. Ce n'est pas l'ovale gras qu'on imagine : le relevé donne
+        une LENTILLE étroite et longue — 20 px de large pour 113 de long —
+        inclinée de 20° sur la verticale, tendue de la pointe du conduit
+        (277, 170) au fond de la caisse (317, 276). Sa largeur est
+        pratiquement constante sur toute la partie centrale, et ne se ferme
+        qu'aux deux extrémités.
+      */}
+      <path
+        d={lentille(277, 170, 317, 276, 20)}
         fill="#c8cace"
         stroke="#101418"
         strokeWidth="3"
+        strokeLinejoin="round"
       />
 
       {/* L'orifice de la trompe, ouvert ou obstrué. */}
@@ -1225,7 +1256,7 @@ export function TrompeEustache() {
 
       {/* Les trois libellés du panneau de gauche, et leurs amorces. */}
       <g stroke="#101418" strokeWidth="3" fill="none">
-        <line x1="150" y1="122" x2="308" y2="210" />
+        <line x1="150" y1="122" x2="286" y2="188" />
         <line x1="125" y1="216" x2="236" y2="216" />
         <line x1="277" y1="336" x2="340" y2="306" />
       </g>

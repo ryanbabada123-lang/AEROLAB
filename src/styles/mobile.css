@@ -1,0 +1,428 @@
+/* ============================================================
+   AERO//LAB — TÉLÉPHONE ET TABLETTE
+   ------------------------------------------------------------
+   Ce fichier est chargé EN DERNIER, et ne contient que ce qu'un
+   écran tactile impose et qu'un écran de bureau n'impose pas.
+   Il ne redécore rien : chaque règle répond à un défaut constaté
+   au rendu, sur iPhone (390 × 844), tablette (820 × 1180) et
+   ordinateur (1440 × 900).
+
+   CE QU'IL CORRIGE, ET POURQUOI CHAQUE POINT COMPTE
+
+   1. LE DÉBORDEMENT HORIZONTAL. Le cours d'anglais contient des
+      noms de fichiers de l'auteur comme
+      « Aeronautical_English_11_Airport_Infrastructure&Traffic_
+      Patterns » : 450 px d'un seul tenant, que le navigateur ne
+      coupe nulle part puisqu'un souligné n'est pas une césure.
+      La page entière s'élargissait à 470 px pour 390 de large, et
+      tout le site partait de travers. On ne touche pas au texte —
+      la règle est « mot pour mot » — on autorise la coupure.
+
+   2. LES CIBLES TACTILES. Apple demande 44 × 44 px. Le bouton de
+      menu en faisait 34, les fils d'Ariane 18 de haut, les pastilles
+      de chapitre de l'intro 14 × 25, les cases à cocher du carnet
+      13 × 13. On agrandit la ZONE SENSIBLE sans grossir le dessin,
+      par du remplissage ou un pseudo-élément.
+
+   3. LES CORPS DE TEXTE MINUSCULES. Les étiquettes en capitales
+      descendaient à 9 px. Lisibles sur un écran de bureau à 60 cm,
+      illisibles sur un téléphone tenu à bout de bras.
+
+   4. LE ZOOM AUTOMATIQUE D'iOS. Safari zoome la page dès qu'on
+      touche un champ dont le corps est inférieur à 16 px, et ne
+      dézoome jamais. Tous les champs passent à 16 px sur tactile.
+
+   5. L'ENCOCHE ET LA BARRE D'ACCUEIL. `env(safe-area-inset-*)`
+      écarte le contenu des zones que le matériel occupe.
+   ============================================================ */
+
+/* ---- 1. AUCUN MOT NE PEUT PLUS ÉLARGIR LA PAGE ---- */
+
+body {
+  overflow-wrap: break-word;
+}
+
+/*
+  `anywhere` et non `break-word` : seul `anywhere` autorise le
+  navigateur à compter la coupure dans le calcul de la largeur
+  minimale du bloc. Sans lui, le conteneur reste dimensionné sur
+  le mot le plus long, même si le mot, lui, se coupe.
+*/
+p,
+li,
+dd,
+figcaption,
+blockquote,
+td,
+th,
+.b-text,
+.b-lead,
+.sources__label,
+.sources__detail {
+  overflow-wrap: anywhere;
+}
+
+/* Le code garde sa chasse fixe, mais défile plutôt que de pousser. */
+pre,
+.b-coded__code {
+  max-width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* Les médias ne dépassent jamais leur colonne. */
+img,
+svg,
+video,
+canvas,
+iframe,
+table {
+  max-width: 100%;
+}
+
+/* ---- 2. CONFORT TACTILE ---- */
+
+@media (hover: none), (pointer: coarse) {
+  /* Pas de délai de 300 ms, pas de flash bleu au toucher. */
+  a,
+  button,
+  input,
+  select,
+  textarea,
+  [role='button'] {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Le bouton de menu : 44 × 44 réels. */
+  .nav__burger {
+    width: 44px;
+    height: 44px;
+  }
+
+  /*
+    Fil d'Ariane et liens de retour. Le trait reste fin, la zone
+    sensible fait 44 px de haut — d'où la marge négative, qui
+    empêche le remplissage de décaler la mise en page.
+  */
+  .crumb,
+  .vf-row__meta a,
+  .b-schema__link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-block: 10px;
+    margin-block: -10px;
+  }
+
+  /*
+    Pastilles de chapitre de l'introduction : le point reste petit,
+    la cible s'étend autour par un pseudo-élément.
+  */
+  .chapter,
+  .intro-controls__skip,
+  .journey__head,
+  .toc a {
+    position: relative;
+    min-height: 44px;
+  }
+
+  .chapter::after,
+  .journey__head::after {
+    content: '';
+    position: absolute;
+    inset: -12px -8px;
+  }
+
+  /* Cases à cocher : dessin de 22 px, cible de 44. */
+  input[type='checkbox'],
+  input[type='radio'] {
+    width: 22px;
+    height: 22px;
+    position: relative;
+  }
+
+  input[type='checkbox']::after,
+  input[type='radio']::after {
+    content: '';
+    position: absolute;
+    inset: -11px;
+  }
+
+  /* Curseurs : piste fine, poignée large, zone haute. */
+  input[type='range'] {
+    height: 44px;
+  }
+
+  input[type='range']::-webkit-slider-thumb {
+    width: 26px;
+    height: 26px;
+  }
+
+  input[type='range']::-moz-range-thumb {
+    width: 26px;
+    height: 26px;
+  }
+}
+
+/* ---- 3. PLANCHER DE LISIBILITÉ ---- */
+
+@media (max-width: 900px) {
+  .u-label,
+  .card__state,
+  .sources__kind,
+  .chapter__id,
+  .vf-row__meta,
+  .page__eyebrow {
+    font-size: 0.75rem;
+  }
+
+  .crumb,
+  .awaiting__tag,
+  .intro-controls__skip,
+  .final__note,
+  .b-schema__source,
+  .toc__num {
+    font-size: 0.8125rem;
+  }
+
+  /* Les capitales espacées perdent vite leur lisibilité en petit. */
+  .u-label,
+  .card__state,
+  .sources__kind {
+    letter-spacing: 0.08em;
+  }
+}
+
+/* ---- 4. iOS NE DOIT PAS ZOOMER SUR LES CHAMPS ---- */
+
+@media (hover: none), (pointer: coarse) {
+  input[type='text'],
+  input[type='date'],
+  input[type='email'],
+  input[type='number'],
+  input[type='search'],
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* ---- 5. ENCOCHE, COINS ARRONDIS, BARRE D'ACCUEIL ---- */
+
+@supports (padding: max(0px)) {
+  .nav,
+  .nav-overlay,
+  .u-shell,
+  .page__foot,
+  .site-foot {
+    padding-left: max(var(--gutter, 20px), env(safe-area-inset-left));
+    padding-right: max(var(--gutter, 20px), env(safe-area-inset-right));
+  }
+
+  .nav {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .site-foot,
+  .course__actions {
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+  }
+}
+
+/*
+  Hauteur d'écran : `dvh` suit la barre d'adresse de Safari, que
+  `vh` ignore — d'où les 60 px de vide sous le pied de page sur
+  iPhone. `svh` reste en repli pour les navigateurs plus anciens.
+*/
+.scene,
+.scene-stage,
+.page--full {
+  min-height: 100svh;
+  min-height: 100dvh;
+}
+
+/* ---- 6. CE QUI NE TIENT PAS SUR UNE COLONNE ÉTROITE ---- */
+
+@media (max-width: 720px) {
+  /*
+    Comparatif des schémas : côte à côte impossible sous 720 px,
+    on empile. Le curseur de superposition, lui, reste la vraie
+    manière de comparer et gagne à occuper toute la largeur.
+  */
+  .vf-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .vf-slider {
+    flex-wrap: wrap;
+  }
+
+  .vf-slider input[type='range'] {
+    flex: 1 1 100%;
+  }
+
+  /* Les tableaux larges défilent dans leur cadre, jamais la page. */
+  .b-table,
+  .b-table__scroll {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ============================================================
+   RELEVÉS NOMINATIFS
+   ------------------------------------------------------------
+   Les règles génériques ci-dessus ne suffisent pas partout : le
+   cadran de l'introduction, la frise du parcours et les liens de
+   comparatif portent leurs propres corps et leurs propres
+   hauteurs, plus spécifiques. Chaque sélecteur ci-dessous a été
+   relevé au rendu sur iPhone — il n'y en a pas un de préventif.
+   ============================================================ */
+
+@media (max-width: 900px) {
+  /*
+    Le cadran de l'introduction imite un instrument de bord, d'où
+    ses 9 px. Un instrument se lit à 60 cm dans un cockpit ; un
+    téléphone se tient à bout de bras. On remonte au plancher.
+  */
+  .hud__data .u-label,
+  .hud__data em,
+  .hud__systems li,
+  .questions .u-label {
+    font-size: 0.75rem;
+  }
+
+  .chapter__list button,
+  .intro-controls button,
+  .intro-controls__skip,
+  .axis__meta dt,
+  .axis__meta dd {
+    font-size: 0.8125rem;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  /* La marque du bandeau est un lien vers l'accueil : 44 px. */
+  .nav__mark {
+    min-height: 44px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /*
+    Pastilles de chapitre de l'introduction, boutons de la frise du
+    parcours, liens « Comparer à l'original » : la cible s'étend
+    par un pseudo-élément, sans toucher au dessin ni à la mise en
+    page. `position: relative` sur le parent est déjà acquis pour
+    la frise ; on le pose ici pour les deux autres.
+  */
+  .chapter__list button,
+  .step__head,
+  .intro-controls button,
+  .cx-schema__origin a,
+  .cx-origin p a {
+    position: relative;
+  }
+
+  .chapter__list button::after,
+  .step__head::after,
+  .intro-controls button::after,
+  .cx-schema__origin a::after,
+  .cx-origin p a::after {
+    content: '';
+    position: absolute;
+    left: -10px;
+    right: -10px;
+    top: 50%;
+    height: 44px;
+    transform: translateY(-50%);
+  }
+
+  /*
+    La frise du parcours : le bouton porte le titre de l'étape, il
+    doit rester haut de 44 px de lui-même — un pseudo-élément qui
+    déborde sur l'étape voisine volerait ses clics.
+  */
+  .step__head {
+    min-height: 44px;
+  }
+
+  .step__head::after {
+    display: none;
+  }
+}
+
+@media (max-width: 900px) {
+  /*
+    `.questions li .u-label` l'emporte sur `.u-label` par spécificité :
+    il faut le viser aussi précisément que la règle d'origine.
+  */
+  .questions li .u-label {
+    font-size: 0.75rem;
+  }
+
+  /*
+    La barre de modes du cockpit est en `width: max-content` avec
+    `overflow: hidden` : sous 400 px son dernier bouton était coupé,
+    donc inatteignable. On la laisse passer à la ligne.
+  */
+  .cockpit__modes {
+    flex-wrap: wrap;
+    width: auto;
+    overflow: visible;
+  }
+
+  .cockpit__modes button {
+    flex: 1 1 auto;
+  }
+}
+
+@media (hover: none), (pointer: coarse) {
+  /*
+    Les pastilles de chapitre : au doigt, un pseudo-élément ne suffit
+    pas — deux pastilles voisines se marchent dessus. On leur donne
+    une hauteur réelle de 44 px, la colonne s'allonge et c'est très
+    bien ainsi.
+  */
+  .chapter__list button {
+    min-height: 44px;
+    min-width: 44px;
+    justify-content: flex-end;
+  }
+
+  .chapter__list button::after {
+    display: none;
+  }
+
+  /* Lien « Comparer à l'original » sous chaque schéma de cours. */
+  .cx-schema__origin a,
+  .cx-origin p a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    padding-block: 12px;
+    margin-block: -12px;
+  }
+
+  .cx-schema__origin a::after,
+  .cx-origin p a::after {
+    display: none;
+  }
+}
+
+/* ============================================================
+   LE PLANCHER, POSÉ SUR LE JETON PLUTÔT QUE SUR LES CLASSES
+   ------------------------------------------------------------
+   Une dizaine d'étiquettes secondaires restaient à 11 px : états
+   de matière, genres d'étape, légendes du carnet, repères de
+   pièces. Toutes tirent du même jeton. Le relever une fois vaut
+   mieux que les énumérer — et vaut surtout pour celles qui
+   n'existent pas encore.
+   ============================================================ */
+
+@media (max-width: 900px) {
+  :root {
+    --t-nano: 0.75rem;
+  }
+}
