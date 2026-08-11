@@ -225,6 +225,8 @@ const ts = `/**
  * directement des fichiers, donc ne peuvent pas se désynchroniser.
  */
 
+import { asset, assetsIntegres } from '@/lib/asset'
+
 export interface Media {
   id: string
   /** background = fond de section · content = illustration · instrument = fiche */
@@ -251,14 +253,20 @@ export const MEDIA: Record<string, Media> = ${JSON.stringify(
 
 export const media = (id: string): Media | undefined => MEDIA[id]
 
-/** Construit l'attribut srcset pour un format donné. */
+/**
+ * Construit l'attribut srcset pour un format donné.
+ *
+ * Rendu à une seule source quand les images sont intégrées au document :
+ * toutes les largeurs y désigneraient la même donnée.
+ */
 export function srcSet(m: Media, fmt: 'avif' | 'webp' | 'jpg') {
-  return m.widths.map((w) => \`/images/\${m.id}-\${w}.\${fmt} \${w}w\`).join(', ')
+  if (assetsIntegres()) return asset(\`images/\${m.id}-\${m.widths[0]}.\${fmt}\`)
+  return m.widths.map((w) => \`\${asset(\`images/\${m.id}-\${w}.\${fmt}\`)} \${w}w\`).join(', ')
 }
 
 /** Source de repli : la plus grande largeur en JPEG. */
 export function fallback(m: Media) {
-  return \`/images/\${m.id}-\${m.widths[m.widths.length - 1]}.jpg\`
+  return asset(\`images/\${m.id}-\${m.widths[m.widths.length - 1]}.jpg\`)
 }
 `
 

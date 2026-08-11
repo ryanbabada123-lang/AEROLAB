@@ -1,13 +1,27 @@
 /**
- * Build de PRÉVISUALISATION en un seul fichier HTML.
+ * Build en UN SEUL FICHIER HTML.
  *
- * Objectif : pouvoir montrer AERO//LAB depuis une simple page, sans serveur
- * ni réseau — exactement la contrainte d'une démo en salle (§51.3).
+ * Objectif : pouvoir ouvrir AERO//LAB d'un double-clic, sans serveur ni
+ * réseau — la contrainte du §8, et la seule façon d'envoyer le site sur un
+ * téléphone par message ou par AirDrop.
  *
- * Le gros du travail est fait par vite.single.config.ts (bundle unique,
- * assets en data: URI). Ce script se contente d'intégrer le CSS et le JS
- * dans le HTML, et de n'en garder que ce que l'outil Artifact attend :
- * pas de doctype, pas de <html>, pas de <head>, pas de <body>.
+ * CE QUI EST EMBARQUÉ, ET CE QUI NE PEUT PAS L'ÊTRE
+ *
+ * Le CSS et le JS sont intégrés au document. Les IMAGES le sont aussi,
+ * depuis cette version : sans elles, le fichier envoyé sur un téléphone
+ * s'ouvrait sur une introduction sans montagne, puisqu'il n'avait aucun
+ * dossier voisin où aller les chercher. Pour ne pas alourdir inutilement,
+ * une seule largeur est retenue par visuel — la plus petite disponible en
+ * WebP, largement suffisante sur un écran de téléphone — et les `srcset`
+ * sont réduits à cette source unique par `src/lib/asset.ts`.
+ *
+ * Les MODÈLES 3D restent dehors. Les trois `.glb` pèsent 4,9 Mo binaires,
+ * soit 6,6 Mo une fois en base64 : les embarquer ferait un document que
+ * Safari mobile refuse d'ouvrir. Ils sont copiés à côté du fichier, et les
+ * laboratoires savent se passer d'eux quand le dossier est absent.
+ *
+ * `--fragment` produit une version sans <html>/<head>/<body>, destinée à
+ * être injectée dans une page hôte.
  */
 
 import { execSync } from 'node:child_process'
@@ -120,6 +134,130 @@ const meta = [...headInner.matchAll(/<meta[^>]*>/g)]
   .join('\n')
 const icon = headInner.match(/<link[^>]*rel="icon"[^>]*>/)?.[0] ?? ''
 
+/* ------------------------------------------- images en data: URI */
+
+/**
+ * Une seule largeur par visuel : la plus petite variante WebP.
+ *
+ * Les images du site existent en quatre ou cinq largeurs pour le `srcset`.
+ * Toutes les embarquer multiplierait le poids par autant, alors qu'un seul
+ * fichier ouvert sur un téléphone n'en affichera jamais qu'une.
+ */
+const MIME = {
+  '.webp': 'image/webp',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.avif': 'image/avif',
+  '.svg': 'image/svg+xml',
+}
+
+function carteImages() {
+  const dir = path.join(ROOT, 'public', 'images')
+  if (!fs.existsSync(dir)) return { carte: {}, octets: 0 }
+
+  const fichiers = fs.readdirSync(dir)
+
+  /*
+    UN SEUL FICHIER PAR VISUEL, ET IL EST EN WEBP.
+
+    Chaque visuel existe en quatre ou cinq largeurs et en deux ou trois
+    formats, pour le `srcset`. On ne retient que la plus petite variante
+    WebP : elle suffit sur un écran de téléphone, et le WebP est lu par tous
+    les navigateurs visés — le JPEG n'était là que comme repli.
+
+    La carte associe ensuite TOUTES les variantes demandées à cette unique
+    donnée, JPEG compris : le code réclamera peut-être
+    `images/montagne-brume-1536.jpg`, il recevra le WebP embarqué.
+  */
+  const familles = new Map()
+  for (const f of fichiers) {
+    const m = f.match(/^(.*)-(\d+)\.webp$/)
+    if (!m) continue
+    const [, id, largeur] = m
+    const actuel = familles.get(id)
+    if (!actuel || Number(largeur) < actuel.largeur) {
+      familles.set(id, { fichier: f, largeur: Number(largeur) })
+    }
+  }
+
+  const carte = {}
+  let octets = 0
+  for (const [id, { fichier }] of familles) {
+    const buf = fs.readFileSync(path.join(dir, fichier))
+    const uri = `data:image/webp;base64,${buf.toString('base64')}`
+    octets += uri.length
+    for (const f2 of fichiers) {
+      const m2 = f2.match(/^(.*)-(\d+)\.(\w+)$/)
+      if (m2 && m2[1] === id && MIME[`.${m2[3]}`]) carte[`images/${f2}`] = uri
+    }
+  }
+
+  /* Les fichiers sans largeur dans leur nom (logos, favicons) tels quels. */
+  for (const f of fichiers) {
+    if (/-\d+\.\w+$/.test(f)) continue
+    const mime = MIME[path.extname(f)]
+    if (!mime) continue
+    const buf = fs.readFileSync(path.join(dir, f))
+    const uri = `data:${mime};base64,${buf.toString('base64')}`
+    octets += uri.length
+    carte[`images/${f}`] = uri
+  }
+
+  return { carte, octets }
+}
+
+const { carte: INLINE, octets: octetsImages } = FRAGMENT
+  ? { carte: {}, octets: 0 }
+  : carteImages()
+
+const nbImages = new Set(Object.values(INLINE)).size
+
+/*
+  LA CARTE EST DÉDUPLIQUÉE, ET CE N'EST PAS UN DÉTAIL.
+
+  Soixante-et-onze chemins pointent sur dix-huit images seulement — toutes
+  les largeurs d'un même visuel partagent la variante embarquée. Écrite
+  telle quelle en JSON, chaque `data:` serait recopiée autant de fois
+  qu'elle a de clés : 3,4 Mo au lieu de 0,8. On sort donc les données une
+  fois dans un tableau, et les clés n'en portent que l'indice.
+*/
+const uris = [...new Set(Object.values(INLINE))]
+const index = new Map(uris.map((u, i) => [u, i]))
+const cles = Object.fromEntries(
+  Object.entries(INLINE).map(([k, v]) => [k, index.get(v)]),
+)
+const prelude = FRAGMENT
+  ? ''
+  : `<script>window.__AEROLAB_INLINE__=(function(){` +
+    `var d=${JSON.stringify(uris)},k=${JSON.stringify(cles)},m={};` +
+    `for(var n in k)m[n]=d[k[n]];return m})()</script>`
+
+/*
+  Les `url()` de la feuille de style désignent leurs images par un chemin
+  littéral : on peut les remplacer directement, sans passer par la carte.
+*/
+let stylesIntegres = FRAGMENT
+  ? styles
+  : styles.replace(/url\((['"]?)\.?\/?(images\/[^'")]+)\1\)/g, (m, q, chemin) =>
+      INLINE[chemin] ? `url(${q}${INLINE[chemin]}${q})` : m,
+    )
+
+/*
+  KaTeX livre chaque fonte en trois formats. Le WOFF suffit à tous les
+  navigateurs visés ; le TrueType, gardé pour Internet Explorer, pesait
+  660 Ko dans le document. On retire ses sources du `src:` — les autres
+  formats restent, et le repli reste complet.
+*/
+if (!FRAGMENT) {
+  const avant = stylesIntegres.length
+  stylesIntegres = stylesIntegres
+    .replace(/,?\s*url\((['"]?)data:font\/ttf;base64,[^)]*\1\)\s*format\((['"])truetype\2\)/g, '')
+    .replace(/src:\s*,/g, 'src:')
+  const gagne = (avant - stylesIntegres.length) / 1024 / 1024
+  if (gagne > 0.05) console.log(`· fontes TrueType retirées — ${gagne.toFixed(2)} Mo`)
+}
+
 const out = FRAGMENT
   ? `${title}\n${styles}\n${bodyInner}\n${scripts}\n`
   : `<!doctype html>
@@ -128,10 +266,11 @@ const out = FRAGMENT
 ${meta}
 ${icon}
 ${title}
-${styles}
+${stylesIntegres}
 </head>
 <body>
 ${bodyInner}
+${prelude}
 ${scripts}
 </body>
 </html>
@@ -171,8 +310,18 @@ function copyBeside(folder) {
   )
 }
 
+/*
+  Seuls les modèles voisinent le document : les images, elles, sont
+  désormais dedans. Les copier en plus laisserait croire que le fichier a
+  besoin d'un dossier, alors qu'il se suffit à lui-même.
+*/
 copyBeside('models')
-copyBeside('images')
+
+if (!FRAGMENT) {
+  console.log(
+    `· ${nbImages} images intégrées en data: — ${(octetsImages / 1024 / 1024).toFixed(2)} Mo`,
+  )
+}
 
 console.log(
   `· ${path.relative(ROOT, OUT)} — ${(Buffer.byteLength(out) / 1024 / 1024).toFixed(2)} Mo ` +

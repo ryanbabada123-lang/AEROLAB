@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react'
 import { scrollDriver } from '@/lib/scroll'
 import { window4 } from '@/lib/math'
 import { SCENES } from './timeline'
+import { asset, assetsIntegres } from '@/lib/asset'
 
 /**
  * LE DÉCOR DE L'INTRO — les plaques du storyboard.
@@ -136,7 +137,8 @@ export default function Backdrop() {
     })
   }, [])
 
-  const base = import.meta.env.BASE_URL
+
+  const integre = assetsIntegres()
 
   return (
     <div className="intro-backdrop" aria-hidden="true">
@@ -150,18 +152,32 @@ export default function Backdrop() {
           style={{ opacity: 0, visibility: 'hidden' }}
         >
           <picture>
+            {/*
+              Document mono-fichier : toutes les largeurs pointeraient sur la
+              même image intégrée. On n'en émet qu'une, sans `srcset`.
+            */}
             <source
               type="image/webp"
-              srcSet={plate.sizes
-                .map((w) => `${base}images/${plate.file}-${w}.webp ${w}w`)
-                .join(', ')}
+              srcSet={
+                integre
+                  ? asset(`images/${plate.file}-${plate.sizes[0]}.webp`)
+                  : plate.sizes
+                      .map((w) => `${asset(`images/${plate.file}-${w}.webp`)} ${w}w`)
+                      .join(', ')
+              }
               sizes="100vw"
             />
             <img
-              src={`${base}images/${plate.file}-${plate.sizes[plate.sizes.length - 1]}.jpg`}
-              srcSet={plate.sizes
-                .map((w) => `${base}images/${plate.file}-${w}.jpg ${w}w`)
-                .join(', ')}
+              src={asset(
+                `images/${plate.file}-${plate.sizes[plate.sizes.length - 1]}.jpg`,
+              )}
+              srcSet={
+                integre
+                  ? undefined
+                  : plate.sizes
+                      .map((w) => `${asset(`images/${plate.file}-${w}.jpg`)} ${w}w`)
+                      .join(', ')
+              }
               sizes="100vw"
               alt={plate.alt}
               // La première plaque est le tout premier écran du site : elle

@@ -211,10 +211,40 @@
   align-content: center;
   padding: var(--gutter);
   opacity: 0;
-  transition: opacity var(--d-base) var(--e-out);
+  /*
+    FERMÉ, LE MENU DOIT DISPARAÎTRE DU TOUCHER AUTANT QUE DE LA VUE.
+
+    `opacity: 0` ne rend rien invisible au pointeur : le calque restait
+    plein écran et interceptait TOUS les touchers du site sur téléphone —
+    un doigt posé au milieu d'une page de cours atterrissait sur un lien de
+    menu qu'on ne voyait pas. Sur ordinateur le défaut ne se voyait pas,
+    puisque le calque y est en `display: none`.
+
+    `visibility` est différée le temps du fondu, sinon la fermeture
+    couperait l'animation net.
+  */
+  visibility: hidden;
+  pointer-events: none;
+  transition:
+    opacity var(--d-base) var(--e-out),
+    visibility 0s linear var(--d-base);
 }
+/*
+  Le calque couvre la page, mais pas la barre : le bouton qui l'a ouvert
+  doit rester atteignable pour le refermer. Sans cela, un téléphone — qui
+  n'a pas de touche Échap — ne peut sortir du menu qu'en suivant un lien.
+*/
+.nav[data-menu='open'] {
+  z-index: calc(var(--z-overlay) + 1);
+}
+
 .nav-overlay[data-open='true'] {
   opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transition:
+    opacity var(--d-base) var(--e-out),
+    visibility 0s;
 }
 .nav-overlay li a {
   display: flex;

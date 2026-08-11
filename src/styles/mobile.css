@@ -426,3 +426,31 @@ table {
     --t-nano: 0.75rem;
   }
 }
+
+/* ============================================================
+   LE MENU PLEIN ÉCRAN
+   ------------------------------------------------------------
+   Sur iPhone, la liste du menu mesure 936 px pour 844 d'écran.
+   Centrée et sans défilement, elle sortait par le haut : son
+   premier lien commençait à −46 px et le deuxième passait sous la
+   barre. « Accueil » et « BIA » étaient inatteignables.
+
+   `align-content: start` + `margin-block: auto` sur la liste
+   donnent le bon comportement dans les deux cas : centrée quand
+   elle tient, calée en haut et défilante quand elle déborde.
+   ============================================================ */
+
+@media (max-width: 900px) {
+  .nav-overlay {
+    align-content: start;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    /* De quoi passer sous la barre, qui reste au-dessus du calque. */
+    padding-top: calc(var(--gutter, 20px) + 64px + env(safe-area-inset-top, 0px));
+    padding-bottom: max(var(--gutter, 20px), env(safe-area-inset-bottom));
+  }
+
+  .nav-overlay > ul {
+    margin-block: auto;
+  }
+}

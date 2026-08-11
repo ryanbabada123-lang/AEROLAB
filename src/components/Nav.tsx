@@ -150,6 +150,9 @@ export default function Nav() {
         data-tone={isHome ? 'dark' : 'light'}
         data-hidden="false"
         data-solid="false"
+        /* Menu ouvert : la barre passe AU-DESSUS du calque, sinon le bouton
+           qui referme se retrouve dessous et le menu devient un piège. */
+        data-menu={open ? 'open' : 'closed'}
         aria-label="Navigation principale"
       >
         {/* La marque bascule : glyphe de sommet tant qu'on est dans les scènes
