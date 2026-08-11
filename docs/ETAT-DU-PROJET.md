@@ -83,7 +83,7 @@ voie d'import pour les élèves déjà avancés.
 | Remplacer les primitives par les vrais modèles dans l'intro | ~7 % | ✅ fait — Tecnam, cockpit A400M et A350 en place |
 | Frise à six scènes + décollage et atterrissage | ~10 % | partiel : les trois appareils jouent dans la frise existante à sept phases, qui reste à réécrire sur les six scènes du storyboard |
 | Moteur de cours + chapitre 1 Météo comme référence | ~10 % | ✅ fait — texte intégral, 20 schémas SVG, comparatif de vérification |
-| Les six autres chapitres BIA | ~60 % | texte intégral en place ; **schémas à redessiner** |
+| Les six autres chapitres BIA | ~60 % | texte intégral en place ; schémas commencés — **6 redessinés sur ~1 535** |
 | Chapitre 5 Histoire | — | ✅ rédigé d'après les sources officielles ; **à faire relire par un instructeur** |
 
 **Le poids est dans les cours**, et il ne peut pas être comprimé sans trahir
@@ -328,3 +328,59 @@ numérotation et du corps typographique, ce qui donne un résultat juste dans
 l'ensemble mais quelques sections de trop là où l'auteur a mis en valeur un
 intertitre — « SOIT », « AVANT DÉPART », « DISTANCES » en Navigation. Le texte
 n'en perd rien ; c'est le sommaire qui est bavard.
+
+
+---
+
+## 3 quinquies. Les schémas des six autres cours — où en est le chantier
+
+### Ce qui est en place
+
+Le **comparatif est générique** : `/verification/<cours>` accepte n'importe
+quel cours. Ajouter un cours demande une entrée dans le registre `SETS` de
+`src/pages/Verification.tsx` et un dossier `public/verif/<cours>/`. Rien
+d'autre.
+
+| Cours | Schémas redessinés | Comparatif |
+| --- | ---: | --- |
+| Météorologie | 20 | `/verification/meteo` |
+| Aérodynamique | 4 | `/verification/aerodynamique` |
+| Étude des aéronefs | 2 | `/verification/aeronefs` |
+
+**Aérodynamique** : composition des forces, les trois équilibres, la polaire
+d'une aile avec tous ses points caractéristiques, et l'établissement de la
+polaire à partir des mesures en soufflerie.
+
+**Aéronefs** : la chaîne barométrique — deux circuits, le rouge de pression
+totale vers le seul anémomètre et le bleu statique vers les trois
+instruments — et les secteurs TO/FROM du VOR.
+
+### La leçon du chantier : toutes les figures ne sont pas des schémas
+
+C'est la découverte qui structure la suite du travail. Sur les 1 731 images
+des huit cours, trois familles se distinguent, et une seule relève du
+redessin :
+
+1. **Les schémas au trait** — coupes, courbes, diagrammes, symboles. Ils se
+   redessinent, et c'est ce qui est fait.
+2. **Les rendus photoréalistes et les photographies** — l'intérieur de
+   l'altimètre et du compas en écorché 3D (cours 3), les dix genres de nuages,
+   l'orage, les planches de bord. Un redessin au trait n'en serait pas une
+   reproduction fidèle mais une autre image. Il leur faut des sources libres.
+3. **Les documents officiels reproduits** — planches Météo France, OACI, NASA.
+   Les redessiner reviendrait à fabriquer des données aéronautiques. Il leur
+   faut une autorisation de reproduction.
+
+**Le compte de « 1 535 schémas restants » est donc faux, et largement
+surévalué.** Le nombre réel de figures redessinables reste à établir cours par
+cours — c'est le premier travail à faire avant d'annoncer un reste.
+
+### Le rythme constaté
+
+Chaque figure demande d'être ouverte, relevée à l'écran, redessinée, puis
+**confrontée à l'original au rendu**. Ce dernier point n'est pas une
+formalité : il a trouvé un maximum de portance placé à 13,4 au lieu de 11,4,
+une flèche de décrochage pointant à droite au lieu du bas, des barbules de
+vent mal orientées, une silhouette d'avion qui rendait en étoile, et une
+colonne de températures collée à l'échelle des altitudes. Aucune de ces
+erreurs n'était visible dans le code.

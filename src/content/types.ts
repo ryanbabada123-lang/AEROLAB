@@ -54,6 +54,9 @@ export type SchemaId =
   | 'polaire-etablissement'
   | 'composition-forces'
   | 'equilibres'
+  // Cours 3 — Étude des aéronefs
+  | 'chaine-barometrique'
+  | 'vor-to-from'
 
 export interface Source {
   /** Intitulé exact de la source. */

@@ -23,6 +23,7 @@ import {
   PolaireAile,
   PolaireEtablissement,
 } from './aerodynamique'
+import { ChaineBarometrique, VorToFrom } from './aeronefs'
 
 /**
  * REGISTRE DES SCHÉMAS REDESSINÉS.
@@ -56,6 +57,8 @@ export const SCHEMAS: Record<SchemaId, () => ReactElement> = {
   'polaire-etablissement': PolaireEtablissement,
   'composition-forces': CompositionForces,
   'equilibres': Equilibres,
+  'chaine-barometrique': ChaineBarometrique,
+  'vor-to-from': VorToFrom,
 }
 
 /** Intitulé de chaque schéma — sert au comparatif et aux légendes. */
@@ -84,6 +87,8 @@ export const SCHEMA_TITLES: Record<SchemaId, string> = {
   'polaire-etablissement': 'Établissement de la polaire',
   'composition-forces': 'Composition de deux forces perpendiculaires',
   equilibres: 'Les trois équilibres : stable, indifférent, instable',
+  'chaine-barometrique': 'La chaîne barométrique',
+  'vor-to-from': 'Les secteurs TO et FROM du VOR',
 }
 
 export function Schema({ id }: { id: SchemaId }) {

@@ -61,6 +61,13 @@ const SETS: Record<
       { id: 'polaire-etablissement', page: 18 },
     ],
   },
+  aeronefs: {
+    titre: 'Étude des aéronefs et des engins spatiaux',
+    schemas: [
+      { id: 'chaine-barometrique', page: 59 },
+      { id: 'vor-to-from', page: 75 },
+    ],
+  },
 }
 
 /**

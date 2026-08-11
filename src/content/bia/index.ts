@@ -74,6 +74,7 @@ export const aeronefs: Course = {
     author: 'André PARIS',
     edition: '2024',
     pages: 83,
+    verifyId: 'aeronefs',
   },
   sections: [],
   loadSections: () =>
