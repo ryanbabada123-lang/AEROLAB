@@ -140,7 +140,19 @@ export const MICRO_LABELS: {
   { text: 'FREE TO FLY', at: [0.46, 0.55], corner: 'right' },
 ]
 
-/** Texte de la séquence — chaque temps a ses bornes (in, full, fade, out). */
+/**
+ * Texte de la séquence — chaque temps a ses bornes (in, full, fade, out).
+ *
+ * RÈGLE À TENIR : à l'intérieur d'une même scène, les fenêtres ne se
+ * chevauchent PAS. Tous les temps sont posés au même endroit du cadre ;
+ * deux fenêtres qui se recouvrent affichent donc deux phrases l'une sur
+ * l'autre, illisibles. Le titre doit être sorti avant que son accroche
+ * n'entre — la sortie de l'un est l'entrée de l'autre, pas moins.
+ *
+ * Le chevauchement n'est voulu QU'ENTRE DEUX SCÈNES, où le storyboard le
+ * demande : « le titre de la scène 01 s'efface par le haut, celui de la 02
+ * arrive par le bas ».
+ */
 export interface Beat {
   id: string
   kind: 'whisper' | 'statement' | 'hero' | 'question'
@@ -163,36 +175,36 @@ export const BEATS: Beat[] = [
   // ---- 02 · UN MATIN. ----
   // Le titre de la 01 s'efface par le haut pendant que celui de la 02
   // arrive par le bas : les fenêtres se chevauchent volontairement.
-  { id: 's2', kind: 'hero', text: 'Un matin.', at: [0.13, 0.165, 0.245, 0.275] },
+  { id: 's2', kind: 'hero', text: 'Un matin.', at: [0.13, 0.165, 0.222, 0.242] },
   {
     id: 's2b',
     kind: 'whisper',
     text: 'La brume se dissipe. Le rêve devient regardable.',
-    at: [0.2, 0.222, 0.252, 0.272],
+    at: [0.242, 0.256, 0.266, 0.274],
   },
 
   // ---- 03 · UNE MACHINE. ----
-  { id: 's3', kind: 'hero', text: 'Une machine.', at: [0.275, 0.31, 0.4, 0.432] },
+  { id: 's3', kind: 'hero', text: 'Une machine.', at: [0.276, 0.306, 0.348, 0.368] },
   {
     id: 's3b',
     kind: 'whisper',
     text: 'Une immatriculation. Un numéro de série.',
-    at: [0.34, 0.362, 0.404, 0.428],
+    at: [0.368, 0.384, 0.404, 0.416],
   },
   {
     id: 's3c',
     kind: 'statement',
     text: 'Celle sur laquelle on apprend vraiment.',
-    at: [0.39, 0.412, 0.428, 0.44],
+    at: [0.416, 0.428, 0.436, 0.444],
   },
 
   // ---- 04 · UN CIEL. ----
-  { id: 's4', kind: 'hero', text: 'Un ciel.', at: [0.432, 0.465, 0.53, 0.556] },
+  { id: 's4', kind: 'hero', text: 'Un ciel.', at: [0.444, 0.472, 0.508, 0.524] },
   {
     id: 's4b',
     kind: 'whisper',
     text: 'La récompense du premier vol.',
-    at: [0.49, 0.512, 0.538, 0.554],
+    at: [0.524, 0.536, 0.546, 0.554],
   },
 
   // ---- 05 · UNE PREMIÈRE FOIS. ----
@@ -200,20 +212,20 @@ export const BEATS: Beat[] = [
     id: 's5',
     kind: 'hero',
     text: 'Une première fois.',
-    at: [0.552, 0.586, 0.646, 0.674],
+    at: [0.556, 0.586, 0.636, 0.656],
   },
   // Les deux accroches du cahier des charges, posées pendant la montée.
   {
     id: 's5b',
     kind: 'statement',
     text: 'N’as-tu pas toujours rêvé d’être pilote de ligne ?',
-    at: [0.672, 0.696, 0.722, 0.74],
+    at: [0.656, 0.678, 0.702, 0.718],
   },
   {
     id: 's5c',
     kind: 'statement',
     text: 'N’as-tu pas toujours rêvé de contrôler le ciel ?',
-    at: [0.738, 0.758, 0.772, 0.784],
+    at: [0.718, 0.738, 0.762, 0.776],
   },
 
   // ---- 06 · LE CIEL EST À TOI. ----
@@ -221,25 +233,22 @@ export const BEATS: Beat[] = [
     id: 's6',
     kind: 'hero',
     text: 'Le ciel est à toi.',
-    at: [0.782, 0.808, 0.856, 0.876],
+    at: [0.782, 0.806, 0.840, 0.856],
   },
   // La troisième accroche : la séquence cesse de raconter, elle s'adresse.
   {
     id: 's6b',
     kind: 'statement',
     text: 'Le moteur et le cœur de l’avion, c’est toi qui les pilotes.',
-    at: [0.856, 0.876, 0.892, 0.902],
+    at: [0.856, 0.870, 0.886, 0.896],
   },
 
   // ---- Final · BIENVENUE DANS L'AÉRO LAB. ----
-  // L'A350 traverse le cadre devant le titre : le texte s'installe derrière
-  // lui, révélé par son passage.
-  {
-    id: 'fin',
-    kind: 'hero',
-    text: 'Bienvenue dans l’Aéro Lab.',
-    at: [0.9, 0.928, 0.99, 1.02],
-  },
+  // Pas de temps ici : le titre final a son propre élément dans Intro.tsx
+  // (`beat--welcome`), qui porte la marque AERO//LAB composée. En ajouter un
+  // second dans cette liste affichait DEUX titres de bienvenue l'un sur
+  // l'autre. Trouvé en comptant les textes réellement visibles à chaque
+  // repère — un compte qui doit valoir 1, jamais 2.
 ]
 
 /** Les questions révélées en fin de séquence, avant l'entrée dans le site. */
