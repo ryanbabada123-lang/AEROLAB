@@ -7,6 +7,7 @@ import 'katex/dist/katex.min.css'
 import './styles/tokens.css'
 import './styles/base.css'
 import './styles/app.css'
+import './styles/course.css'
 
 /**
  * Le build de prévisualisation mono-fichier n'a pas de serveur derrière lui :

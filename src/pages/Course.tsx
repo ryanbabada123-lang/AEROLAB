@@ -3,6 +3,7 @@ import { Link, useParams } from 'react-router-dom'
 import { courseById } from '@/content'
 import { trackById } from '@/data/tracks'
 import BlockRenderer from '@/components/course/Blocks'
+import { useReadingProgress } from '@/components/course/useReadingProgress'
 import { flightLog, useFlightLog } from '@/lib/progress'
 import NotFound from './NotFound'
 
@@ -17,6 +18,8 @@ export default function Course() {
   const course = courseById(courseId)
   const [active, setActive] = useState<string>('')
   const startedAt = useRef(Date.now())
+  const article = useRef<HTMLElement>(null)
+  const read = useReadingProgress(article)
   const log = useFlightLog()
 
   // Temps d'étude (§24). Comptabilisé au départ de la page — mais aussi si
@@ -74,7 +77,13 @@ export default function Course() {
   const isDone = log.completed.includes(course.id)
 
   return (
-    <article className="page u-shell">
+    <article className="page u-shell" ref={article}>
+      {/* Progression de lecture — sur 430 pages, savoir où l'on en est
+          n'est pas un ornement. */}
+      <div className="cx-progress" aria-hidden="true">
+        <div className="cx-progress__bar" style={{ transform: `scaleX(${read})` }} />
+      </div>
+
       <div className="page__head">
         <Link to={track ? track.to : '/'} className="crumb">
           ← {track?.name ?? 'Formation'}
@@ -90,6 +99,24 @@ export default function Course() {
           <p className="awaiting__tag" style={{ marginTop: 'var(--s-2)' }}>
             ● {STATUS_LABEL[course.status]}
           </p>
+        )}
+
+        {course.origin && (
+          <div className="cx-origin">
+            <p>
+              Ce cours est la reprise <strong>mot pour mot</strong> du document de{' '}
+              <strong>{course.origin.author}</strong>, édition {course.origin.edition},{' '}
+              {course.origin.pages} pages. Les schémas sont redessinés en SVG.
+              {course.origin.verifyId && (
+                <>
+                  {' '}
+                  <Link to={`/verification/${course.origin.verifyId}`}>
+                    Comparer chaque schéma à son original ↗
+                  </Link>
+                </>
+              )}
+            </p>
+          </div>
         )}
       </div>
 

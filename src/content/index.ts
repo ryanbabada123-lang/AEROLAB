@@ -1,5 +1,6 @@
 import type { Course, Subject } from './types'
 import { portance } from './bia/aerodynamique-portance'
+import { meteorologie } from './bia/meteo'
 
 /**
  * REGISTRE DE CONTENU (§26 / §52).
@@ -14,7 +15,7 @@ import { portance } from './bia/aerodynamique-portance'
  *   recevoir plutôt qu'un découpage inventé.
  */
 
-export const COURSES: Course[] = [portance]
+export const COURSES: Course[] = [portance, meteorologie]
 
 export const courseById = (id: string) => COURSES.find((c) => c.id === id)
 
@@ -42,7 +43,7 @@ export const BIA_SUBJECTS: Subject[] = [
     track: 'bia',
     name: 'Météorologie',
     line: "Lire l'atmosphère avant d'y entrer.",
-    courses: [],
+    courses: ['bia-meteo'],
   },
   {
     id: 'navigation',

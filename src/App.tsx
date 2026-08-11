@@ -15,6 +15,7 @@ const AircraftLab = lazy(() => import('@/pages/AircraftLab'))
 const Labs = lazy(() => import('@/pages/Labs'))
 const Logbook = lazy(() => import('@/pages/Logbook'))
 const Student = lazy(() => import('@/pages/Student'))
+const Verification = lazy(() => import('@/pages/Verification'))
 const NotFound = lazy(() => import('@/pages/NotFound'))
 
 export default function App() {
@@ -38,6 +39,7 @@ export default function App() {
               <Route path="/lab/aircraft" element={<AircraftLab />} />
               <Route path="/logbook" element={<Logbook />} />
               <Route path="/espace-eleve" element={<Student />} />
+              <Route path="/verification/:verifyId" element={<Verification />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

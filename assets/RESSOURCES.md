@@ -535,3 +535,38 @@ ne peut pas être écrit.
   L'entête PNG donne **1 536 × 1 024 px** : la première mesure venait d'une
   lecture en points typographiques et non en pixels. Le fichier a été renommé
   en conséquence. La réserve sur le plein écran demeure, mais atténuée.
+
+---
+
+## 7. Vérification des schémas redessinés
+
+Le comparatif exigé par le §1 « Règles d'intégration » est en ligne, une page
+par cours : `/verification/<cours>`. Pour la météorologie, `/verification/meteo`.
+
+Chaque ligne pose l'**original**, découpé du PDF de l'auteur sans aucune
+retouche par `scripts/cours-figures.py`, face au **redessin SVG** du site, et
+offre un curseur de superposition — c'est lui qui rend visibles les écarts de
+géométrie qu'une comparaison côte à côte laisse passer.
+
+### Ce qui ne relève pas de la règle de redessin
+
+La règle vise les **schémas**. Deux familles d'images n'en relèvent pas, et il
+faut le dire plutôt que de produire une approximation :
+
+- **Les photographies.** Les dix genres de nuages, l'orage, le baromètre à
+  mercure sont des clichés. On ne les redessine pas : il leur faut une source
+  photographique libre, qui reste à réunir.
+- **Les documents Météo France et OACI reproduits en pleine page** — tableaux
+  de décodage METAR et TAF, cartes TEMSI EUROC et France, coupes verticales,
+  cartes WINTEM, imagerie satellite. Les redessiner reviendrait à **fabriquer
+  des données aéronautiques**, ce que le cahier des charges interdit
+  explicitement. Leur intégration demande une autorisation de reproduction, ou
+  des relevés authentiques.
+
+### Défaut relevé dans le Cours 1
+
+Page 28, le tableau « évolution des paramètres météo au passage d'un front
+froid » est annoncé par le texte mais **invisible** : il est posé aux mêmes
+coordonnées que la coupe du front froid, dessinée par-dessus. Le contenu est
+intact dans le fichier ; il a été récupéré depuis l'image d'origine et restitué
+dans le cours, accompagné de la mention du défaut.

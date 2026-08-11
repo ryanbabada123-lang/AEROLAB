@@ -1,7 +1,9 @@
 import { lazy, Suspense, useMemo } from 'react'
 import katex from 'katex'
-import type { Block, DiagramId, SimId } from '@/content/types'
+import type { Block, DiagramId, SchemaId, SimId } from '@/content/types'
 import Quiz from '@/components/Quiz'
+import Reveal from '@/components/course/Reveal'
+import { Schema, SCHEMA_TITLES } from '@/components/course/schemas'
 
 const LiftAirfoil = lazy(() => import('@/simulations/LiftAirfoil'))
 const LiftCurve = lazy(() => import('@/simulations/LiftCurve'))
@@ -140,6 +142,106 @@ function Diagram({ diagram, caption }: { diagram: DiagramId; caption?: string })
   return null
 }
 
+/**
+ * Schéma redessiné. La mention de la page d'origine n'est pas décorative :
+ * c'est elle qui rend le redessin vérifiable, et elle renvoie au comparatif.
+ */
+function SchemaFigure({
+  id,
+  caption,
+  page,
+}: {
+  id: SchemaId
+  caption?: string
+  page: number
+}) {
+  return (
+    <Reveal as="figure" className="cx-schema">
+      <div className="cx-schema__stage">
+        <Schema id={id} />
+      </div>
+      <figcaption>
+        <span className="cx-schema__title">{SCHEMA_TITLES[id]}</span>
+        {caption && <span className="cx-schema__caption">{caption}</span>}
+        <span className="cx-schema__origin">
+          Redessiné d’après le cours d’André PARIS, page {page}.{' '}
+          <a href={`/verification/meteo#${id}`}>Comparer à l’original</a>
+        </span>
+      </figcaption>
+    </Reveal>
+  )
+}
+
+function DataTable({
+  headers,
+  rows,
+  caption,
+  page,
+}: {
+  headers: string[]
+  rows: string[][]
+  caption?: string
+  page?: number
+}) {
+  return (
+    <Reveal as="figure" className="cx-table">
+      {caption && <figcaption className="cx-table__caption">{caption}</figcaption>}
+      <div className="cx-table__scroll">
+        <table>
+          <thead>
+            <tr>
+              {headers.map((h) => (
+                <th key={h} scope="col">
+                  {h}
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((r, i) => (
+              <tr key={i}>
+                {r.map((c, j) =>
+                  j === 0 ? (
+                    <th key={j} scope="row">
+                      {c}
+                    </th>
+                  ) : (
+                    <td key={j}>{c}</td>
+                  ),
+                )}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {page && (
+        <p className="cx-table__origin">
+          Tableau relevé sur la page {page} du cours d’André PARIS, où il est une
+          image : son texte est absent de la couche texte du document.
+        </p>
+      )}
+    </Reveal>
+  )
+}
+
+/** Message codé et son décodage, tels que l'auteur les présente. */
+function Coded({ code, decode }: { code: string; decode: string[] }) {
+  return (
+    <Reveal as="figure" className="cx-coded">
+      <pre>
+        <code>{code}</code>
+      </pre>
+      <figcaption>
+        <ul>
+          {decode.map((d) => (
+            <li key={d}>{d}</li>
+          ))}
+        </ul>
+      </figcaption>
+    </Reveal>
+  )
+}
+
 export function Awaiting({ what }: { what: string }) {
   return (
     <div className="awaiting">
@@ -158,10 +260,66 @@ export default function BlockRenderer({
 }) {
   switch (block.type) {
     case 'lead':
-      return <p className="b-lead">{block.text}</p>
+      return (
+        <Reveal as="div">
+          <p className="b-lead">{block.text}</p>
+        </Reveal>
+      )
 
     case 'text':
-      return <p className="b-text">{block.text}</p>
+      return (
+        <Reveal as="div">
+          <p className="b-text">{block.text}</p>
+        </Reveal>
+      )
+
+    case 'heading':
+      return (
+        <Reveal as="div">
+          {block.level === 3 ? (
+            <h3 className="cx-h3">{block.text}</h3>
+          ) : (
+            <h4 className="cx-h4">{block.text}</h4>
+          )}
+        </Reveal>
+      )
+
+    case 'list':
+      return (
+        <Reveal as="div">
+          {block.ordered ? (
+            <ol className="cx-list">
+              {block.items.map((it) => (
+                <li key={it}>{it}</li>
+              ))}
+            </ol>
+          ) : (
+            <ul className="cx-list">
+              {block.items.map((it) => (
+                <li key={it}>{it}</li>
+              ))}
+            </ul>
+          )}
+        </Reveal>
+      )
+
+    case 'table':
+      return (
+        <DataTable
+          headers={block.headers}
+          rows={block.rows}
+          caption={block.caption}
+          page={block.page}
+        />
+      )
+
+    case 'coded':
+      return <Coded code={block.code} decode={block.decode} />
+
+    case 'schema':
+      return (
+        <SchemaFigure id={block.schema} caption={block.caption} page={block.page} />
+      )
 
     case 'concept':
       return (

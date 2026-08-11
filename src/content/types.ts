@@ -18,6 +18,38 @@ export type SimId = 'lift-airfoil' | 'lift-curve'
 
 export type DiagramId = 'pressure-field'
 
+/**
+ * Schémas redessinés en SVG depuis les cours de l'auteur.
+ *
+ * RÈGLE (assets/RESSOURCES.md §1) : géométrie, proportions et étiquettes
+ * identiques à l'original. Chaque identifiant ci-dessous a
+ *   — un composant SVG dans components/course/schemas/,
+ *   — une reproduction de l'original dans public/verif/<cours>/<id>.webp,
+ *   — une ligne dans la page de comparatif /verification/<cours>.
+ * On n'ouvre pas d'identifiant sans ces trois pièces.
+ */
+export type SchemaId =
+  | 'atmosphere-coupe'
+  | 'atmosphere-temperature'
+  | 'colonne-air'
+  | 'vent-forces'
+  | 'cellules-hadley'
+  | 'fleches-vent'
+  | 'gradient-adiabatique'
+  | 'stabilite-instabilite'
+  | 'front-chaud-coupe'
+  | 'front-froid-coupe'
+  | 'symbole-front-chaud'
+  | 'symbole-front-froid'
+  | 'symboles-occlusion'
+  | 'brouillard-radiation'
+  | 'brouillard-advection'
+  | 'brouillard-evaporation'
+  | 'brouillard-pente'
+  | 'visibilite-secteurs'
+  | 'visibilite-brume'
+  | 'prise-de-decision'
+
 export interface Source {
   /** Intitulé exact de la source. */
   label: string
@@ -41,6 +73,32 @@ export type Block =
       where?: { sym: string; desc: string }[]
     }
   | { type: 'diagram'; diagram: DiagramId; caption?: string }
+  /**
+   * Schéma redessiné en SVG depuis le cours source. `page` renvoie à la
+   * page du PDF d'origine — c'est ce qui rend la vérification possible.
+   */
+  | { type: 'schema'; schema: SchemaId; caption?: string; page: number }
+  /** Sous-titre interne à une section (numérotation de l'auteur conservée). */
+  | { type: 'heading'; level: 3 | 4; text: string }
+  /** Liste. `ordered` pour les énumérations numérotées de l'auteur. */
+  | { type: 'list'; items: string[]; ordered?: boolean }
+  /**
+   * Tableau. Plusieurs tableaux des cours sont des IMAGES dans le PDF :
+   * leur texte est absent de la couche texte et a été relevé à l'écran.
+   * `page` permet de revenir à l'original pour contrôle.
+   */
+  | {
+      type: 'table'
+      caption?: string
+      page?: number
+      headers: string[]
+      rows: string[][]
+    }
+  /**
+   * Message codé (METAR, TAF, SIGMET) suivi de son décodage ligne à ligne,
+   * tel que l'auteur le présente. Le code reste en chasse fixe.
+   */
+  | { type: 'coded'; code: string; decode: string[] }
   | { type: 'simulation'; sim: SimId; title: string; brief?: string }
   | { type: 'keypoints'; title?: string; items: string[] }
   | {
@@ -58,6 +116,10 @@ export interface CourseSection {
   id: string
   /** Numéro affiché dans le sommaire latéral. */
   title: string
+  /** Numérotation de l'auteur, conservée telle quelle (« 1 », « 10 »). */
+  number?: string
+  /** Pages du document source couvertes par la section. */
+  pages?: [number, number]
   blocks: Block[]
 }
 
@@ -78,6 +140,21 @@ export interface Course {
   status: CourseStatus
   /** Durée de lecture indicative, en minutes. Omise si inconnue. */
   minutes?: number
+  /**
+   * Document d'origine, quand le cours est la reprise mot pour mot d'une
+   * fiche de l'auteur. Alimente le bandeau de provenance et la page de
+   * comparatif des schémas.
+   */
+  origin?: {
+    /** Fichier source, chemin depuis la racine du dépôt. */
+    file: string
+    /** Auteur du document — l'attribution détaillée est sur /credits. */
+    author: string
+    edition: string
+    pages: number
+    /** Identifiant de la page de comparatif : /verification/<verifyId>. */
+    verifyId?: string
+  }
   sections: CourseSection[]
   sources: Source[]
 }

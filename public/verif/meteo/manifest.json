@@ -1,0 +1,177 @@
+{
+ "atmosphere-coupe": {
+  "page": 3,
+  "w": 737,
+  "h": 415
+ },
+ "atmosphere-temperature": {
+  "page": 3,
+  "w": 743,
+  "h": 776
+ },
+ "colonne-air": {
+  "page": 5,
+  "w": 251,
+  "h": 445
+ },
+ "isobares-monde": {
+  "page": 6,
+  "w": 1367,
+  "h": 654
+ },
+ "rayonnement-jour-nuit": {
+  "page": 8,
+  "w": 626,
+  "h": 509
+ },
+ "saisons-solstices": {
+  "page": 10,
+  "w": 687,
+  "h": 898
+ },
+ "changements-etat-eau": {
+  "page": 11,
+  "w": 773,
+  "h": 606
+ },
+ "cycle-eau": {
+  "page": 11,
+  "w": 692,
+  "h": 529
+ },
+ "vent-forces": {
+  "page": 12,
+  "w": 1251,
+  "h": 568
+ },
+ "cellules-hadley": {
+  "page": 13,
+  "w": 717,
+  "h": 576
+ },
+ "onde-relief": {
+  "page": 14,
+  "w": 745,
+  "h": 442
+ },
+ "brises-mer-terre": {
+  "page": 15,
+  "w": 1340,
+  "h": 1004
+ },
+ "fleches-vent": {
+  "page": 16,
+  "w": 1248,
+  "h": 248
+ },
+ "gradient-adiabatique": {
+  "page": 18,
+  "w": 773,
+  "h": 584
+ },
+ "stabilite-instabilite": {
+  "page": 19,
+  "w": 1354,
+  "h": 529
+ },
+ "masses-air-tableau": {
+  "page": 20,
+  "w": 1390,
+  "h": 1474
+ },
+ "nuages-etages-tableau": {
+  "page": 22,
+  "w": 1376,
+  "h": 404
+ },
+ "front-chaud-coupe": {
+  "page": 27,
+  "w": 1437,
+  "h": 626
+ },
+ "front-chaud-tableau": {
+  "page": 27,
+  "w": 1340,
+  "h": 398
+ },
+ "symbole-front-chaud": {
+  "page": 27,
+  "w": 362,
+  "h": 109
+ },
+ "front-froid-coupe": {
+  "page": 28,
+  "w": 1398,
+  "h": 587
+ },
+ "front-froid-tableau": {
+  "page": 28,
+  "w": 1337,
+  "h": 362
+ },
+ "symbole-front-froid": {
+  "page": 28,
+  "w": 387,
+  "h": 106
+ },
+ "perturbation-dessus": {
+  "page": 29,
+  "w": 1568,
+  "h": 954
+ },
+ "occlusion-coupe": {
+  "page": 30,
+  "w": 1310,
+  "h": 443
+ },
+ "symboles-occlusion": {
+  "page": 30,
+  "w": 1237,
+  "h": 85
+ },
+ "brouillard-radiation": {
+  "page": 31,
+  "w": 884,
+  "h": 379
+ },
+ "brouillard-advection": {
+  "page": 32,
+  "w": 826,
+  "h": 376
+ },
+ "brouillard-evaporation": {
+  "page": 32,
+  "w": 826,
+  "h": 376
+ },
+ "brouillard-pente": {
+  "page": 32,
+  "w": 809,
+  "h": 379
+ },
+ "orage-charges": {
+  "page": 36,
+  "w": 431,
+  "h": 265
+ },
+ "visibilite-secteurs": {
+  "page": 42,
+  "w": 379,
+  "h": 376
+ },
+ "visibilite-brume": {
+  "page": 42,
+  "w": 381,
+  "h": 379
+ },
+ "prise-de-decision": {
+  "page": 49,
+  "w": 1029,
+  "h": 715
+ },
+ "dossier-vol": {
+  "page": 49,
+  "w": 1434,
+  "h": 379
+ }
+}

@@ -82,7 +82,7 @@ voie d'import pour les élèves déjà avancés.
 | Instruments vivants du Tecnam | ~3 % | ✅ fait, vitesses sourcées sur le manuel de vol |
 | Remplacer les primitives par les vrais modèles dans l'intro | ~7 % | ✅ fait — Tecnam, cockpit A400M et A350 en place |
 | Frise à six scènes + décollage et atterrissage | ~10 % | partiel : les trois appareils jouent dans la frise existante à sept phases, qui reste à réécrire sur les six scènes du storyboard |
-| Moteur de cours + chapitre 1 Météo comme référence | ~10 % | à faire |
+| Moteur de cours + chapitre 1 Météo comme référence | ~10 % | ✅ fait — texte intégral, 20 schémas SVG, comparatif de vérification |
 | Les six autres chapitres BIA + Histoire à rédiger | ~60 % | à faire |
 
 **Le poids est dans les cours**, et il ne peut pas être comprimé sans trahir
@@ -92,10 +92,69 @@ redessiner en SVG avec comparatif de vérification.
 
 ### Le contenu réellement en place
 
-`src/content/index.ts` déclare huit matières et porte la mention « en attente
-des fiches ». **Une seule fiche existe**, `aerodynamique-portance.ts`, qui traite
-la portance — une notion sur les onze sections du Cours 2. L'auteur du projet a
-été explicitement corrigé sur ce point : il croyait les cours faits.
+`src/content/index.ts` déclare huit matières. **Deux fiches existent** :
+`aerodynamique-portance.ts`, qui traite la portance — une notion sur les onze
+sections du Cours 2 —, et `bia/meteo/`, qui est le **chapitre 1 Météorologie
+en entier**. L'auteur du projet avait été explicitement corrigé sur ce point :
+il croyait les cours faits, une seule fiche existait alors.
+
+---
+
+## 3 ter. Le moteur de cours et le chapitre 1 — état exact
+
+### Ce qui est livré
+
+**Le moteur** — `src/components/course/` : révélation des blocs au défilement
+sur `IntersectionObserver` (pas d'asservissement du scroll, pas de
+scroll-jacking), barre de progression de lecture mesurée sur l'article et non
+sur la page, sommaire actif, bandeau de provenance. `prefers-reduced-motion`
+court-circuite l'animation avant même de poser l'observer.
+
+Six types de blocs ont été ajoutés au schéma de contenu : `heading`, `list`,
+`table`, `coded` (messages METAR, TAF, SIGMET et leur décodage), `schema` (SVG
+redessiné, avec sa page d'origine) et l'extension des blocs existants.
+
+**Le texte** — les 98 777 signes du cours, repris mot pour mot, en dix sections
+(`src/content/bia/meteo/`). Le compte d'extraction correspond exactement à
+celui consigné dans `assets/RESSOURCES.md`, ce qui vérifie que rien n'a été
+perdu à l'extraction.
+
+**Les schémas** — 20 redessinés en SVG, avec la page d'origine portée sous
+chaque figure. **Le comparatif de vérification est en ligne** :
+`/verification/meteo` pose l'original découpé du PDF face au redessin, avec un
+curseur de superposition — c'est lui qui révèle les écarts de géométrie qu'une
+comparaison côte à côte laisse passer. Les originaux sont produits par
+`scripts/cours-figures.py`, sans retouche.
+
+### Deux trouvailles sur le document source
+
+**Le tableau du front froid était invisible.** La page 28 annonce « Ci-dessous,
+l'évolution des paramètres météo au passage d'un front froid » et rien ne suit.
+Le tableau est pourtant bien là : il est posé aux mêmes coordonnées que la
+coupe du front froid, qui est dessinée par-dessus et le masque entièrement.
+Récupéré depuis l'image d'origine, il est restitué dans le cours, avec la
+mention du défaut.
+
+**Plusieurs tableaux ne sont pas du texte.** Les six types de masses d'air
+(p. 20), les dix genres de nuages (p. 22), les paramètres au passage des fronts
+(p. 27 et 28), les fréquences VOLMET (p. 49) sont des **images** : leur texte
+est absent de la couche texte du PDF. Ils ont été relevés à l'écran et
+retranscrits en tableaux HTML — donc lisibles par un lecteur d'écran, ce que
+l'original n'était pas.
+
+### Ce qui reste sur ce chapitre, et pourquoi
+
+| Reste | Nature | Pourquoi ce n'est pas fait |
+| --- | --- | --- |
+| ~8 schémas | figures de l'auteur | Redessin non commencé : carte mondiale des isobares, solstices, cycle de l'eau, onde de relief, brises de bord de mer, fronts en air stable et instable, perturbation vue de dessus, secteur chaud, coupe d'occlusion. Signalés en clair dans le cours par des blocs `awaiting`. |
+| Photographies | ~40 clichés | **Ne se redessinent pas.** Les dix genres de nuages, l'orage, le baromètre sont des photographies. Il leur faut une source libre, qui n'est pas réunie. |
+| Planches Météo France / OACI | tableaux METAR et TAF, TEMSI, WINTEM, satellite | **Ne doivent pas être redessinées** : ce serait fabriquer des données aéronautiques, ce que le cahier des charges interdit. Il faut une autorisation de reproduction, ou des relevés authentiques. |
+
+**Le schéma des flèches de vent (p. 16) demande une relecture visuelle.** Les
+cinq barbules de l'auteur ne portent pas toutes leurs barbes du même côté du
+mât ; le côté est donc donné exemple par exemple dans le code plutôt que par
+une formule, et le résultat mérite d'être confronté à l'original sur
+`/verification/meteo#fleches-vent` avant d'être considéré comme acquis.
 
 ---
 
