@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { courseById } from '@/content'
+import type { CourseSection } from '@/content/types'
 import { trackById } from '@/data/tracks'
 import BlockRenderer from '@/components/course/Blocks'
 import { useReadingProgress } from '@/components/course/useReadingProgress'
@@ -10,6 +11,8 @@ import NotFound from './NotFound'
 const STATUS_LABEL: Record<string, string> = {
   ready: 'Contenu définitif',
   demo: 'Démonstration — texte à remplacer par la fiche de l’auteur',
+  'text-only':
+    'Texte intégral de l’auteur — schémas pas encore redessinés',
   'awaiting-content': 'En attente de contenu',
 }
 
@@ -21,6 +24,25 @@ export default function Course() {
   const article = useRef<HTMLElement>(null)
   const read = useReadingProgress(article)
   const log = useFlightLog()
+
+  // Sections différées (§ voir Course.loadSections). Un cours composé à la
+  // main les porte déjà ; un cours extrait les demande à l'ouverture.
+  const [lazy, setLazy] = useState<CourseSection[] | null>(null)
+  const [failed, setFailed] = useState(false)
+
+  useEffect(() => {
+    setLazy(null)
+    setFailed(false)
+    if (!course?.loadSections || course.sections.length > 0) return
+    let alive = true
+    course
+      .loadSections()
+      .then((s) => alive && setLazy(s))
+      .catch(() => alive && setFailed(true))
+    return () => {
+      alive = false
+    }
+  }, [course])
 
   // Temps d'étude (§24). Comptabilisé au départ de la page — mais aussi si
   // l'onglet est masqué ou fermé, sinon une session entière se perd.
@@ -50,7 +72,7 @@ export default function Course() {
   // Sommaire actif — un seul observer pour toutes les sections.
   useEffect(() => {
     if (!course) return
-    const nodes = course.sections
+    const nodes = (course.sections.length > 0 ? course.sections : lazy ?? [])
       .map((s) => document.getElementById(s.id))
       .filter((n): n is HTMLElement => !!n)
 
@@ -65,13 +87,17 @@ export default function Course() {
     )
     for (const n of nodes) io.observe(n)
     return () => io.disconnect()
-  }, [course])
+  }, [course, lazy])
 
   useEffect(() => {
     if (course && active) flightLog.bookmark(course.id, active)
   }, [course, active])
 
   if (!course) return <NotFound />
+
+  const sections: CourseSection[] =
+    course.sections.length > 0 ? course.sections : (lazy ?? [])
+  const loading = sections.length === 0 && !failed
 
   const track = trackById(course.track)
   const isDone = log.completed.includes(course.id)
@@ -106,13 +132,20 @@ export default function Course() {
             <p>
               Ce cours est la reprise <strong>mot pour mot</strong> du document de{' '}
               <strong>{course.origin.author}</strong>, édition {course.origin.edition},{' '}
-              {course.origin.pages} pages. Les schémas sont redessinés en SVG.
-              {course.origin.verifyId && (
+              {course.origin.pages} pages.{' '}
+              {course.origin.verifyId ? (
                 <>
-                  {' '}
+                  Les schémas sont redessinés en SVG.{' '}
                   <Link to={`/verification/${course.origin.verifyId}`}>
                     Comparer chaque schéma à son original ↗
                   </Link>
+                </>
+              ) : (
+                <>
+                  Le texte vient de la couche texte native du document, il est
+                  donc exact au signe. <strong>Ses schémas ne sont pas encore
+                  redessinés</strong> : les figures du document d’origine ne
+                  sont pas reproduites ici.
                 </>
               )}
             </p>
@@ -123,7 +156,7 @@ export default function Course() {
       <div className="course">
         <nav className="toc" aria-label="Sommaire du cours">
           <p className="toc__title">Sommaire</p>
-          {course.sections.map((s, i) => (
+          {sections.map((s, i) => (
             <a
               key={s.id}
               href={`#${s.id}`}
@@ -136,7 +169,22 @@ export default function Course() {
         </nav>
 
         <div className="course__body">
-          {course.sections.map((s) => (
+          {loading && (
+            <p className="u-label" role="status">
+              Chargement du cours — {course.origin?.pages} pages
+            </p>
+          )}
+          {failed && (
+            <div className="awaiting">
+              <span className="awaiting__tag">● Cours non chargé</span>
+              <p>
+                Le texte de ce cours n’a pas pu être récupéré. Rechargez la page ;
+                s’il manque toujours, c’est le module de contenu qui n’a pas été
+                déployé.
+              </p>
+            </div>
+          )}
+          {sections.map((s) => (
             <section key={s.id} id={s.id} className="course__section">
               <h2>{s.title}</h2>
               {s.blocks.map((b, i) => (

@@ -83,7 +83,8 @@ voie d'import pour les élèves déjà avancés.
 | Remplacer les primitives par les vrais modèles dans l'intro | ~7 % | ✅ fait — Tecnam, cockpit A400M et A350 en place |
 | Frise à six scènes + décollage et atterrissage | ~10 % | partiel : les trois appareils jouent dans la frise existante à sept phases, qui reste à réécrire sur les six scènes du storyboard |
 | Moteur de cours + chapitre 1 Météo comme référence | ~10 % | ✅ fait — texte intégral, 20 schémas SVG, comparatif de vérification |
-| Les six autres chapitres BIA + Histoire à rédiger | ~60 % | à faire |
+| Les six autres chapitres BIA | ~60 % | texte intégral en place ; **schémas à redessiner** |
+| Chapitre 5 Histoire | — | à rédiger, aucune source fournie |
 
 **Le poids est dans les cours**, et il ne peut pas être comprimé sans trahir
 deux règles posées par l'auteur du projet : ne pas résumer le texte, ne pas
@@ -242,3 +243,80 @@ d'attaque noir, barre blanche sur fond sombre.
 - Provenance des visuels de montagne et de piste
 - Les inscriptions des panneaux de cockpit resteront muettes : les inventer
   serait fabriquer des données aéronautiques
+
+
+---
+
+## 3 quater. Les six autres cours — texte en place, schémas à faire
+
+### La décision d'outillage, et pourquoi
+
+Le chapitre 1 a été composé à la main, section par section : 49 pages. Les six
+cours restants totalisent **294 pages et 542 668 signes**. À cette échelle, une
+transcription manuelle *dérive* — un accent, une virgule, un mot sauté — et la
+règle « mot pour mot » n'est plus vérifiable.
+
+Ils sont donc produits par `scripts/cours-extraire.py`, qui lit la **couche
+texte native** des PDF. Ce n'est pas un raccourci mais une garantie : ce qui
+sort est littéralement ce qui est dans le document. Aucune reconnaissance de
+caractères n'intervient — les huit cours ont une couche texte, aucun n'est un
+scan.
+
+Le script retire l'entête et le pied de page répétés, saute le sommaire,
+reconnaît les titres à leur numérotation *et à leur corps typographique*,
+recolle les paragraphes que la mise en page a coupés, et reconnaît les listes
+à leur puce. **Il ne réécrit rien, ne résume rien, ne complète rien.**
+
+### La mesure de fidélité
+
+Le script mesure sa propre fidélité à chaque passage et refuse de produire un
+fichier sous 97 %. La mesure porte sur les **signes non blancs** : l'espacement
+du PDF vient de la mise en page et n'a aucune valeur, mais un mot perdu se voit.
+
+| Cours | Pages | Sections | Blocs | Fidélité |
+| --- | ---: | ---: | ---: | ---: |
+| Aérodynamique et mécanique du vol | 64 | 21 | 836 | 100,1 % |
+| Étude des aéronefs | 83 | 11 | 964 | 100,0 % |
+| Réglementation | 34 | 31 | 522 | 99,5 % |
+| Navigation | 32 | 27 | 528 | 99,9 % |
+| Aéromédecine | 16 | 10 | 358 | 99,8 % |
+| Anglais aéronautique | 65 | 44 | 183 | 99,1 % |
+
+Le reste est de la marque de puce et du tiret de numérotation, neutralisés des
+deux côtés de la mesure parce que ce sont des signes de mise en forme, pas des
+mots.
+
+**Trois erreurs de mesure ont été trouvées et corrigées** avant d'obtenir ces
+chiffres — c'est pour ça qu'ils valent quelque chose. La première comptait le
+sommaire au dénominateur et faisait apparaître 92 % là où il y avait 100 %. La
+deuxième oubliait les titres de section, rangés hors des blocs. La troisième
+comptait les puces comme du texte perdu.
+
+### Un statut à part : `text-only`
+
+Ces six cours ne sont pas des démonstrations à remplacer — leur texte **est**
+celui de l'auteur, exact au signe. Il leur manque les schémas. Les confondre
+avec `demo` aurait laissé croire qu'il faut refaire le texte. Un statut
+`text-only` a donc été ajouté, et chaque page affiche exactement ce qui lui
+manque.
+
+### Le paquet, et le piège évité
+
+Embarquer 720 Ko de texte dans le paquet principal le faisait passer de 365 à
+**937 Ko** : tout visiteur de la page d'accueil téléchargeait les 343 pages du
+BIA. Chaque cours est donc un module chargé à l'ouverture de sa page. Le paquet
+principal est revenu à 369 Ko, et les six chunks pèsent de 25 à 175 Ko chacun.
+
+### Ce qui reste sur ces six cours
+
+**Les schémas.** 1 535 images pour 294 pages. Le chapitre 1 donne l'échelle du
+travail : 20 figures redessinées pour 49 pages. Les mêmes réserves qu'au
+chapitre 1 s'appliqueront — les photographies ne se redessinent pas, et les
+documents Météo France, OACI et NASA reproduits en pleine page demandent une
+autorisation plutôt qu'un redessin.
+
+**Le découpage en sections mérite une relecture.** Il est déduit de la
+numérotation et du corps typographique, ce qui donne un résultat juste dans
+l'ensemble mais quelques sections de trop là où l'auteur a mis en valeur un
+intertitre — « SOIT », « AVANT DÉPART », « DISTANCES » en Navigation. Le texte
+n'en perd rien ; c'est le sommaire qui est bavard.

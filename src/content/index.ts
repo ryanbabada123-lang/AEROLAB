@@ -1,6 +1,6 @@
 import type { Course, Subject } from './types'
 import { portance } from './bia/aerodynamique-portance'
-import { meteorologie } from './bia/meteo'
+import { BIA_COURSES } from './bia'
 
 /**
  * REGISTRE DE CONTENU (§26 / §52).
@@ -15,7 +15,7 @@ import { meteorologie } from './bia/meteo'
  *   recevoir plutôt qu'un découpage inventé.
  */
 
-export const COURSES: Course[] = [portance, meteorologie]
+export const COURSES: Course[] = [...BIA_COURSES, portance]
 
 export const courseById = (id: string) => COURSES.find((c) => c.id === id)
 
@@ -29,14 +29,14 @@ export const BIA_SUBJECTS: Subject[] = [
     track: 'bia',
     name: 'Aérodynamique',
     line: "Comment naît la portance, ce qui freine, ce qui décroche.",
-    courses: ['bia-aero-portance'],
+    courses: ['bia-aerodynamique', 'bia-aero-portance'],
   },
   {
     id: 'aeronefs',
     track: 'bia',
     name: 'Connaissance des aéronefs',
     line: "Structure, motorisation, commandes, systèmes.",
-    courses: [],
+    courses: ['bia-aeronefs'],
   },
   {
     id: 'meteorologie',
@@ -50,21 +50,21 @@ export const BIA_SUBJECTS: Subject[] = [
     track: 'bia',
     name: 'Navigation',
     line: 'Savoir où l’on est, où l’on va, et en combien de temps.',
-    courses: [],
+    courses: ['bia-navigation'],
   },
   {
     id: 'reglementation',
     track: 'bia',
     name: 'Réglementation',
     line: "Le cadre dans lequel un vol est légal et sûr.",
-    courses: [],
+    courses: ['bia-reglementation'],
   },
   {
     id: 'facteurs-humains',
     track: 'bia',
     name: 'Facteurs humains',
     line: "Les limites du pilote font partie des limites de l'avion.",
-    courses: [],
+    courses: ['bia-aeromedecine'],
   },
   {
     id: 'histoire',
@@ -72,6 +72,13 @@ export const BIA_SUBJECTS: Subject[] = [
     name: 'Histoire et culture aéronautique',
     line: "D'où vient ce que l'on pilote aujourd'hui.",
     courses: [],
+  },
+  {
+    id: 'anglais',
+    track: 'bia',
+    name: 'Anglais aéronautique',
+    line: "L'épreuve facultative — treize files et le vocabulaire exigible.",
+    courses: ['bia-anglais'],
   },
   {
     id: 'securite',

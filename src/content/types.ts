@@ -128,6 +128,12 @@ export type CourseStatus =
   | 'ready'
   /** Architecture + simulations en place, texte de démonstration à remplacer. */
   | 'demo'
+  /**
+   * Texte intégral et fidèle de l'auteur, mais schémas pas encore
+   * redessinés. Distinct de `demo` : ici rien n'est à remplacer, il reste
+   * à dessiner.
+   */
+  | 'text-only'
   /** Coquille prête, aucun contenu encore. */
   | 'awaiting-content'
 
@@ -155,7 +161,20 @@ export interface Course {
     /** Identifiant de la page de comparatif : /verification/<verifyId>. */
     verifyId?: string
   }
+  /**
+   * Sections chargées d'emblée. Vide pour les cours volumineux, qui
+   * passent par `loadSections`.
+   */
   sections: CourseSection[]
+  /**
+   * Chargement différé des sections.
+   *
+   * Les six cours extraits pèsent 720 Ko de texte à eux seuls. Les embarquer
+   * dans le paquet principal le faisait passer de 365 à 937 Ko : tout
+   * visiteur de la page d'accueil téléchargeait les 343 pages du BIA. Chaque
+   * cours est donc un module à part, demandé au moment où on l'ouvre.
+   */
+  loadSections?: () => Promise<CourseSection[]>
   sources: Source[]
 }
 
