@@ -72,6 +72,7 @@ const SETS: Record<
     titre: 'Aéromédecine et facteurs humains',
     schemas: [
       { id: 'temperature-tropopause', page: 1 },
+      { id: 'trompe-eustache', page: 2 },
       { id: 'surpression-pulmonaire', page: 4 },
       { id: 'pressurisation-cabine', page: 4 },
       { id: 'saturation-oxygene', page: 6 },

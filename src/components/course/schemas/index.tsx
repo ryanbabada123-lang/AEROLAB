@@ -32,6 +32,7 @@ import {
   SeuilsHypoxie,
   SurpressionPulmonaire,
   TemperatureTropopause,
+  TrompeEustache,
 } from './aeromedecine'
 
 /**
@@ -75,6 +76,7 @@ export const SCHEMAS: Record<SchemaId, () => ReactElement> = {
   'facteurs-de-charge': FacteursDeCharge,
   'surpression-pulmonaire': SurpressionPulmonaire,
   'temperature-tropopause': TemperatureTropopause,
+  'trompe-eustache': TrompeEustache,
 }
 
 /** Intitulé de chaque schéma — sert au comparatif et aux légendes. */
@@ -112,6 +114,7 @@ export const SCHEMA_TITLES: Record<SchemaId, string> = {
   'facteurs-de-charge': 'Les facteurs de charge Gx, Gy et Gz sur le pilote',
   'surpression-pulmonaire': 'Surpression pulmonaire au cours d’une décompression',
   'temperature-tropopause': 'Décroissance de la température jusqu’à la tropopause',
+  'trompe-eustache': 'La trompe d’Eustache, bouchée puis perméable',
 }
 
 export function Schema({ id }: { id: SchemaId }) {

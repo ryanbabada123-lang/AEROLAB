@@ -1096,3 +1096,147 @@ export function TemperatureTropopause() {
     </svg>
   )
 }
+
+/**
+ * p. 2 — la trompe d'Eustache, bouchée puis perméable.
+ *
+ * Deux fois le même croquis, et c'est le point : à gauche la trompe est
+ * complètement bouchée — l'auteur la barre d'une croix — et la pression
+ * extérieure pousse seule sur le tympan ; à droite elle est perméable, et
+ * l'air passe. Les deux panneaux sont donc dessinés une fois et translatés,
+ * ce que l'original fait aussi : le relevé montre que le second panneau
+ * reprend le premier à 318 px près, à moins de cinq pixels d'écart partout.
+ *
+ * CE QUI EST RELEVÉ, ET CE QUI NE L'EST PAS. Le contour du conduit et de la
+ * trompe vient d'un remplissage de la lumière blanche sur l'original, lu
+ * ligne à ligne — il est exact. Le contour du massif osseux, sa découpe et
+ * la position des flèches, de la croix et des amorces sont relevés eux aussi.
+ * En revanche la TRAME du fond — le pointillé fin qui figure l'os — est
+ * rendue par un aplat gris : c'est une matière d'illustration, pas une
+ * géométrie, et la reproduire point par point n'apprendrait rien.
+ */
+export function TrompeEustache() {
+  /** Contour extérieur du massif, sommet puis bord droit. */
+  const massifHaut: [number, number][] = [
+    [150, 22], [156, 26], [177, 38], [195, 52], [217, 66], [280, 75],
+    [366, 80], [386, 94], [425, 108], [438, 122],
+  ]
+  /** Découpe blanche du milieu : la paroi inférieure du conduit. */
+  const decoupe: [number, number][] = [
+    [150, 152], [199, 164], [223, 178], [244, 192], [273, 206], [283, 234],
+    [289, 248], [289, 258], [150, 258],
+  ]
+  /** Lumière : bord gauche du haut vers le bas. */
+  const lumenGauche: [number, number][] = [
+    [205, 116], [197, 124], [229, 132], [266, 140], [285, 148], [291, 156],
+    [290, 164], [294, 172], [300, 180], [304, 188], [308, 196], [311, 204],
+    [313, 212], [317, 220], [320, 228], [323, 236], [326, 244], [328, 252],
+    [330, 260], [330, 268], [330, 276], [338, 284], [348, 292], [356, 300],
+    [361, 308], [366, 316], [372, 326], [388, 360], [404, 396],
+  ]
+  /** Lumière : bord droit du bas vers le haut. */
+  const lumenDroit: [number, number][] = [
+    [424, 392], [408, 358], [390, 326], [388, 316], [386, 308], [383, 300],
+    [382, 292], [384, 284], [389, 276], [392, 268], [394, 260], [396, 252],
+    [396, 244], [395, 236], [394, 228], [393, 220], [391, 212], [389, 204],
+    [386, 196], [381, 188], [375, 180], [373, 172], [371, 164], [369, 156],
+    [367, 148], [364, 140], [357, 132], [347, 124], [326, 116], [265, 107],
+  ]
+
+  const poly = (p: [number, number][]) => p.map(([x, y]) => `${x},${y}`).join(' ')
+
+  /** Flèche fine de pression. `sens` vaut −1 vers la gauche, +1 vers la droite. */
+  const pression = (x: number, y: number, l: number, sens: number) => (
+    <g key={`${x},${y}`} stroke="#101418" strokeWidth="2.4" fill="none">
+      <line x1={x} y1={y} x2={x + l * sens} y2={y} />
+      <path
+        d={`M${x + (l - 11) * sens},${y - 6} L${x + l * sens},${y} L${x + (l - 11) * sens},${y + 6}`}
+      />
+    </g>
+  )
+
+  /** Un panneau complet. `bouchee` barre la trompe, sinon elle est ouverte. */
+  const panneau = (dx: number, bouchee: boolean) => (
+    <g transform={`translate(${dx},0)`}>
+      <rect x="148" y="22" width="292" height="433" fill="#ffffff" stroke="#101418" strokeWidth="3" />
+
+      {/* Le massif, moins la découpe du milieu. */}
+      <path
+        d={`${courbe(massifHaut)} L438,453 L150,453 Z M${poly(decoupe).replace(/ /g, ' L').replace(/^/, '')} Z`}
+        fill="#d8dade"
+        fillRule="evenodd"
+        stroke="#101418"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+
+      {/* La lumière du conduit et de la trompe. */}
+      <path
+        d={`${courbe(lumenGauche)} ${courbe(lumenDroit).replace(/^M[\d.,-]+/, `L${lumenDroit[0].join(',')}`)} Z`}
+        fill="#ffffff"
+        stroke="#101418"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+
+      {/* Le tympan, en travers de la lumière. */}
+      <ellipse
+        cx="316"
+        cy="218"
+        rx="17"
+        ry="48"
+        transform="rotate(12 316 218)"
+        fill="#c8cace"
+        stroke="#101418"
+        strokeWidth="3"
+      />
+
+      {/* L'orifice de la trompe, ouvert ou obstrué. */}
+      <ellipse cx="414" cy="401" rx="14" ry="9" transform="rotate(-58 414 401)" fill="#ffffff" stroke="#101418" strokeWidth="3" />
+      {!bouchee && <path d="M352,300 L392,314 L414,392 L398,398 Z" fill="#101418" />}
+      {bouchee && (
+        <g stroke="#101418" strokeWidth="9" strokeLinecap="round">
+          <line x1="345" y1="308" x2="437" y2="368" />
+          <line x1="437" y1="306" x2="347" y2="370" />
+          <line x1="392" y1="294" x2="392" y2="382" />
+        </g>
+      )}
+
+      {/* La pression sur le tympan. À gauche elle ne vient que du dehors. */}
+      {bouchee
+        ? [
+            pression(400, 160, 70, -1),
+            pression(400, 202, 70, -1),
+            pression(410, 254, 75, -1),
+          ]
+        : [pression(210, 190, 70, 1), pression(206, 230, 70, 1)]}
+    </g>
+  )
+
+  return (
+    <svg
+      viewBox="0 0 796 484"
+      role="img"
+      aria-label="La trompe d’Eustache. À gauche elle est complètement bouchée : la pression extérieure pousse seule sur le tympan. À droite elle est perméable et l’air passe, ce qui égalise les pressions de part et d’autre du tympan."
+    >
+      <rect x="0" y="0" width="796" height="484" fill="#ffffff" />
+      {panneau(0, true)}
+      {panneau(318, false)}
+
+      {/* Les trois libellés du panneau de gauche, et leurs amorces. */}
+      <g stroke="#101418" strokeWidth="3" fill="none">
+        <line x1="150" y1="122" x2="308" y2="210" />
+        <line x1="125" y1="216" x2="236" y2="216" />
+        <line x1="277" y1="336" x2="340" y2="306" />
+      </g>
+      <g fontFamily="var(--f-sans)" fontSize="27" fill="#101418">
+        <text x="18" y="132">Tympan</text>
+        <text x="18" y="182">Conduit</text>
+        <text x="18" y="220">auditif</text>
+        <text x="18" y="258">externe</text>
+        <text x="166" y="362">Trompe</text>
+        <text x="150" y="400">d’Eustache</text>
+      </g>
+    </svg>
+  )
+}

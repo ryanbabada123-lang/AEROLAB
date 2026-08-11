@@ -65,6 +65,7 @@ export type SchemaId =
   | 'facteurs-de-charge'
   | 'surpression-pulmonaire'
   | 'temperature-tropopause'
+  | 'trompe-eustache'
 
 export interface Source {
   /** Intitulé exact de la source. */
