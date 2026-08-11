@@ -31,6 +31,7 @@
       import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js'
       import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
       import { dressModel } from '/src/three/modelMaterials.ts'
+      import { createInstruments } from '/src/three/instruments.ts'
 
       const q = new URLSearchParams(location.search)
       const file = q.get('model')
@@ -81,8 +82,25 @@
           // livré sans ses textures.
           let dressReport = null
           if (q.get('dress') === '1') {
+            // Les instruments sont fabriqués AVANT l'habillage : leurs textures
+            // sont posées par les règles de matériau, pas après coup.
+            let displays
+            if (q.get('instruments') === '1') {
+              const set = createInstruments()
+              set.update({
+                ias: +(q.get('ias') || 78),
+                altitude: +(q.get('altitude') || 2450),
+                pitch: +(q.get('pitch') || 7),
+                roll: +(q.get('roll') || -12),
+                heading: 270,
+                vs: 500,
+                qnh: +(q.get('qnh') || 1013),
+              })
+              displays = set.textures
+            }
             dressReport = dressModel(root, {
               model: file.replace(/\.glb$/, ''),
+              displays,
             })
           }
 

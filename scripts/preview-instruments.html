@@ -1,0 +1,61 @@
+<!doctype html>
+<!--
+  BANC DE CONTRÔLE DES INSTRUMENTS
+
+  Dessine les instruments hors de tout modèle 3D. Sépare deux questions qui se
+  confondent facilement : le dessin est-il juste, et sa projection sur le mesh
+  est-elle correcte. La première se règle ici.
+-->
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <title>Instruments</title>
+    <style>
+      body {
+        margin: 0;
+        background: #0b0f14;
+        display: flex;
+        gap: 24px;
+        padding: 24px;
+        font: 600 12px/1 ui-monospace, monospace;
+        color: #8fa0b0;
+      }
+      figure { margin: 0; display: grid; gap: 10px; justify-items: center; }
+      canvas { width: 300px; height: 300px; border-radius: 50%; }
+    </style>
+  </head>
+  <body>
+    <script type="module">
+      import { drawAirspeed, drawAltimeter, drawAttitude } from '/src/three/instruments.ts'
+
+      const q = new URLSearchParams(location.search)
+      const state = {
+        ias: +(q.get('ias') || 78),
+        altitude: +(q.get('altitude') || 2450),
+        pitch: +(q.get('pitch') || 7),
+        roll: +(q.get('roll') || -12),
+        heading: 270,
+        vs: 500,
+        qnh: +(q.get('qnh') || 1013),
+      }
+
+      const S = 512
+      for (const [name, painter] of [
+        ['Anémomètre', drawAirspeed],
+        ['Altimètre', drawAltimeter],
+        ['Horizon artificiel', drawAttitude],
+      ]) {
+        const fig = document.createElement('figure')
+        const c = document.createElement('canvas')
+        c.width = S
+        c.height = S
+        painter(c.getContext('2d'), S, state)
+        const cap = document.createElement('figcaption')
+        cap.textContent = name
+        fig.append(c, cap)
+        document.body.append(fig)
+      }
+      window.__ready = true
+    </script>
+  </body>
+</html>

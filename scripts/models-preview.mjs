@@ -73,6 +73,11 @@ const TECNAM_CLOSE = [
 ]
 
 const TECNAM_INSIDE = [
+  {
+    label: 'planche-instruments',
+    abs: 'px=-1.28&py=0.16&pz=0.02&tx=-1.80&ty=0.10&tz=0.04&fov=46',
+    instruments: true,
+  },
   { label: 'planche-de-bord', abs: 'px=-0.95&py=0.22&pz=0.02&tx=-1.80&ty=0.10&tz=0.04&fov=58' },
   { label: 'place-gauche', abs: 'px=-0.85&py=0.24&pz=-0.24&tx=-1.80&ty=0.08&tz=-0.10&fov=64' },
   { label: 'poste-large', abs: 'px=-0.10&py=0.30&pz=0.30&tx=-1.80&ty=0.05&tz=0&fov=70' },
@@ -152,7 +157,8 @@ for (const model of models) {
           : `&az=${v.az}&el=${v.el}`) +
       (v.wire ? '&wire=1' : '') +
       (v.dress ? '&dress=1' : '') +
-      (v.zoom ? `&zoom=${v.zoom}` : '')
+      (v.zoom ? `&zoom=${v.zoom}` : '') +
+      (v.instruments ? '&instruments=1' : '')
     await page.goto(url, { waitUntil: 'load', timeout: 60000 })
 
     let info = null
