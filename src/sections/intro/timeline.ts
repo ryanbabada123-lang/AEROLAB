@@ -81,13 +81,17 @@ export const INTRO = {
   /**
    * Retour à l'encre claire.
    *
-   * Un seuil unique ne suffisait pas : les plaques claires — montagne,
-   * ciel, piste au couchant — vont de la scène 02 à la scène 05, mais les
-   * scènes 06 et le final se jouent sur un ciel d'altitude sombre. Sans
-   * cette seconde borne, « LE CIEL EST À TOI. » s'affichait en sombre sur
-   * noir, illisible. Trouvé à la capture, invisible dans le code.
+   * Il n'y en a plus : le décor du storyboard couvre désormais TOUTE la
+   * séquence — mer de nuages en scène 06, piste au couchant au final — à
+   * la demande de l'auteur du projet, « vraiment tout le temps le thème
+   * montagne ». Le fond n'étant jamais noir après la scène 02, l'encre
+   * reste sombre jusqu'au bout.
+   *
+   * La borne est conservée plutôt que supprimée : elle documente le
+   * mécanisme, et il suffira de la ramener sous 1 pour rouvrir une fenêtre
+   * d'encre claire si une scène redevient sombre.
    */
-  skyTurnsDark: 0.76,
+  skyTurnsDark: 1.05,
   /** Au-dessus de la mer de nuages — scène 04. */
   dreamHigh: SCENES.ciel[0],
   /** Orbite libre autour de l'A350 — scène 06. */

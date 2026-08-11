@@ -71,6 +71,8 @@ const PLATES: Plate[] = [
     sizes: [688],
     // Scène 04 « UN CIEL. » — au-dessus de la mer de nuages.
     at: [SCENES.machine[1] - 0.03, SCENES.ciel[0] + 0.02, SCENES.ciel[1] - 0.01, SCENES.premiereFois[0] + 0.03],
+    // (voir aussi la plaque « ciel-haut » : la mer de nuages revient en
+    // scène 06, pour que le massif reste sous l'appareil.)
     alt: '',
     zoom: [1.04, 1.0],
   },
@@ -80,9 +82,31 @@ const PLATES: Plate[] = [
     sizes: [1024, 1672],
     // Scène 05 « UNE PREMIÈRE FOIS. » — la piste 27 au couchant, sur
     // laquelle l'A350 s'aligne.
-    at: [SCENES.premiereFois[0] - 0.05, SCENES.premiereFois[0] + 0.04, 0.72, SCENES.cielATooi[0]],
+    at: [SCENES.premiereFois[0] - 0.05, SCENES.premiereFois[0] + 0.04, 0.72, SCENES.cielATooi[0] + 0.02],
     alt: '',
     zoom: [1.0, 1.05],
+  },
+  {
+    id: 'ciel-haut',
+    file: 'ciel-nuages',
+    sizes: [688],
+    // Scène 06 « LE CIEL EST À TOI. » — le storyboard demande « le massif
+    // très loin en dessous ». La mer de nuages revient donc ici : le décor
+    // ne retombe jamais sur du noir.
+    at: [SCENES.cielATooi[0] - 0.02, SCENES.cielATooi[0] + 0.03, SCENES.bienvenue[0] - 0.01, SCENES.bienvenue[0] + 0.04],
+    alt: '',
+    zoom: [1.0, 1.06],
+  },
+  {
+    id: 'piste-retour',
+    file: 'piste-couchant',
+    sizes: [1024, 1672],
+    // Final « BIENVENUE DANS L'AÉRO LAB. » — l'A350 se pose sur la même
+    // piste 27 qu'au décollage. La boucle se ferme sur l'aérodrome du
+    // départ, et le thème montagne tient jusqu'au dernier écran.
+    at: [SCENES.bienvenue[0] - 0.03, SCENES.bienvenue[0] + 0.03, 1.02, 1.06],
+    alt: '',
+    zoom: [1.04, 1.0],
   },
 ]
 
