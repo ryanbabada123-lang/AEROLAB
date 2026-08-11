@@ -81,7 +81,7 @@ voie d'import pour les élèves déjà avancés.
 | --- | ---: | --- |
 | Instruments vivants du Tecnam | ~3 % | ✅ fait, vitesses sourcées sur le manuel de vol |
 | Remplacer les primitives par les vrais modèles dans l'intro | ~7 % | ✅ fait — Tecnam, cockpit A400M et A350 en place |
-| Frise à six scènes + décollage et atterrissage | ~10 % | partiel : les trois appareils jouent dans la frise existante à sept phases, qui reste à réécrire sur les six scènes du storyboard |
+| Frise à six scènes + décollage et atterrissage | ~10 % | ✅ **frise réécrite sur les six scènes du storyboard**, vérifiée au rendu ; restent le décollage et l'atterrissage à animer réellement |
 | Moteur de cours + chapitre 1 Météo comme référence | ~10 % | ✅ fait — texte intégral, 20 schémas SVG, comparatif de vérification |
 | Les six autres chapitres BIA | ~60 % | texte intégral en place ; schémas commencés — **6 redessinés sur ~1 535** |
 | Chapitre 5 Histoire | — | ✅ rédigé d'après les sources officielles ; **à faire relire par un instructeur** |
@@ -444,3 +444,73 @@ Sur les **404 grandes figures** des sept cours BIA, **26 sont redessinées**
 sont des schémas plutôt que des photographies ou des documents officiels, seul
 un passage à l'œil le dira — mais le Cours 3 laisse penser qu'une bonne moitié
 n'en sont pas.
+
+
+---
+
+## 3 septies. La frise d'intro, réécrite sur le storyboard
+
+La partition tenait sur **sept phases aux titres d'avant le storyboard** —
+« le cockpit », « le décollage », « comprendre ». Elle porte maintenant les
+**six scènes arrêtées** dans `docs/STORYBOARD-INTRO.md`, aux bornes du
+document :
+
+| Défilement | Scène | Appareil |
+| ---: | --- | --- |
+| 0 → 14 % | 01 **UN RÊVE.** | — |
+| 14 → 28 % | 02 **UN MATIN.** | — |
+| 28 → 44 % | 03 **UNE MACHINE.** | Tecnam F-HOOT |
+| 44 → 56 % | 04 **UN CIEL.** | — |
+| 56 → 78 % | 05 **UNE PREMIÈRE FOIS.** | A350, décollage |
+| 78 → 90 % | 06 **LE CIEL EST À TOI.** | A350, orbite libre |
+| 90 → 100 % | **BIENVENUE DANS L'AÉRO LAB.** | A350, passage et atterrissage |
+
+### Ce que la réécriture a apporté
+
+**Les bornes ne sont plus posées à la main.** `SCENES` est la source de
+vérité ; les repères de mise en scène 3D que lisent `Stage.tsx` et
+`camera.ts` s'en déduisent. Déplacer une scène entraîne désormais la mise en
+scène avec elle, au lieu de la désynchroniser silencieusement.
+
+**Les textes sont ceux des maquettes**, avec leur point final — « UN RÊVE. »,
+« UNE MACHINE. » — et les trois phrases d'accroche du cahier des charges sont
+posées là où le storyboard les demande : les deux premières pendant la montée
+de la scène 05, la troisième en scène 06.
+
+**La course est passée de 860 à 940 vh.** Sept scènes demandent plus de
+course que six phases, sans quoi l'orbite autour du Tecnam et le décollage se
+jouent trop vite.
+
+**Les chapitres de la barre de repère** viennent de la partition au lieu
+d'être dupliqués dans `Intro.tsx`, et portent les numéros des maquettes.
+
+**Les micro-libellés des maquettes** sont déclarés : `SCROLL TO BEGIN` en 01,
+`TECNAM P2008 JC` en 03, `FREE TO FLY` en 04. Ils sont dans la partition mais
+**pas encore posés dans le rendu** — c'est le reste immédiat.
+
+### Vérifié au rendu
+
+Parcours des sept repères en navigateur : les six titres apparaissent dans
+l'ordre, chacun dans sa fenêtre, et le final s'installe à 95 %. Aucune erreur
+console.
+
+Le piège évité : mesurer le défilement en fraction de la **page entière** ne
+donne rien, l'intro n'en occupe qu'une partie. Il faut mesurer sur la zone
+`.intro` — 7 708 px de haut pour 6 888 px de course utile.
+
+### Décision d'implémentation à confirmer
+
+Le storyboard ne donne **pas de scène au poste de pilotage A400M** : ses six
+scènes vont du rêve au ciel, l'intérieur n'y figure pas. La fenêtre du poste
+a donc été rattachée à la scène 03 — « une machine » — qui est le moment où
+l'appareil cesse d'être une silhouette pour devenir un objet qu'on inspecte.
+**C'est un choix d'implémentation, pas une consigne.**
+
+### Ce qui reste sur l'intro
+
+- **Le décollage et l'atterrissage réels** : rotation autour du train
+  principal, rentrée du train, passage devant le titre, poser sur la
+  piste 27. C'est le gros du reste, et il demande la piste reconstruite en 3D.
+- **Poser les micro-libellés** dans le rendu.
+- **Le point laissé ouvert par le storyboard** : faire de l'atterrissage une
+  septième scène à part entière plutôt que de l'intégrer au final.

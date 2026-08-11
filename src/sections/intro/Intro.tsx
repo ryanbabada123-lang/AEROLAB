@@ -1,6 +1,6 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
 import ErrorBoundary from '@/components/ErrorBoundary'
-import { BEATS, INTRO, QUESTIONS, type Beat } from './timeline'
+import { BEATS, INTRO, QUESTIONS, type Beat, CHAPTERS } from './timeline'
 import { scrollDriver } from '@/lib/scroll'
 import { useScrollBeat } from '@/hooks/useScrollBeat'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
@@ -229,14 +229,6 @@ function setInk(el: HTMLElement, p: number) {
   if (el.dataset.ink !== ink) el.dataset.ink = ink
 }
 
-const CHAPTERS: { at: number; id: string; label: string }[] = [
-  { at: 0.0, id: '01', label: 'Le rêve' },
-  { at: 0.13, id: '02', label: 'La machine' },
-  { at: 0.31, id: '03', label: 'Le cockpit' },
-  { at: 0.47, id: '04', label: 'Le décollage' },
-  { at: 0.6, id: '05', label: 'Le ciel' },
-  { at: 0.76, id: '06', label: 'Comprendre' },
-]
 
 /**
  * Repère de chapitre — et surtout, moyen d'AVANCER SANS SCROLLER.
