@@ -139,6 +139,7 @@ export const aeromedecine: Course = {
     author: 'André PARIS',
     edition: '2024',
     pages: 16,
+    verifyId: 'aeromedecine',
   },
   sections: [],
   loadSections: () =>

@@ -68,6 +68,14 @@ const SETS: Record<
       { id: 'vor-to-from', page: 75 },
     ],
   },
+  aeromedecine: {
+    titre: 'Aéromédecine et facteurs humains',
+    schemas: [
+      { id: 'saturation-oxygene', page: 6 },
+      { id: 'seuils-hypoxie', page: 6 },
+      { id: 'illusions-piste', page: 14 },
+    ],
+  },
 }
 
 /**

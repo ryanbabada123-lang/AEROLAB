@@ -57,6 +57,10 @@ export type SchemaId =
   // Cours 3 — Étude des aéronefs
   | 'chaine-barometrique'
   | 'vor-to-from'
+  // Cours 4C — Aéromédecine
+  | 'saturation-oxygene'
+  | 'seuils-hypoxie'
+  | 'illusions-piste'
 
 export interface Source {
   /** Intitulé exact de la source. */

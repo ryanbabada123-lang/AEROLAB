@@ -24,6 +24,7 @@ import {
   PolaireEtablissement,
 } from './aerodynamique'
 import { ChaineBarometrique, VorToFrom } from './aeronefs'
+import { IllusionsPiste, SaturationOxygene, SeuilsHypoxie } from './aeromedecine'
 
 /**
  * REGISTRE DES SCHÉMAS REDESSINÉS.
@@ -59,6 +60,9 @@ export const SCHEMAS: Record<SchemaId, () => ReactElement> = {
   'equilibres': Equilibres,
   'chaine-barometrique': ChaineBarometrique,
   'vor-to-from': VorToFrom,
+  'saturation-oxygene': SaturationOxygene,
+  'seuils-hypoxie': SeuilsHypoxie,
+  'illusions-piste': IllusionsPiste,
 }
 
 /** Intitulé de chaque schéma — sert au comparatif et aux légendes. */
@@ -89,6 +93,9 @@ export const SCHEMA_TITLES: Record<SchemaId, string> = {
   equilibres: 'Les trois équilibres : stable, indifférent, instable',
   'chaine-barometrique': 'La chaîne barométrique',
   'vor-to-from': 'Les secteurs TO et FROM du VOR',
+  'saturation-oxygene': 'Saturation en oxygène de l’hémoglobine selon l’altitude',
+  'seuils-hypoxie': 'Les seuils de l’hypoxie d’altitude',
+  'illusions-piste': 'Illusions d’approche selon la largeur de piste',
 }
 
 export function Schema({ id }: { id: SchemaId }) {
