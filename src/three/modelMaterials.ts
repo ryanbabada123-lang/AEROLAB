@@ -233,6 +233,75 @@ function liveryFor(model: string | undefined, node: string): SurfaceSpec | null 
   return null
 }
 
+/* --------------------------------------------------- coordonnées de texture */
+
+/**
+ * Recalcule les coordonnées de texture d'une face plane pour qu'une image la
+ * remplisse entièrement.
+ *
+ * Les modèles arrivent avec les coordonnées de leur ATLAS d'origine, où chaque
+ * instrument n'occupait qu'un fragment d'une grande image. Y poser un cadran
+ * dessiné en pleine texture le montre donc rogné et décalé. Comme les faces
+ * d'instrument sont planes, on peut projeter proprement : on repère les deux
+ * axes dans lesquels la face s'étend, on ignore le troisième — celui de son
+ * épaisseur — et l'on ramène sa boîte englobante sur le carré unité.
+ *
+ * Renvoie `false` si la face n'est pas assez plane pour que la projection ait un
+ * sens, auquel cas on ne touche à rien plutôt que de produire un placage faux.
+ */
+function projectPlanarUV(geometry: THREE.BufferGeometry): boolean {
+  const pos = geometry.getAttribute('position') as THREE.BufferAttribute | undefined
+  if (!pos) return false
+
+  geometry.computeBoundingBox()
+  const box = geometry.boundingBox
+  if (!box) return false
+
+  const size = box.getSize(new THREE.Vector3())
+  const extents: [number, number, number] = [size.x, size.y, size.z]
+
+  // L'axe le plus mince est celui de l'épaisseur : on le retire.
+  const thin = extents.indexOf(Math.min(...extents))
+  const rest = [0, 1, 2].filter((a) => a !== thin)
+
+  // ORDRE DES AXES, et ce n'est pas un détail. L'axe vertical de la face doit
+  // devenir la coordonnée verticale de l'image, sans quoi la projection
+  // transpose le dessin.
+  //
+  // Sur ces modèles, la verticale d'une face n'est PAS le Y local : la rotation
+  // racine des exports Sketchfab échange Y et Z, de sorte que le Z local est la
+  // hauteur. Les deux axes restants sont donc pris dans leur ordre naturel — Y
+  // en horizontale, Z en verticale — et l'orientation finale est réglée par le
+  // retournement de la texture.
+  //
+  // Les deux erreurs traversées avant d'arriver là, pour ne pas les refaire :
+  // sans retournement, les cadrans sortaient en miroir, sol en haut de l'horizon
+  // et chiffres inversés ; en intervertissant les axes, ils sortaient tournés
+  // d'un quart de tour, ciel à droite.
+  const axes = rest as [number, number]
+
+  const spanA = extents[axes[0]]
+  const spanB = extents[axes[1]]
+  if (spanA < 1e-6 || spanB < 1e-6) return false
+
+  // Une face doit être franchement plane : si son épaisseur approche ses autres
+  // dimensions, ce n'est pas un cadran et la projection serait trompeuse.
+  if (extents[thin] > Math.min(spanA, spanB) * 0.5) return false
+
+  const lo = box.min
+  const uv = new Float32Array(pos.count * 2)
+  const v = new THREE.Vector3()
+  for (let i = 0; i < pos.count; i++) {
+    v.fromBufferAttribute(pos, i)
+    const a = (v.getComponent(axes[0]) - lo.getComponent(axes[0])) / spanA
+    const b = (v.getComponent(axes[1]) - lo.getComponent(axes[1])) / spanB
+    uv[i * 2] = a
+    uv[i * 2 + 1] = b
+  }
+  geometry.setAttribute('uv', new THREE.BufferAttribute(uv, 2))
+  return true
+}
+
 /* ------------------------------------------------------------------ peinture */
 
 /**
@@ -326,6 +395,8 @@ export interface DressReport {
    * ont pris : ce champ le dit.
    */
   livery: { part: string; color: string }[]
+  /** Faces d'afficheur dont les coordonnées de texture ont été reprojetées. */
+  reprojected: string[]
 }
 
 /**
@@ -340,6 +411,7 @@ export function dressModel(root: THREE.Object3D, opts: DressOptions = {}): Dress
     hiddenTriangles: 0,
     kept: [],
     livery: [],
+    reprojected: [],
   }
   const cache = new Map<string, THREE.Material | null>()
 
@@ -410,7 +482,7 @@ export function dressModel(root: THREE.Object3D, opts: DressOptions = {}): Dress
       if (spec.unlit) {
         mat = new THREE.MeshBasicMaterial({
           name,
-          color: new THREE.Color(spec.color ?? '#000'),
+          color: display ? new THREE.Color('#ffffff') : new THREE.Color(spec.color ?? '#000'),
           map: display ?? null,
           toneMapped: false,
         })
@@ -434,6 +506,14 @@ export function dressModel(root: THREE.Object3D, opts: DressOptions = {}): Dress
     }
 
     if (mat) mesh.material = mat
+
+    // La reprojection porte sur la GÉOMÉTRIE, propre à chaque mesh, et non sur
+    // le matériau, qui est partagé : elle vit donc hors du cache.
+    if (spec.role === 'display' && opts.displays?.[name]) {
+      if (projectPlanarUV(mesh.geometry as THREE.BufferGeometry)) {
+        report.reprojected.push(nodeName || name)
+      }
+    }
   })
 
   opts.onReport?.(report)

@@ -436,14 +436,25 @@ const PAINTERS: Record<
 }
 
 /**
- * Quel instrument pour quel matériau du Tecnam. Les noms viennent du modèle
- * lui-même, relevés par `scripts/model-parts.mjs`.
+ * Quel instrument pour quel matériau du Tecnam.
+ *
+ * Les noms viennent du modèle, relevés par `scripts/model-parts.mjs`, et les
+ * positions par mesure. Trois cadrans ronds de huit centimètres sont empilés à
+ * Z entre 0,02 et 0,10, dans cet ordre de haut en bas :
+ *
+ *   `_asi.png`  Y [ 0,14 ;  0,22]   anémomètre
+ *   `_ai.png`   Y [ 0,04 ;  0,13]   horizon artificiel
+ *   `_alt.png`  Y [-0,05 ;  0,04]   altimètre
+ *
+ * `_attitude_indicator.png` est volontairement ABSENT de cette table. Le nom
+ * trompe : ce n'est pas un cadran mais un quad de deux triangles posé sur le
+ * grand écran de gauche, à Z entre 0,16 et 0,37. Y peindre l'horizon le faisait
+ * apparaître, déformé, sur l'écran, tandis que le vrai cadran restait noir.
  */
 export const TECNAM_INSTRUMENTS: Record<string, InstrumentKind> = {
   'DefaultWhite_asi.png': 'asi',
-  'DefaultWhite_alt.png': 'alt',
   'DefaultWhite_ai.png': 'ai',
-  'DefaultWhite_attitude_indicator.png': 'ai',
+  'DefaultWhite_alt.png': 'alt',
 }
 
 export interface InstrumentSet {
@@ -471,9 +482,11 @@ export function createInstruments(
     const texture = new THREE.CanvasTexture(canvas)
     texture.colorSpace = THREE.SRGBColorSpace
     texture.anisotropy = 4
-    // Les cadrans sont peints à l'endroit ; glTF adresse ses textures depuis le
-    // bas, d'où le retournement, sans quoi les graduations sont à l'envers.
-    texture.flipY = false
+    // `flipY` reste à sa valeur par défaut. Les coordonnées de texture de ces
+    // faces sont recalculées par `projectPlanarUV`, qui produit déjà une
+    // orientation droite : le retournement ferait alors l'inverse de ce qu'il
+    // corrige sur un atlas d'origine.
+    texture.flipY = true
     return { material, kind, canvas, ctx, texture }
   })
 
