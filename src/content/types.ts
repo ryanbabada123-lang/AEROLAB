@@ -61,6 +61,7 @@ export type SchemaId =
   | 'saturation-oxygene'
   | 'seuils-hypoxie'
   | 'illusions-piste'
+  | 'pressurisation-cabine'
 
 export interface Source {
   /** Intitulé exact de la source. */

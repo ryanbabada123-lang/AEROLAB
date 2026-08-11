@@ -24,7 +24,12 @@ import {
   PolaireEtablissement,
 } from './aerodynamique'
 import { ChaineBarometrique, VorToFrom } from './aeronefs'
-import { IllusionsPiste, SaturationOxygene, SeuilsHypoxie } from './aeromedecine'
+import {
+  IllusionsPiste,
+  PressurisationCabine,
+  SaturationOxygene,
+  SeuilsHypoxie,
+} from './aeromedecine'
 
 /**
  * REGISTRE DES SCHÉMAS REDESSINÉS.
@@ -63,6 +68,7 @@ export const SCHEMAS: Record<SchemaId, () => ReactElement> = {
   'saturation-oxygene': SaturationOxygene,
   'seuils-hypoxie': SeuilsHypoxie,
   'illusions-piste': IllusionsPiste,
+  'pressurisation-cabine': PressurisationCabine,
 }
 
 /** Intitulé de chaque schéma — sert au comparatif et aux légendes. */
@@ -96,6 +102,7 @@ export const SCHEMA_TITLES: Record<SchemaId, string> = {
   'saturation-oxygene': 'Saturation en oxygène de l’hémoglobine selon l’altitude',
   'seuils-hypoxie': 'Les seuils de l’hypoxie d’altitude',
   'illusions-piste': 'Illusions d’approche selon la largeur de piste',
+  'pressurisation-cabine': 'Principes de pressurisation cabine',
 }
 
 export function Schema({ id }: { id: SchemaId }) {

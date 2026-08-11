@@ -8,8 +8,8 @@ import type { ReactElement } from 'react'
  * 8 de ses 16 figures se redessinent, les 5 planches anatomiques demandent
  * des sources libres, et la check-list M.A. F.O.R.M.E. est un tableau.
  *
- * COMMENT LA GÉOMÉTRIE A ÉTÉ ÉTABLIE. Les trois `viewBox` reprennent les
- * dimensions exactes des découpes de `public/verif/aeromedecine/`, et les
+ * COMMENT LA GÉOMÉTRIE A ÉTÉ ÉTABLIE. Chaque `viewBox` reprend les
+ * dimensions exactes de la découpe de `public/verif/aeromedecine/`, et les
  * coordonnées ci-dessous ne sont pas estimées à l'œil : elles ont été
  * relevées sur ces images, colonne par colonne, en cherchant les traits
  * sombres. Le comparatif superpose donc l'original et le redessin au pixel,
@@ -479,6 +479,149 @@ export function IllusionsPiste() {
           </g>
         )
       })}
+    </svg>
+  )
+}
+
+/**
+ * p. 4 — principes de pressurisation cabine.
+ *
+ * Quatre profils partant tous de l'origine, et c'est leur écart qui porte
+ * l'information : deux altitudes AVION — 40 000 ft pour le chasseur,
+ * 30 000 ft pour l'avion de ligne — et, en dessous, les deux altitudes
+ * CABINE correspondantes. Celle du chasseur monte à 4 500 ft, s'y tient,
+ * puis rejoint 20 000 ft ; celle de l'avion de ligne reste au niveau de la
+ * mer avant de s'établir un peu au-dessus.
+ *
+ * L'échelle des altitudes n'est pas régulière : l'auteur a remonté le
+ * repère des 4 500 ft pour le rendre lisible. Les ordonnées sont donc
+ * relevées sur l'original, une par une.
+ *
+ * Les silhouettes sont volontairement schématiques. Les originaux sont des
+ * cliparts en demi-teinte ; les redessiner « en vrai » fabriquerait une
+ * autre image. Ce qui compte ici est de savoir quel appareil suit quel
+ * profil, et cela une silhouette le dit.
+ */
+export function PressurisationCabine() {
+  const AXE_X = 96
+  const SOL = 481
+
+  /** Ordonnées relevées des paliers, et abscisse du libellé associé. */
+  const paliers = [
+    { y: 130, label: '40.000', lx: 10, lw: 68 },
+    { y: 223, label: '30.000', lx: 10, lw: 68 },
+    { y: 301, label: '20.000', lx: 10, lw: 68 },
+    { y: 388, label: '4.500', lx: 10, lw: 56 },
+  ]
+
+  /** Les quatre profils, en polylignes. */
+  const profils: [number, number][][] = [
+    // Altitude avion — chasseur.
+    [[98, SOL], [382, 131], [630, 131]],
+    // Altitude avion — avion de ligne.
+    [[96, SOL], [430, 223], [620, 223]],
+    // Altitude cabine du chasseur : 4 500 ft, palier, puis 20 000 ft.
+    [[96, SOL], [171, 388], [341, 388], [440, 301], [625, 301]],
+    // Altitude cabine de l'avion de ligne : niveau de la mer, puis palier.
+    [[96, 477], [378, 477], [432, 442], [614, 442]],
+  ]
+
+  /** Silhouette d'un personnage assis, tourné vers la droite. */
+  const assis = (x: number, y: number, lit: boolean) => (
+    <g transform={`translate(${x},${y})`} fill="#22262b">
+      <circle cx="26" cy="-72" r="11" />
+      {/* Casque du pilote, planche de lecture du passager. */}
+      {lit ? (
+        <path d="M40,-62 L64,-70 L66,-64 L42,-56 Z" />
+      ) : (
+        <path d="M14,-78 Q26,-90 38,-78 L38,-74 L14,-74 Z" />
+      )}
+      <path d="M18,-60 L40,-60 L44,-26 L16,-26 Z" />
+      {/* Cuisses puis tibias : la posture assise. */}
+      <path d="M16,-30 L58,-30 L58,-18 L16,-18 Z" />
+      <path d="M46,-20 L58,-20 L58,0 L46,0 Z" />
+      {/* Bras tendu vers l'avant. */}
+      <path d="M34,-58 L58,-50 L56,-42 L32,-50 Z" />
+      {/* Siège. */}
+      <path d="M6,-66 L18,-66 L18,0 L6,0 Z M6,-28 L20,-28 L20,-18 L6,-18 Z" />
+    </g>
+  )
+
+  return (
+    <svg
+      viewBox="0 0 648 500"
+      role="img"
+      aria-label="Principes de pressurisation cabine. Deux profils d’altitude avion — 40 000 pieds pour un chasseur, 30 000 pieds pour un avion de ligne — et les deux profils d’altitude cabine correspondants : 4 500 pieds puis 20 000 pieds pour le chasseur, niveau de la mer puis palier bas pour l’avion de ligne."
+    >
+      <rect x="0" y="0" width="648" height="500" fill="#ffffff" />
+
+      <Etiquette x={152} y={26} w={344} taille={20}>
+        Principes de pressurisation cabine.
+      </Etiquette>
+      <Etiquette x={120} y={51} w={408} taille={20}>
+        (Les chiffres sont donnés à titre indicatif).
+      </Etiquette>
+
+      {/* Axes. */}
+      <g stroke="#22262b" strokeWidth="4" fill="#22262b">
+        <line x1={AXE_X} y1={SOL} x2={AXE_X} y2="42" />
+        <path d={`M${AXE_X - 9},44 L${AXE_X},20 L${AXE_X + 9},44 Z`} />
+        <line x1={AXE_X - 2} y1={SOL} x2="612" y2={SOL} />
+        <path d={`M612,${SOL - 9} L640,${SOL} L612,${SOL + 9} Z`} />
+      </g>
+
+      {/* Les quatre profils. */}
+      <g fill="none" stroke="#22262b" strokeWidth="5" strokeLinejoin="miter">
+        {profils.map((p, i) => (
+          <polyline key={i} points={p.map(([x, y]) => `${x},${y}`).join(' ')} />
+        ))}
+      </g>
+
+      {/* Repères d'altitude. */}
+      {paliers.map((p) => (
+        <Etiquette key={p.label} x={p.lx} y={p.y + 13} w={p.lw} taille={22}>
+          {p.label}
+        </Etiquette>
+      ))}
+
+      {/* Le chasseur, posé sur le palier des 40 000 ft. Nez à droite. */}
+      <g fill="#ffffff" stroke="#22262b" strokeWidth="2.6" strokeLinejoin="round" transform="translate(422,127)">
+        <path d="M6,-7 L18,-15 L98,-18 L134,-15 L161,-7 L148,-2 L38,-1 L10,-1 Z" />
+        <path d="M12,-15 L30,-53 L42,-53 L48,-16 Z" />
+        <path d="M2,-11 L22,-14 L22,-9 L2,-7 Z" />
+        <path d="M46,-7 L100,-7 L114,0 L58,0 Z" />
+        <path d="M98,-18 L112,-24 L130,-23 L134,-16 Z" />
+      </g>
+
+      {/* L'avion de ligne, sur le palier des 30 000 ft. Empennage en T. */}
+      <g fill="#ffffff" stroke="#22262b" strokeWidth="2.6" strokeLinejoin="round" transform="translate(437,212)">
+        <path d="M24,-8 L58,-15 L158,-17 L190,-13 L200,-7 L188,-2 L58,-2 L28,-5 Z" />
+        <path d="M28,-15 L48,-44 L64,-44 L66,-16 Z" />
+        <path d="M34,-45 L78,-50 L80,-44 L36,-40 Z" />
+        <path d="M74,-8 L120,-8 L98,2 L54,2 Z" />
+      </g>
+
+      {/*
+        La navette le long de la rampe des 40 000 ft, l'appareil supersonique
+        le long de celle des 30 000 ft : c'est ainsi que l'auteur associe
+        chaque machine à son profil de montée. L'un et l'autre sont dessinés
+        moins inclinés que leur rampe — c'est le parti pris de la planche, on
+        le garde.
+      */}
+      <g fill="#ffffff" stroke="#22262b" strokeWidth="2.6" strokeLinejoin="round" transform="translate(256,230) rotate(-32)">
+        <path d="M-78,-6 L20,-9 L58,-6 L82,0 L58,6 L-78,7 Z" />
+        <path d="M-72,5 L-16,5 L-40,19 L-76,19 Z" />
+        <path d="M-72,-6 L-58,-25 L-50,-25 L-54,-6 Z" />
+      </g>
+      <g fill="#ffffff" stroke="#22262b" strokeWidth="2.6" strokeLinejoin="round" transform="translate(339,260) rotate(-28)">
+        <path d="M-96,-4 L60,-7 L94,-3 L102,0 L88,4 L-96,5 Z" />
+        <path d="M-46,4 L-4,4 L-26,18 L-64,18 Z" />
+        <path d="M-92,-4 L-76,-24 L-68,-24 L-72,-4 Z" />
+      </g>
+
+      {/* Le pilote à 20 000 ft de cabine, le passager qui lit au palier bas. */}
+      {assis(415, 299, false)}
+      {assis(435, 441, true)}
     </svg>
   )
 }
