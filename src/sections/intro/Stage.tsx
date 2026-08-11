@@ -65,12 +65,13 @@ function Director({ reduced }: { reduced: boolean }) {
 
   useLayoutEffect(() => {
     scene.fog = fog
-    scene.background = bg
+    // Pas de scene.background : le décor vient de la couche Backdrop, en
+    // DOM, derrière un canevas transparent. Le brouillard, lui, reste — il
+    // teinte les objets et donne la profondeur.
     return () => {
       scene.fog = null
-      scene.background = null
     }
-  }, [scene, fog, bg])
+  }, [scene, fog])
 
   useFrame((state, dt) => {
     const prog = p()
@@ -392,7 +393,10 @@ export default function Stage({
         gl={{
           antialias: profile.tier !== 'low',
           powerPreference: 'high-performance',
-          alpha: false,
+          // Transparent : les plaques du storyboard sont peintes DERRIÈRE le
+          // canevas, en DOM. Une texture 3D les aurait rééchantillonnées et
+          // fait perdre en netteté, pour un plan qui ne bouge pas.
+          alpha: true,
           stencil: false,
           depth: true,
         }}

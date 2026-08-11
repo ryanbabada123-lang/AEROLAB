@@ -78,6 +78,16 @@ export const INTRO = {
    * posées : c'est elles qui devront porter la bascule nuit → jour.
    */
   skyTurnsWhite: 0.5,
+  /**
+   * Retour à l'encre claire.
+   *
+   * Un seuil unique ne suffisait pas : les plaques claires — montagne,
+   * ciel, piste au couchant — vont de la scène 02 à la scène 05, mais les
+   * scènes 06 et le final se jouent sur un ciel d'altitude sombre. Sans
+   * cette seconde borne, « LE CIEL EST À TOI. » s'affichait en sombre sur
+   * noir, illisible. Trouvé à la capture, invisible dans le code.
+   */
+  skyTurnsDark: 0.76,
   /** Au-dessus de la mer de nuages — scène 04. */
   dreamHigh: SCENES.ciel[0],
   /** Orbite libre autour de l'A350 — scène 06. */

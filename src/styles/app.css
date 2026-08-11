@@ -2997,3 +2997,33 @@ a.card:hover .card__state {
 .eleve__message[data-ok='false'] {
   color: #f0a7a2;
 }
+
+/* ---- Décor de l'intro : les plaques du storyboard ------------------
+   Elles sont peintes DERRIÈRE le canevas WebGL, qui est transparent.
+   Une texture 3D les aurait rééchantillonnées pour un plan qui ne bouge
+   pas ; en DOM elles restent nettes et le navigateur choisit sa
+   définition. */
+
+.intro-backdrop {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  /* Sous le canevas et sous les textes, mais au-dessus du fond de page. */
+  z-index: 0;
+  background: var(--c-void);
+}
+
+.intro-backdrop__plate {
+  position: absolute;
+  inset: 0;
+  will-change: opacity, transform;
+  transform-origin: 50% 55%;
+}
+
+.intro-backdrop__plate picture,
+.intro-backdrop__plate img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

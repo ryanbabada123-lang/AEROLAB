@@ -14,6 +14,7 @@ import { clamp, ramp, window4 } from '@/lib/math'
  * une ouverture instantanée et une attente.
  */
 const Stage = lazy(() => import('./Stage'))
+import Backdrop from './Backdrop'
 
 /**
  * INTRODUCTION IMMERSIVE (§04 → §09).
@@ -32,7 +33,9 @@ function BeatLine({ beat }: { beat: Beat }) {
   })
   // L'encre suit le ciel : claire sur le noir d'ouverture, sombre une fois
   // que la scène a blanchi (§51.1 + contraste §35).
-  const ink = beat.at[1] > INTRO.skyTurnsWhite ? 'dark' : 'light'
+  const m = beat.at[1]
+  const ink =
+    m > INTRO.skyTurnsWhite && m < INTRO.skyTurnsDark ? 'dark' : 'light'
 
   return (
     <div ref={ref} className="beat" data-kind={beat.kind} data-ink={ink}>
@@ -225,7 +228,8 @@ function Questions() {
  * bascule nuit → jour. On bascule l'encre au même seuil que le ciel.
  */
 function setInk(el: HTMLElement, p: number) {
-  const ink = p < INTRO.skyTurnsWhite ? 'light' : 'dark'
+  const ink =
+    p > INTRO.skyTurnsWhite && p < INTRO.skyTurnsDark ? 'dark' : 'light'
   if (el.dataset.ink !== ink) el.dataset.ink = ink
 }
 
@@ -394,6 +398,8 @@ export default function Intro() {
       style={{ height: `${INTRO.lengthVh}vh` }}
     >
       <div className="intro__viewport">
+        {/* Le décor du storyboard, derrière le canevas transparent. */}
+        <Backdrop />
         {webgl ? (
           <ErrorBoundary quiet>
             <Suspense
