@@ -316,6 +316,23 @@ export default function BlockRenderer({
     case 'coded':
       return <Coded code={block.code} decode={block.decode} />
 
+    case 'timeline':
+      return (
+        <Reveal as="div" className="cx-timeline">
+          <ol>
+            {block.entries.map((e) => (
+              <li key={e.date + e.text.slice(0, 24)}>
+                <span className="cx-timeline__date">{e.date}</span>
+                <span className="cx-timeline__body">
+                  {e.fait && <strong>{e.fait}</strong>}
+                  {e.text}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </Reveal>
+      )
+
     case 'schema':
       return (
         <SchemaFigure id={block.schema} caption={block.caption} page={block.page} />

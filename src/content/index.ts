@@ -71,7 +71,7 @@ export const BIA_SUBJECTS: Subject[] = [
     track: 'bia',
     name: 'Histoire et culture aéronautique',
     line: "D'où vient ce que l'on pilote aujourd'hui.",
-    courses: [],
+    courses: ['bia-histoire'],
   },
   {
     id: 'anglais',

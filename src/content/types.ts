@@ -104,6 +104,15 @@ export type Block =
    * tel que l'auteur le présente. Le code reste en chasse fixe.
    */
   | { type: 'coded'; code: string; decode: string[] }
+  /**
+   * Frise chronologique. Le chapitre d'histoire est une suite de dates :
+   * les rendre en paragraphes noierait la chronologie, qui est justement
+   * ce que l'élève doit retenir.
+   */
+  | {
+      type: 'timeline'
+      entries: { date: string; text: string; fait?: string }[]
+    }
   | { type: 'simulation'; sim: SimId; title: string; brief?: string }
   | { type: 'keypoints'; title?: string; items: string[] }
   | {
@@ -139,6 +148,12 @@ export type CourseStatus =
    * à dessiner.
    */
   | 'text-only'
+  /**
+   * Rédigé pour ce site d'après des sources publiques citées, faute de
+   * fiche de l'auteur — et PAS ENCORE RELU PAR UN INSTRUCTEUR. Le cours
+   * d'histoire est dans ce cas.
+   */
+  | 'sourced'
   /** Coquille prête, aucun contenu encore. */
   | 'awaiting-content'
 

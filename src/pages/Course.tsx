@@ -13,6 +13,8 @@ const STATUS_LABEL: Record<string, string> = {
   demo: 'Démonstration — texte à remplacer par la fiche de l’auteur',
   'text-only':
     'Texte intégral de l’auteur — schémas pas encore redessinés',
+  sourced:
+    'Rédigé d’après sources citées — non relu par un instructeur',
   'awaiting-content': 'En attente de contenu',
 }
 

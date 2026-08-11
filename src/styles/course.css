@@ -450,3 +450,62 @@ ol.cx-list li::before {
     grid-template-columns: 1fr;
   }
 }
+
+/* ---- Frise chronologique ---------------------------------------- */
+
+.cx-timeline {
+  margin: var(--s-6) 0;
+}
+
+.cx-timeline ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border-left: 1px solid var(--c-line);
+}
+
+.cx-timeline li {
+  position: relative;
+  display: grid;
+  grid-template-columns: 8.5rem 1fr;
+  gap: var(--s-4);
+  padding: var(--s-3) 0 var(--s-3) var(--s-6);
+}
+
+/* Le point sur la ligne de temps. */
+.cx-timeline li::before {
+  content: '';
+  position: absolute;
+  left: -4px;
+  top: 1.45em;
+  width: 7px;
+  height: 7px;
+  background: var(--c-electric);
+}
+
+.cx-timeline__date {
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  letter-spacing: 0.08em;
+  color: var(--c-ink);
+  padding-top: 0.28em;
+  text-transform: uppercase;
+}
+
+.cx-timeline__body {
+  font-size: var(--t-body);
+  line-height: var(--lh-body);
+  color: var(--c-graphite);
+}
+
+.cx-timeline__body strong {
+  display: block;
+  color: var(--c-ink);
+}
+
+@media (max-width: 620px) {
+  .cx-timeline li {
+    grid-template-columns: 1fr;
+    gap: var(--s-1);
+  }
+}

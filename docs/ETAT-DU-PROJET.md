@@ -84,7 +84,7 @@ voie d'import pour les élèves déjà avancés.
 | Frise à six scènes + décollage et atterrissage | ~10 % | partiel : les trois appareils jouent dans la frise existante à sept phases, qui reste à réécrire sur les six scènes du storyboard |
 | Moteur de cours + chapitre 1 Météo comme référence | ~10 % | ✅ fait — texte intégral, 20 schémas SVG, comparatif de vérification |
 | Les six autres chapitres BIA | ~60 % | texte intégral en place ; **schémas à redessiner** |
-| Chapitre 5 Histoire | — | à rédiger, aucune source fournie |
+| Chapitre 5 Histoire | — | ✅ rédigé d'après les sources officielles ; **à faire relire par un instructeur** |
 
 **Le poids est dans les cours**, et il ne peut pas être comprimé sans trahir
 deux règles posées par l'auteur du projet : ne pas résumer le texte, ne pas
@@ -237,8 +237,16 @@ d'attaque noir, barre blanche sur fond sombre.
 ## 5. Ce qui manque encore côté sources
 
 - Cours PPL théorique, PPL pratique, annales BIA
-- Chapitre 5 Histoire : à rédiger d'après sources en ligne, avec ses sources
-  citées, et à marquer « non validé par un instructeur » jusqu'à relecture
+- ~~Chapitre 5 Histoire~~ — **fait.** Les sources ont été trouvées et
+  téléchargées : le **manuel officiel du BIA** (Eduscol, Ministère de
+  l'Éducation nationale, version 4.0 édition 2021, 274 pages, rédigé sous la
+  direction du CIRAS de Toulouse) et le **chapitre 5 du CIRAS** (65 pages).
+  Les deux sont dans `assets/cours/histoire/` et ont une couche texte native.
+  Le chapitre suit le plan du **programme officiel 2015** en quatre parties,
+  reprend ses dates, mais son texte est écrit pour ce site — on ne recopie pas
+  un document sur lequel l'auteur du projet n'a pas la main. Statut `sourced`,
+  et un encadré rouge en tête de chapitre dit qu'il **reste à faire relire par
+  un instructeur**.
 - Plaques en 3 840 px de large, si l'outil de l'auteur le permet
 - Provenance des visuels de montagne et de piste
 - Les inscriptions des panneaux de cockpit resteront muettes : les inventer

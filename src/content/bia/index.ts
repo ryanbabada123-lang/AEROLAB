@@ -1,5 +1,6 @@
 import type { Course, Source } from '@/content/types'
 import { meteorologie } from './meteo'
+import { histoire } from './histoire'
 
 /**
  * LES SEPT COURS BIA D'ANDRÉ PARIS.
@@ -177,5 +178,6 @@ export const BIA_COURSES: Course[] = [
   reglementation,
   navigation,
   aeromedecine,
+  histoire,
   anglais,
 ]
