@@ -74,6 +74,7 @@ const SETS: Record<
       { id: 'pressurisation-cabine', page: 4 },
       { id: 'saturation-oxygene', page: 6 },
       { id: 'seuils-hypoxie', page: 6 },
+      { id: 'facteurs-de-charge', page: 9 },
       { id: 'illusions-piste', page: 14 },
     ],
   },

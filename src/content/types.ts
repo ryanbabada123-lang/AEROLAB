@@ -62,6 +62,7 @@ export type SchemaId =
   | 'seuils-hypoxie'
   | 'illusions-piste'
   | 'pressurisation-cabine'
+  | 'facteurs-de-charge'
 
 export interface Source {
   /** Intitulé exact de la source. */

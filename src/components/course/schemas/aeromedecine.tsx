@@ -625,3 +625,150 @@ export function PressurisationCabine() {
     </svg>
   )
 }
+
+/**
+ * p. 9 — les facteurs de charge Gx, Gy, Gz sur le pilote.
+ *
+ * Six flèches et trois rotations, rapportées au pilote : Gz suivant l'axe
+ * tête-pieds, Gy suivant l'axe des épaules, Gx suivant l'axe du regard. Le
+ * signe suit le sens, et c'est tout ce que la planche dit — mais elle le dit
+ * avec une géométrie précise, que le redessin conserve.
+ *
+ * Les quatre flèches obliques sont TRÈS peu inclinées, une dizaine de degrés
+ * seulement : c'est mesuré sur l'original, où une coupe horizontale à mi-
+ * hauteur les traverse sur près de cent pixels. Les redresser à 45°, comme
+ * le réflexe y pousse, changerait la figure.
+ *
+ * Le pilote est un clipart en couleurs dans le document ; il est ici réduit
+ * à une silhouette. Il ne sert qu'à ancrer les axes.
+ */
+export function FacteursDeCharge() {
+  const CX = 320
+
+  /**
+   * Une flèche : de la base vers la pointe, largeur du fût, largeur et
+   * longueur de la tête. Les extrémités sont celles relevées sur l'original.
+   */
+  const fleche = (
+    x0: number,
+    y0: number,
+    x1: number,
+    y1: number,
+    fut = 14,
+    demiTete = 19,
+    longTete = 32,
+  ) => {
+    const dx = x1 - x0
+    const dy = y1 - y0
+    const l = Math.hypot(dx, dy)
+    const ux = dx / l
+    const uy = dy / l
+    const nx = -uy
+    const ny = ux
+    const bx = x1 - ux * longTete
+    const by = y1 - uy * longTete
+    const f = fut / 2
+    const p = (px: number, py: number) => `${px.toFixed(1)},${py.toFixed(1)}`
+    return (
+      <polygon
+        points={[
+          p(x0 + nx * f, y0 + ny * f),
+          p(bx + nx * f, by + ny * f),
+          p(bx + nx * demiTete, by + ny * demiTete),
+          p(x1, y1),
+          p(bx - nx * demiTete, by - ny * demiTete),
+          p(bx - nx * f, by - ny * f),
+          p(x0 - nx * f, y0 - ny * f),
+        ].join(' ')}
+        fill="#ffffff"
+        stroke="#101418"
+        strokeWidth="3"
+        strokeLinejoin="round"
+      />
+    )
+  }
+
+  /**
+   * Rotation autour d'un axe : un arc noir à deux pointes, comme sur la
+   * planche. `ouvert` oriente l'ouverture de l'arc.
+   */
+  const rotation = (cx: number, cy: number, rx: number, ry: number, angle: number) => (
+    <g transform={`translate(${cx},${cy}) rotate(${angle})`} fill="#101418">
+      <path
+        d={`M${-rx},0 A${rx},${ry} 0 0 1 ${rx},0`}
+        fill="none"
+        stroke="#101418"
+        strokeWidth="5"
+      />
+      <path d={`M${-rx - 7},-11 L${-rx + 9},-7 L${-rx - 2},3 Z`} />
+      <path d={`M${rx + 7},-11 L${rx - 9},-7 L${rx + 2},3 Z`} />
+    </g>
+  )
+
+  /** Les six libellés, à leur place sur l'original. */
+  const libelles = [
+    { t: '+ Gz', x: 295, y: 68, w: 43 },
+    { t: '- Gz', x: 299, y: 490, w: 43 },
+    { t: '+ Gy', x: 48, y: 246, w: 47 },
+    { t: '+ Gx', x: 51, y: 376, w: 47 },
+    { t: '- Gx', x: 533, y: 262, w: 47 },
+    { t: '- Gy', x: 537, y: 366, w: 47 },
+  ]
+
+  return (
+    <svg
+      viewBox="0 0 631 548"
+      role="img"
+      aria-label="Les facteurs de charge rapportés au pilote : plus Gz vers le haut et moins Gz vers le bas suivant l’axe tête-pieds, plus Gy et moins Gy suivant l’axe des épaules, plus Gx et moins Gx suivant l’axe du regard, avec les trois rotations correspondantes."
+    >
+      <rect x="0" y="0" width="631" height="548" fill="#ffffff" />
+      <rect x="48" y="49" width="546" height="462" fill="#dedede" />
+      <rect
+        x="43"
+        y="44"
+        width="546"
+        height="462"
+        fill="#facc08"
+        stroke="#101418"
+        strokeWidth="4"
+      />
+
+      {/* Les deux flèches verticales : l'axe tête-pieds. */}
+      {fleche(CX, 196, 320, 76, 16, 13, 30)}
+      {fleche(CX - 4, 372, 317, 474, 16, 13, 30)}
+
+      {/* Les quatre obliques : axes des épaules et du regard. */}
+      {fleche(CX - 24, 292, 100, 264)}
+      {fleche(CX - 24, 310, 106, 348)}
+      {fleche(CX + 24, 292, 528, 266)}
+      {fleche(CX + 24, 310, 524, 352)}
+
+      {/* Les trois rotations. */}
+      {rotation(316, 152, 42, 20, 0)}
+      {rotation(132, 275, 60, 22, 92)}
+      {rotation(176, 295, 40, 16, 92)}
+
+      {/*
+        Le pilote, réduit à une silhouette : buste, épaules, casque et
+        casque-micro. Il n'a d'autre rôle que de porter les trois axes.
+      */}
+      <g transform="translate(320,300)">
+        <path d="M-46,56 L-44,-30 Q-40,-46 -16,-50 L16,-50 Q40,-46 44,-30 L46,56 Z" fill="#f4f4f4" stroke="#101418" strokeWidth="3" />
+        <path d="M-3,-50 L3,-50 L8,-6 L0,8 L-8,-6 Z" fill="#101418" />
+        <ellipse cx="0" cy="-78" rx="20" ry="25" fill="#7b8188" stroke="#101418" strokeWidth="3" />
+        <path d="M-22,-92 Q0,-108 22,-92 L22,-85 Q0,-98 -22,-85 Z" fill="#101418" />
+        <path d="M-20,-78 L-26,-78 L-26,-64 L-20,-64 Z M-26,-71 L-10,-61 L-8,-65 Z" fill="#101418" />
+        <rect x="-48" y="56" width="96" height="12" fill="#2b3ea8" />
+      </g>
+
+      {/* Les libellés. */}
+      <g fontFamily="var(--f-sans)" fontSize="24" fontWeight="700" fill="#101418">
+        {libelles.map((l) => (
+          <text key={l.t} x={l.x} y={l.y} textLength={l.w} lengthAdjust="spacingAndGlyphs">
+            {l.t}
+          </text>
+        ))}
+      </g>
+    </svg>
+  )
+}

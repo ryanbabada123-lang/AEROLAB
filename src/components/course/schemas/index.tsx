@@ -25,6 +25,7 @@ import {
 } from './aerodynamique'
 import { ChaineBarometrique, VorToFrom } from './aeronefs'
 import {
+  FacteursDeCharge,
   IllusionsPiste,
   PressurisationCabine,
   SaturationOxygene,
@@ -69,6 +70,7 @@ export const SCHEMAS: Record<SchemaId, () => ReactElement> = {
   'seuils-hypoxie': SeuilsHypoxie,
   'illusions-piste': IllusionsPiste,
   'pressurisation-cabine': PressurisationCabine,
+  'facteurs-de-charge': FacteursDeCharge,
 }
 
 /** Intitulé de chaque schéma — sert au comparatif et aux légendes. */
@@ -103,6 +105,7 @@ export const SCHEMA_TITLES: Record<SchemaId, string> = {
   'seuils-hypoxie': 'Les seuils de l’hypoxie d’altitude',
   'illusions-piste': 'Illusions d’approche selon la largeur de piste',
   'pressurisation-cabine': 'Principes de pressurisation cabine',
+  'facteurs-de-charge': 'Les facteurs de charge Gx, Gy et Gz sur le pilote',
 }
 
 export function Schema({ id }: { id: SchemaId }) {
