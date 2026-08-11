@@ -179,9 +179,12 @@ function PlaneRig({ density }: { density: number }) {
 
     // Visible de l'apparition lointaine jusqu'à la dissolution finale ;
     // masqué pendant la séquence intérieure du cockpit.
+    // Le Tecnam tient les scènes d'avant le décollage — « une machine », celle
+    // sur laquelle on apprend. Il se retire quand l'A350 prend la suite, selon
+    // le duo arrêté par l'auteur du projet.
     const outside =
       window4(prog, INTRO.planeAppears - 0.03, INTRO.planeAppears + 0.02, 0.315, 0.345) +
-      window4(prog, 0.455, 0.5, 0.9, 0.96)
+      window4(prog, 0.455, 0.49, INTRO.takeoff + 0.02, INTRO.takeoff + 0.06)
     g.visible = outside > 0.01
 
     const t = state.clock.elapsedTime
@@ -218,6 +221,68 @@ function PlaneRig({ density }: { density: number }) {
           rotation={[0, Math.PI / 2, 0]}
         />
       </Suspense>
+    </group>
+  )
+}
+
+/* ----------------------------------------------------------------- A350 */
+
+/**
+ * L'AIRBUS A350-1000 — « une première fois », l'horizon du parcours.
+ *
+ * C'est lui qui décolle, monte et se laisse regarder sous tous les angles. La
+ * contrainte du §1 du cahier des charges — « on doit pouvoir tourner autour de
+ * l'avion, voir les détails » — est honorée ici : le défilement fait tourner
+ * l'appareil sur près d'un demi-tour, si bien que le dessus des ailes, les
+ * moteurs et la dérive se découvrent en descendant.
+ *
+ * Le train rentre pour de vrai, ses deux atterrisseurs principaux occupant des
+ * meshes distincts, et les soufflantes tournent. C'est tout l'objet du soin pris
+ * à ne jamais fusionner les meshes pendant la compression.
+ */
+function A350Rig({ density }: { density: number }) {
+  const rig = useRef<THREE.Group>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useFrame((state) => {
+    const prog = p()
+
+    // 2,94 Mo et 256 945 triangles : monté seulement autour de sa fenêtre.
+    const near = prog > INTRO.takeoff - 0.06 && prog < 0.86
+    if (near !== mounted) setMounted(near)
+
+    const g = rig.current
+    if (!g) return
+
+    const show = window4(prog, INTRO.takeoff - 0.02, INTRO.takeoff + 0.04, 0.78, 0.84)
+    g.visible = show > 0.01
+
+    const t = state.clock.elapsedTime
+    const climb = ramp(prog, INTRO.takeoff, INTRO.dreamHigh)
+
+    // Orbite pilotée par le défilement : c'est la rotation libre exigée.
+    g.rotation.y = Math.PI * 0.35 + ramp(prog, INTRO.takeoff, 0.78) * Math.PI * 0.95
+
+    // Rotation autour du train principal puis retour en palier.
+    g.rotation.x = -window4(prog, INTRO.takeoff, 0.5, 0.55, 0.64) * 0.16
+    g.rotation.z = Math.sin(t * 0.28) * 0.03 * climb
+    g.position.y = -0.3 + climb * 0.5 + Math.sin(t * 0.42) * 0.06 * climb
+  })
+
+  return (
+    <group ref={rig} visible={false}>
+      {mounted && (
+        <Suspense fallback={null}>
+          <Model
+            model="a350"
+            // À 73,83 m de long, l'appareil demande une échelle bien plus petite
+            // que le Tecnam pour tenir dans le même cadre.
+            scale={density < 0.7 ? 0.052 : 0.058}
+            getSpin={() => lerp(0.5, 9, ramp(p(), INTRO.takeoff - 0.04, 0.56))}
+            getGear={() => ramp(p(), INTRO.takeoff + 0.03, INTRO.takeoff + 0.11)}
+          />
+        </Suspense>
+      )}
     </group>
   )
 }
@@ -280,6 +345,8 @@ function Contents({ density, shadows }: { density: number; shadows: boolean }) {
       />
 
       <PlaneRig density={density} />
+
+      <A350Rig density={density} />
 
       {/* Le poste de pilotage A400M remplace le cockpit en primitives. Il n'est
           monté que pendant sa fenêtre : 333 500 triangles ne doivent pas peser

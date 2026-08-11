@@ -29,6 +29,14 @@ donne les noms de pièces tels que le chargeur les monte.
 88 surfaces habillées par règles sur leur nom, occluders masqués, afficheurs
 éteints en attente d'instruments, livrée blanc et noir du Tecnam.
 
+### Les modèles dans l'introduction — `src/three/Model.tsx`
+
+Chargeur commun aux trois modèles : clone la scène, pose les matériaux du site,
+retrouve par leur nom les organes d'animation. Le Tecnam tient les scènes
+d'avant le décollage avec ses instruments vivants, l'A350 prend la suite avec
+rentrée du train, soufflantes en rotation et orbite pilotée par le défilement,
+et le poste A400M n'est monté que pendant sa fenêtre puis démonté.
+
 ### Le site découvert — `src/sections/Discover.tsx`
 
 Sept sections dans le style de la maquette blizzard. Chaque carte dit son état
@@ -71,9 +79,9 @@ voie d'import pour les élèves déjà avancés.
 
 | Bloc | Part du total | État |
 | --- | ---: | --- |
-| Instruments vivants du Tecnam | ~3 % | à faire |
-| Remplacer les primitives par les vrais modèles dans l'intro | ~7 % | à faire |
-| Frise à six scènes + décollage et atterrissage | ~10 % | à faire |
+| Instruments vivants du Tecnam | ~3 % | ✅ fait, vitesses sourcées sur le manuel de vol |
+| Remplacer les primitives par les vrais modèles dans l'intro | ~7 % | ✅ fait — Tecnam, cockpit A400M et A350 en place |
+| Frise à six scènes + décollage et atterrissage | ~10 % | partiel : les trois appareils jouent dans la frise existante à sept phases, qui reste à réécrire sur les six scènes du storyboard |
 | Moteur de cours + chapitre 1 Météo comme référence | ~10 % | à faire |
 | Les six autres chapitres BIA + Histoire à rédiger | ~60 % | à faire |
 
