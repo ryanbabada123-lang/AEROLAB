@@ -368,8 +368,10 @@ function Contents({ density, shadows }: { density: number; shadows: boolean }) {
           final — précisément là où le storyboard veut l'A350 seul, en orbite
           libre puis en passage devant le titre.
           Résultat : on croyait voir l'A350 alors qu'on regardait une aile.
-          Le composant WingSection reste dans le dépôt : il a sa place dans
-          une page de cours d'aérodynamique, pas dans l'introduction. */}
+          Le composant a été supprimé du dépôt : plus rien ne l'appelait, et
+          un cours d'aérodynamique qui en voudrait un le reprendrait depuis
+          les simulations existantes (LiftAirfoil), pas depuis du code mort
+          gardé « au cas où ». */}
     </>
   )
 }
