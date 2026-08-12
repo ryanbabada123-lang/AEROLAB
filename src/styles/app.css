@@ -2695,38 +2695,79 @@ a.card:hover .card__state {
 
 .bienvenue__contenu {
   position: relative;
-  padding-block: clamp(96px, 18vh, 200px);
+  padding: clamp(96px, 18vh, 200px) var(--gutter);
   max-width: 100%;
 }
 
 .bienvenue__titre {
-  margin-top: var(--s-3);
   font-family: var(--f-display);
   font-weight: 600;
-  font-size: var(--t-d1);
-  line-height: 0.92;
-  letter-spacing: var(--ls-hero);
+  font-size: var(--t-d2);
+  line-height: 1.02;
+  letter-spacing: var(--ls-display);
   text-transform: uppercase;
   color: var(--c-ink);
+  max-width: 16ch;
 }
 
 .bienvenue__titre span {
   color: var(--c-electric);
 }
 
-.bienvenue__ligne {
-  margin-top: var(--s-5);
-  max-width: 34ch;
-  font-size: var(--t-h3);
-  line-height: 1.5;
-  color: var(--c-slate);
+.bienvenue__contenu .btn {
+  margin-top: var(--s-7);
 }
 
-.bienvenue__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--s-4);
-  margin-top: var(--s-7);
+/*
+  Le chevron de descente. Il ne bouge pas de lui-même : la seule animation
+  du site est le défilement qu'il déclenche. Il reste discret, en bas au
+  centre, et sa zone sensible fait 56 px de côté.
+*/
+.bienvenue__descendre {
+  position: absolute;
+  left: 50%;
+  bottom: max(28px, env(safe-area-inset-bottom));
+  transform: translateX(-50%);
+  width: 56px;
+  height: 56px;
+  display: grid;
+  place-items: center;
+  color: var(--c-ink);
+  opacity: 0.55;
+  transition: opacity var(--d-fast);
+}
+
+.bienvenue__descendre:hover,
+.bienvenue__descendre:focus-visible {
+  opacity: 1;
+}
+
+.bienvenue__descendre span {
+  width: 16px;
+  height: 16px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg) translate(-3px, -3px);
+}
+
+/* ---- LES CHAPITRES, SOUS LA BIENVENUE ---- */
+
+.reviser {
+  padding-block: clamp(64px, 10vh, 120px);
+  scroll-margin-top: 72px;
+}
+
+.reviser__tete {
+  margin-bottom: var(--s-6);
+}
+
+.reviser__tete h2 {
+  margin-top: var(--s-3);
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-h1);
+  letter-spacing: var(--ls-display);
+  text-transform: uppercase;
 }
 
 @media (max-width: 640px) {
@@ -2741,8 +2782,8 @@ a.card:hover .card__state {
     );
   }
 
-  .bienvenue__actions .btn {
-    flex: 1 1 100%;
+  .bienvenue__contenu .btn {
+    width: 100%;
     justify-content: center;
   }
 }

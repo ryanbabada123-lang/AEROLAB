@@ -1,17 +1,15 @@
-import { Link } from 'react-router-dom'
 import { asset } from '@/lib/asset'
 
 /**
  * PAGE DE BIENVENUE.
  *
- * Remplace l'introduction à défilement immersif, retirée sur demande. Ce
- * qu'elle faisait — sept scènes enchaînées par le défilement, une scène 3D
- * avec deux appareils, un cadran d'instruments, une frise de chapitres —
- * demandait au visiteur de faire défiler neuf écrans avant d'atteindre quoi
- * que ce soit d'utile, et l'avion ne s'affichait pas partout.
+ * Une image, une phrase, une porte. Rien d'autre.
  *
- * Ici : une image, un titre, une porte d'entrée. Rien ne bouge, rien
- * n'attend, rien ne dépend du défilement ni de la 3D.
+ * La seule animation du site est ici : la descente vers les cours, quand on
+ * appuie sur le bouton ou sur le chevron. Elle est confiée à
+ * `scrollIntoView({ behavior: 'smooth' })` — donc au navigateur, qui
+ * l'interrompt proprement si le visiteur reprend la main, et qui la
+ * supprime de lui-même quand le système demande à réduire les animations.
  *
  * L'image est celle du site — `montagne-brume`, déjà présente en cinq
  * largeurs — donc servie dans la taille qui convient à l'écran, et
@@ -20,6 +18,14 @@ import { asset } from '@/lib/asset'
 
 const PLATE = 'montagne-brume'
 const LARGEURS = [1024, 1536, 1920]
+
+/** Descend jusqu'aux cours, sans changer de page ni toucher à l'adresse. */
+function descendre() {
+  document.getElementById('reviser')?.scrollIntoView({
+    behavior: 'smooth',
+    block: 'start',
+  })
+}
 
 export default function Bienvenue() {
   return (
@@ -46,24 +52,24 @@ export default function Bienvenue() {
         />
       </picture>
 
-      <div className="bienvenue__contenu u-shell">
-        <p className="u-label">Bienvenue dans</p>
+      <div className="bienvenue__contenu">
         <h1 className="bienvenue__titre">
-          AERO<span aria-hidden="true">//</span>LAB
+          Bienvenue dans AERO<span aria-hidden="true">//</span>LAB
         </h1>
-        <p className="bienvenue__ligne">
-          Les cours du BIA, mot pour mot, avec leurs schémas redessinés.
-        </p>
 
-        <div className="bienvenue__actions">
-          <Link to="/formation/bia" className="btn btn--primary">
-            Commencer le BIA
-          </Link>
-          <Link to="/espace-eleve" className="btn">
-            Espace élève
-          </Link>
-        </div>
+        <button type="button" className="btn btn--primary" onClick={descendre}>
+          Commencer à réviser
+        </button>
       </div>
+
+      <button
+        type="button"
+        className="bienvenue__descendre"
+        onClick={descendre}
+        aria-label="Descendre vers les cours"
+      >
+        <span aria-hidden="true" />
+      </button>
     </section>
   )
 }

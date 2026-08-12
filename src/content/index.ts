@@ -23,27 +23,43 @@ export const coursesOfSubject = (subjectId: string) =>
   COURSES.filter((c) => c.subject === subjectId)
 
 /** Matières BIA — liste fournie par l'auteur, en attente des fiches. */
+/**
+ * LES MATIÈRES DU BIA, DANS L'ORDRE DE L'ÉPREUVE.
+ *
+ * L'ordre compte : c'est celui des cinq parties de l'examen, et celui des
+ * fascicules de l'auteur. La liste était rangée autrement, si bien que la
+ * page d'accueil numérotait « 01 Aérodynamique » alors que le chapitre 1 du
+ * BIA est la météorologie — un élève qui compare avec son livret n'y
+ * retrouvait pas ses repères.
+ */
 export const BIA_SUBJECTS: Subject[] = [
+  {
+    id: 'meteorologie',
+    track: 'bia',
+    name: 'Météorologie et aérologie',
+    line: "Lire l'atmosphère avant d'y entrer.",
+    courses: ['bia-meteo'],
+  },
   {
     id: 'aerodynamique',
     track: 'bia',
-    name: 'Aérodynamique',
-    line: "Comment naît la portance, ce qui freine, ce qui décroche.",
+    name: 'Aérodynamique et mécanique du vol',
+    line: 'Comment naît la portance, ce qui freine, ce qui décroche.',
     courses: ['bia-aerodynamique', 'bia-aero-portance'],
   },
   {
     id: 'aeronefs',
     track: 'bia',
-    name: 'Connaissance des aéronefs',
-    line: "Structure, motorisation, commandes, systèmes.",
+    name: 'Étude des aéronefs',
+    line: 'Structure, motorisation, commandes, systèmes.',
     courses: ['bia-aeronefs'],
   },
   {
-    id: 'meteorologie',
+    id: 'reglementation',
     track: 'bia',
-    name: 'Météorologie',
-    line: "Lire l'atmosphère avant d'y entrer.",
-    courses: ['bia-meteo'],
+    name: 'Réglementation',
+    line: 'Le cadre dans lequel un vol est légal et sûr.',
+    courses: ['bia-reglementation'],
   },
   {
     id: 'navigation',
@@ -53,16 +69,9 @@ export const BIA_SUBJECTS: Subject[] = [
     courses: ['bia-navigation'],
   },
   {
-    id: 'reglementation',
-    track: 'bia',
-    name: 'Réglementation',
-    line: "Le cadre dans lequel un vol est légal et sûr.",
-    courses: ['bia-reglementation'],
-  },
-  {
     id: 'facteurs-humains',
     track: 'bia',
-    name: 'Facteurs humains',
+    name: 'Aéromédecine et facteurs humains',
     line: "Les limites du pilote font partie des limites de l'avion.",
     courses: ['bia-aeromedecine'],
   },
