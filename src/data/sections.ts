@@ -27,9 +27,16 @@ export interface SiteSection {
   /** Sous-titre en capitales bleues sous le titre. */
   kicker: string
   blurb: string
-  to: string
-  /** Second bouton, quand la section en comporte un. */
-  secondary?: { label: string; to: string }
+  /**
+   * Destination, quand la section en a une.
+   *
+   * ABSENTE quand il n'y a rien à ouvrir. Elle était renseignée pour toutes
+   * les sections, y compris celles en attente de contenu : trois de ces
+   * adresses ne menaient nulle part, et `scripts/audit-liens.mjs` les
+   * signalait comme des liens morts — à raison. Une section sans page n'a
+   * pas d'adresse.
+   */
+  to?: string
   features: [SectionFeature, SectionFeature, SectionFeature]
   state: SectionState
   /** Ce qu'il manque, affiché tel quel quand l'état n'est pas `ready`. */
@@ -45,7 +52,6 @@ export const SECTIONS: SiteSection[] = [
       "Tout le programme du BIA, repris des cours du Comité départemental " +
       "aéronautique 35, chapitre par chapitre et au mot près.",
     to: '/formation/bia',
-    secondary: { label: 'Banque de QCM', to: '/formation/bia/qcm' },
     features: [
       {
         icon: 'book',
@@ -76,8 +82,7 @@ export const SECTIONS: SiteSection[] = [
     blurb:
       "L'examen théorique du PPL, module par module, dans la continuité du " +
       'BIA plutôt qu\'en repartant de zéro.',
-    to: '/formation/ppl-theorique',
-    secondary: { label: 'Banque de QCM', to: '/formation/ppl-theorique/qcm' },
+    to: '/formation/ppl',
     features: [
       {
         icon: 'book',
@@ -106,7 +111,6 @@ export const SECTIONS: SiteSection[] = [
     blurb:
       "Ce qui se passe réellement en vol, sur le Tecnam : la visite prévol, " +
       'le tour de piste, la panne, la navigation.',
-    to: '/formation/ppl-pratique',
     features: [
       {
         icon: 'wing',
@@ -135,7 +139,7 @@ export const SECTIONS: SiteSection[] = [
     blurb:
       'Les treize dossiers du cours, le vocabulaire exigible dans les deux ' +
       'sens, et les schémas légendés en anglais.',
-    to: '/formation/anglais',
+    to: '/cours/bia/bia-anglais',
     features: [
       {
         icon: 'globe',
@@ -165,7 +169,6 @@ export const SECTIONS: SiteSection[] = [
     blurb:
       'Les sujets tels qu\'ils sont tombés, pour mesurer ce qui est vraiment ' +
       'demandé plutôt que ce qu\'on imagine.',
-    to: '/formation/annales',
     features: [
       {
         icon: 'quiz',
@@ -194,7 +197,6 @@ export const SECTIONS: SiteSection[] = [
     blurb:
       'Toutes les questions du site rassemblées, filtrables par chapitre et ' +
       'par difficulté.',
-    to: '/formation/qcm',
     features: [
       {
         icon: 'quiz',
@@ -223,7 +225,7 @@ export const SECTIONS: SiteSection[] = [
     blurb:
       'Ce que personne ne t\'explique clairement : par où commencer, ce que ' +
       'coûte chaque étape, et à quoi sert vraiment le PPL.',
-    to: '/parcours',
+    to: '/journey',
     features: [
       {
         icon: 'target',
@@ -258,27 +260,41 @@ export interface NavEntry {
   children?: { label: string; to: string }[]
 }
 
+/**
+ * LE MENU N'ANNONCE QUE CE QUI EXISTE.
+ *
+ * Il proposait onze destinations dont SEPT tombaient sur « cette route
+ * n'existe pas » : annales, banque de questions, anglais, PPL théorique,
+ * PPL pratique, parcours, à propos. Rien ne le signalait — ni la
+ * compilation, ni le rendu — et un visiteur qui explorait le menu tombait
+ * sur la page d'erreur une fois sur deux.
+ *
+ * Trois adresses avaient une vraie destination et étaient simplement mal
+ * écrites : `/formation/ppl-theorique` pour `/formation/ppl`, `/parcours`
+ * pour `/journey`, `/formation/anglais` pour le cours lui-même. Les quatre
+ * autres ne correspondaient à rien : elles sont retirées, et reviendront le
+ * jour où leur page existera.
+ *
+ * `scripts/audit-liens.mjs` visite chaque adresse du code et échoue si
+ * l'une d'elles rend la page d'erreur.
+ */
 export const NAV: NavEntry[] = [
   { label: 'Accueil', to: '/' },
   {
     label: 'BIA',
     to: '/formation/bia',
     children: [
-      { label: 'Les sept chapitres', to: '/formation/bia' },
-      { label: 'Annales BIA', to: '/formation/annales' },
-      { label: 'Banque de questions', to: '/formation/qcm' },
-      { label: 'Anglais aéronautique', to: '/formation/anglais' },
+      { label: 'Les chapitres', to: '/formation/bia' },
+      { label: 'Anglais aéronautique', to: '/cours/bia/bia-anglais' },
     ],
   },
   {
     label: 'PPL',
-    to: '/formation/ppl-theorique',
+    to: '/formation/ppl',
     children: [
-      { label: 'PPL théorique', to: '/formation/ppl-theorique' },
-      { label: 'PPL pratique', to: '/formation/ppl-pratique' },
-      { label: 'Devenir pilote de ligne', to: '/parcours' },
+      { label: 'PPL théorique', to: '/formation/ppl' },
+      { label: 'Devenir pilote de ligne', to: '/journey' },
     ],
   },
   { label: 'Ressources', to: '/lab' },
-  { label: 'À propos', to: '/a-propos' },
 ]

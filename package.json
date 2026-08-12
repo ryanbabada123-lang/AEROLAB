@@ -12,7 +12,8 @@
     "checks": "node scripts/checks.mjs",
     "images": "node scripts/images.mjs",
     "single": "node scripts/singlefile.mjs",
-    "audit": "node scripts/audit-responsive.mjs"
+    "audit": "node scripts/audit-responsive.mjs",
+    "audit:liens": "node scripts/audit-liens.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

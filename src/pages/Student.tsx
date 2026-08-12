@@ -229,7 +229,8 @@ function Dashboard() {
             return (
               <li key={s.id} data-done={done} data-state={s.state}>
                 <span className="eleve__pname">
-                  {s.state === 'awaiting' ? s.title : <Link to={s.to}>{s.title}</Link>}
+                  {/* Sans destination, la matière s'affiche sans lien. */}
+                  {s.to ? <Link to={s.to}>{s.title}</Link> : s.title}
                 </span>
                 <span className="eleve__pstate">
                   {s.state === 'awaiting'
