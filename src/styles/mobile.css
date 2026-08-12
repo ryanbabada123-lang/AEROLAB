@@ -107,12 +107,29 @@ table {
   */
   .crumb,
   .vf-row__meta a,
-  .b-schema__link {
+  .b-schema__link,
+  .eleve__lien a,
+  .eleve__activite a,
+  .eleve__favoris a,
+  .eleve__faibles a,
+  .eleve__emeta a,
+  .eleve__matiere h3 a {
     display: inline-flex;
     align-items: center;
     min-height: 44px;
     padding-block: 10px;
     margin-block: -10px;
+  }
+
+  /*
+    Le bouton « mettre en favori » et le bouton « retirer » sont dessinés
+    petits pour rester discrets à côté du titre. L'audit les relevait à 33 et
+    27 pixels de haut : un pouce ne vise pas cela. La zone monte à 44 sans
+    grossir le trait.
+  */
+  .favori,
+  .eleve__fretirer {
+    min-height: 44px;
   }
 
   /*

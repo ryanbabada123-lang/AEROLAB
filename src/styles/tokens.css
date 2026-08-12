@@ -172,6 +172,12 @@
   --d-accent: #3b8bff;
   --d-accent-soft: rgba(59, 139, 255, 0.14);
 
+  /* Vert et ambre pour fond sombre. --c-ok et --c-warn sont réglés pour du
+     texte foncé sur fond clair : posés sur --d-base ils tombent sous le
+     contraste lisible. Ces deux-là s'y tiennent (rapport supérieur à 8). */
+  --d-ok: #4ade80;
+  --d-warn: #f0b429;
+
   /* Angles : la maquette est franchement arrondie. Réservé aux cartes
      sombres — les pages de cours gardent --r-1 et --r-2. */
   --r-card: 18px;

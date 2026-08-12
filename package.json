@@ -13,7 +13,8 @@
     "images": "node scripts/images.mjs",
     "single": "node scripts/singlefile.mjs",
     "audit": "node scripts/audit-responsive.mjs",
-    "audit:liens": "node scripts/audit-liens.mjs"
+    "audit:liens": "node scripts/audit-liens.mjs",
+    "audit:eleve": "node scripts/audit-eleve.mjs"
   },
   "dependencies": {
     "@react-three/drei": "^10.7.8",

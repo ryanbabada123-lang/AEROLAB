@@ -162,33 +162,13 @@ export const SECTIONS: SiteSection[] = [
       'Le cours est fourni — 65 pages, 13 dossiers — et reste à intégrer.',
   },
 
-  {
-    id: 'annales',
-    title: 'Annales BIA',
-    kicker: 'Les épreuves des années passées',
-    blurb:
-      'Les sujets tels qu\'ils sont tombés, pour mesurer ce qui est vraiment ' +
-      'demandé plutôt que ce qu\'on imagine.',
-    features: [
-      {
-        icon: 'quiz',
-        title: 'Sujets complets',
-        line: 'Chaque épreuve dans son intégralité, dans sa forme d\'origine.',
-      },
-      {
-        icon: 'book',
-        title: 'Corrigés expliqués',
-        line: 'Pas seulement la bonne réponse : pourquoi les autres sont fausses.',
-      },
-      {
-        icon: 'chart',
-        title: 'Ce qui revient',
-        line: 'Les notions qui tombent tous les ans, repérées sur plusieurs sessions.',
-      },
-    ],
-    state: 'awaiting',
-    awaiting: 'Les annales ne sont pas encore fournies.',
-  },
+  /*
+    LES ANNALES BIA ONT ÉTÉ RETIRÉES, sur décision de l'auteur du projet.
+    Elles figuraient ici « en attente de contenu », et cette attente n'a plus
+    d'objet : les sujets ne seront pas fournis. Une section qui annonce
+    éternellement un contenu à venir finit par ressembler à une promesse non
+    tenue — mieux vaut ne rien annoncer.
+  */
 
   {
     id: 'qcm',
@@ -297,4 +277,17 @@ export const NAV: NavEntry[] = [
     ],
   },
   { label: 'Ressources', to: '/lab' },
+  {
+    label: 'Espace élève',
+    to: '/espace-eleve',
+    children: [
+      { label: 'Tableau de bord', to: '/espace-eleve' },
+      { label: 'Mes QCM', to: '/espace-eleve/qcm' },
+      { label: 'Mes erreurs', to: '/espace-eleve/erreurs' },
+      { label: 'Mes favoris', to: '/espace-eleve/favoris' },
+      { label: 'Historique', to: '/espace-eleve/historique' },
+      { label: 'Mon niveau', to: '/espace-eleve/niveau' },
+      { label: 'Mes objectifs', to: '/espace-eleve/objectifs' },
+    ],
+  },
 ]

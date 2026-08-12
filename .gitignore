@@ -9,3 +9,4 @@ dist-single
 
 # Livrables régénérables : `npm run single` et `npm run audit`.
 livraison
+tmp

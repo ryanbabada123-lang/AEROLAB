@@ -656,6 +656,50 @@
   color: var(--c-ink);
 }
 
+/* Le fil d'Ariane et le bouton « favori » se partagent la première ligne
+   du chapeau. Ils repassent l'un sous l'autre plutôt que de se
+   chevaucher sur une colonne étroite. */
+.page__topline {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.favori {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: 0.5em 0.85em;
+  border: 1px solid var(--c-line);
+  border-radius: var(--r-btn);
+  background: transparent;
+  color: var(--c-mute);
+  font-family: var(--f-mono);
+  font-size: var(--t-nano);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    color var(--d-fast) var(--e-out),
+    border-color var(--d-fast) var(--e-out);
+}
+
+.favori span {
+  font-size: 1.1em;
+  line-height: 1;
+}
+
+.favori:hover {
+  color: var(--c-ink);
+}
+
+.favori[aria-pressed='true'] {
+  color: var(--c-electric);
+  border-color: currentColor;
+}
+
 /* -------------------------------------------------- BLOC « EN ATTENTE » */
 
 /* §51.3 : une section sans contenu se déclare, elle ne se remplit pas. */
@@ -2484,9 +2528,13 @@ a.card:hover .card__state {
 
 /* ---- chiffres ---- */
 
+/* 148 px, pas 170 : dans les 342 px utiles d'un iPhone, deux colonnes de
+   170 plus la gouttière débordaient d'un cheveu et `auto-fit` retombait sur
+   une seule colonne. Le tableau de bord faisait alors sept écrans de haut
+   pour quatre chiffres. */
 .eleve__stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(148px, 1fr));
   gap: var(--s-3);
 }
 
@@ -2514,10 +2562,17 @@ a.card:hover .card__state {
   letter-spacing: var(--ls-tight);
 }
 
-/* ---- listes ---- */
+/* ---- listes ----
 
-.eleve__progress,
-.eleve__weak {
+   `.eleve__ligne` remplace `.eleve__progress` et `.eleve__weak`, dont les
+   deux listes ont disparu avec l'ancien tableau de bord. Toutes les listes
+   de l'espace élève partagent désormais le même rang séparé par un filet :
+   erreurs, favoris, historique, objectifs, tentatives. */
+
+.eleve__activite,
+.eleve__favoris,
+.eleve__faibles,
+.eleve__tentatives {
   display: grid;
   gap: 0;
   margin: 0;
@@ -2525,8 +2580,10 @@ a.card:hover .card__state {
   list-style: none;
 }
 
-.eleve__progress li,
-.eleve__weak li {
+.eleve__activite li,
+.eleve__favoris li,
+.eleve__faibles li,
+.eleve__tentatives li {
   display: flex;
   flex-wrap: wrap;
   gap: var(--s-3);
@@ -2536,35 +2593,46 @@ a.card:hover .card__state {
   border-bottom: 1px solid var(--glass-line);
 }
 
-.eleve__progress li:last-child,
-.eleve__weak li:last-child {
+.eleve__activite li:last-child,
+.eleve__favoris li:last-child,
+.eleve__faibles li:last-child,
+.eleve__tentatives li:last-child {
   border-bottom: 0;
 }
 
-.eleve__pname a {
+.eleve__activite a,
+.eleve__favoris a,
+.eleve__faibles a,
+.eleve__fnom a {
   color: var(--d-ink);
   text-decoration: none;
   border-bottom: 1px solid transparent;
 }
 
-.eleve__pname a:hover {
+.eleve__activite a:hover,
+.eleve__favoris a:hover,
+.eleve__faibles a:hover,
+.eleve__fnom a:hover {
   border-bottom-color: var(--d-accent);
 }
 
-.eleve__progress li[data-state='awaiting'] .eleve__pname {
-  color: var(--d-mute);
-}
-
-.eleve__pstate {
+.eleve__activite time,
+.eleve__tentatives time {
   font-family: var(--f-mono);
   font-size: var(--t-micro);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
   color: var(--d-mute);
+  white-space: nowrap;
 }
 
-.eleve__progress li[data-done='true'] .eleve__pstate {
-  color: var(--c-ok);
+/* Le titre plie, la date reste au bout de la ligne. En laissant le rang se
+   replier, un intitulé long renvoyait la date à la ligne suivante, collée à
+   gauche : elle semblait alors dater l'entrée d'en dessous. */
+.eleve__activite li {
+  flex-wrap: nowrap;
+}
+
+.eleve__activite li > :first-child {
+  min-width: 0;
 }
 
 .eleve__empty {
@@ -2640,6 +2708,519 @@ a.card:hover .card__state {
 
 .eleve__message[data-ok='false'] {
   color: #f0a7a2;
+}
+
+/* ============================================================
+   ESPACE ÉLÈVE — TABLEAU DE BORD ET SOUS-PAGES
+   ------------------------------------------------------------
+   Rien de neuf sur le plan graphique : mêmes cartes de verre,
+   mêmes jetons, même typographie que le reste de l'espace. Ce
+   qui s'ajoute, ce sont les formes que le tableau de bord
+   demandait et qui n'existaient pas — la jauge, les tuiles de
+   navigation, les fiches d'erreur.
+   ============================================================ */
+
+/* ---- la jauge ----
+
+   Une seule barre, réutilisée partout. `data-mesure="false"`
+   marque le cas « on ne sait pas » : la piste reste vide et le
+   libellé dit « non mesuré » plutôt que d'afficher 0 %. */
+
+.jauge {
+  display: grid;
+  gap: var(--s-2);
+}
+
+.jauge + .jauge {
+  margin-top: var(--s-4);
+}
+
+.jauge__tete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.jauge__nom {
+  font-size: var(--t-small);
+  font-weight: 600;
+}
+
+.jauge__pct {
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--ls-label);
+  color: var(--d-slate);
+}
+
+.jauge__pct[data-mesure='false'] {
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+
+.jauge__piste {
+  overflow: hidden;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(6, 10, 17, 0.6);
+  box-shadow: inset 0 0 0 1px var(--glass-line);
+}
+
+.jauge__piste i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--d-slate);
+}
+
+.jauge[data-ton='bilan'] .jauge__piste {
+  height: 12px;
+}
+
+.jauge[data-ton='bilan'] .jauge__piste i {
+  background: linear-gradient(90deg, var(--d-accent), #7db4ff);
+}
+
+.jauge__detail {
+  margin: 0;
+  font-size: var(--t-micro);
+  color: var(--d-mute);
+}
+
+/* ---- reprendre ----
+
+   Le seul bloc accentué de la page : c'est une action, pas une
+   mesure, et il doit se distinguer des chiffres qui suivent. */
+
+.eleve__reprise {
+  display: grid;
+  justify-items: start;
+  gap: var(--s-3);
+  padding: clamp(var(--s-5), 2.4vw, var(--s-7));
+  border: 1px solid var(--d-accent);
+  border-radius: var(--r-card);
+  background: var(--d-accent-soft);
+}
+
+.eleve__reprise h2 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: var(--t-h2);
+  font-weight: 700;
+  letter-spacing: var(--ls-tight);
+}
+
+/* ---- tuiles de navigation ---- */
+
+/* 140 px et pas 148 comme les chiffres : ces tuiles-ci vivent DANS une carte
+   de verre, dont le rembourrage retire une quarantaine de pixels. Le seuil
+   des chiffres, mesuré sur la pleine largeur, retombait ici sur une colonne. */
+.eleve__cartes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: var(--s-3);
+}
+
+.eleve__carte {
+  display: grid;
+  align-content: start;
+  gap: var(--s-2);
+  padding: var(--s-5);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-tile);
+  background: var(--glass-bg-soft);
+  color: var(--d-ink);
+  text-decoration: none;
+  transition:
+    border-color var(--d-fast) var(--e-out),
+    background var(--d-fast) var(--e-out);
+}
+
+.eleve__carte:hover,
+.eleve__carte:focus-visible {
+  border-color: var(--d-accent);
+  background: var(--d-accent-soft);
+}
+
+.eleve__cvaleur {
+  font-family: var(--f-display);
+  font-size: var(--t-h2);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: var(--ls-tight);
+}
+
+.eleve__ctitre {
+  font-size: var(--t-small);
+}
+
+.eleve__cligne {
+  font-size: var(--t-micro);
+  color: var(--d-mute);
+}
+
+/* ---- filières, régularité ---- */
+
+.eleve__filieres {
+  display: grid;
+  gap: var(--s-4);
+  padding-top: var(--s-4);
+  border-top: 1px solid var(--glass-line);
+}
+
+.eleve__seriep {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+}
+
+.eleve__seriep strong {
+  font-family: var(--f-display);
+  font-size: var(--t-h3);
+  letter-spacing: var(--ls-tight);
+  color: var(--d-ok);
+}
+
+.eleve__seriep span {
+  font-size: var(--t-small);
+  color: var(--d-slate);
+}
+
+/* ---- textes d'appoint ---- */
+
+.eleve__lien {
+  margin: 0;
+  font-size: var(--t-small);
+}
+
+.eleve__lien a {
+  color: var(--d-accent);
+  text-decoration: none;
+}
+
+.eleve__lien a:hover {
+  text-decoration: underline;
+}
+
+.eleve__note {
+  margin: 0;
+  max-width: 62ch;
+  font-size: var(--t-micro);
+  line-height: var(--lh-body);
+  color: var(--d-mute);
+}
+
+.eleve__compte {
+  margin-left: var(--s-2);
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  font-weight: 400;
+  letter-spacing: var(--ls-label);
+  color: var(--d-mute);
+}
+
+/* ---- historique ---- */
+
+/* Sélecteur porté au même poids que `.eleve__block h2`, qui l'emporterait
+   autrement sur une classe seule : le jour serait titré en display alors
+   qu'il n'est qu'une étiquette. */
+.eleve__block h2.eleve__jour {
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--d-slate);
+}
+
+/* ---- tentatives de QCM ---- */
+
+.eleve__tnom {
+  flex: 1 1 12ch;
+  font-size: var(--t-small);
+}
+
+.eleve__tscore {
+  font-family: var(--f-mono);
+  font-size: var(--t-small);
+  color: var(--d-warn);
+}
+
+.eleve__tentatives li[data-reussi='true'] .eleve__tscore {
+  color: var(--d-ok);
+}
+
+/* ---- fiches d'erreur ----
+
+   Chaque erreur porte son énoncé, sa bonne réponse et son
+   « pourquoi » : une liste d'échecs sans explication n'apprend
+   rien. Le liseré marque celles qui résistent encore. */
+
+.eleve__erreurs {
+  display: grid;
+  gap: var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eleve__erreur {
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-5);
+  border: 1px solid var(--glass-line);
+  /* Le liseré des questions corrigées reste au niveau du filet des cartes :
+     à `--d-mute` il pesait autant que l'ambre des questions non résolues, et
+     la distinction entre « à revoir » et « acquis » se perdait. */
+  border-left: 3px solid var(--glass-line-strong);
+  border-radius: var(--r-tile);
+  background: var(--glass-bg-soft);
+}
+
+.eleve__erreur[data-ouverte='true'] {
+  border-left-color: var(--d-warn);
+}
+
+.eleve__equestion {
+  margin: 0;
+  font-size: var(--t-small);
+  font-weight: 600;
+  line-height: var(--lh-body);
+}
+
+.eleve__ereponse {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  font-size: var(--t-small);
+  color: var(--d-ok);
+}
+
+.eleve__epourquoi {
+  margin: 0;
+  max-width: 68ch;
+  font-size: var(--t-small);
+  line-height: var(--lh-body);
+  color: var(--d-slate);
+}
+
+.eleve__emeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  justify-content: space-between;
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  color: var(--d-mute);
+}
+
+.eleve__emeta a {
+  color: var(--d-slate);
+}
+
+/* ---- favoris, matières faibles ---- */
+
+.eleve__fnom {
+  flex: 1 1 12ch;
+  font-size: var(--t-small);
+}
+
+.eleve__favoris li[data-perdu='true'] .eleve__fnom {
+  color: var(--d-mute);
+  font-style: italic;
+}
+
+.eleve__fgenre,
+.eleve__ftaux {
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  letter-spacing: var(--ls-label);
+  text-transform: uppercase;
+  color: var(--d-mute);
+}
+
+.eleve__ftaux {
+  color: var(--d-warn);
+}
+
+.eleve__fretirer {
+  padding: 0.35em 0.7em;
+  border: 1px solid var(--glass-line-strong);
+  border-radius: var(--r-btn);
+  background: transparent;
+  color: var(--d-slate);
+  font: inherit;
+  font-size: var(--t-micro);
+  cursor: pointer;
+}
+
+.eleve__fretirer:hover {
+  border-color: rgba(179, 38, 30, 0.5);
+  color: #f0a7a2;
+}
+
+/* ---- matière par matière ---- */
+
+.eleve__matieres {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: var(--s-4);
+}
+
+.eleve__matiere {
+  display: grid;
+  align-content: start;
+  gap: var(--s-3);
+  padding: var(--s-5);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-tile);
+  background: var(--glass-bg-soft);
+}
+
+.eleve__matiere h3 {
+  margin: 0;
+  font-size: var(--t-small);
+  letter-spacing: var(--ls-tight);
+}
+
+.eleve__matiere h3 a {
+  color: var(--d-ink);
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+}
+
+.eleve__matiere h3 a:hover {
+  border-bottom-color: var(--d-accent);
+}
+
+/* ---- repères ---- */
+
+.eleve__badges {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--s-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eleve__badges li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: var(--s-2);
+  overflow: hidden;
+  padding: var(--s-4);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-tile);
+  color: var(--d-mute);
+}
+
+.eleve__badges li[data-obtenu='true'] {
+  border-color: rgba(74, 222, 128, 0.4);
+  color: var(--d-ink);
+}
+
+.eleve__badges strong {
+  font-size: var(--t-small);
+}
+
+.eleve__badges li[data-obtenu='true'] strong {
+  color: var(--d-ok);
+}
+
+.eleve__badges span {
+  font-size: var(--t-micro);
+  line-height: var(--lh-body);
+}
+
+/* L'avancement vers un repère non obtenu : un trait au ras du bas de la
+   tuile. Sans z-index négatif — il passerait sous le fond de la carte
+   parente et deviendrait invisible. */
+.eleve__bpart {
+  position: absolute;
+  inset: auto auto 0 0;
+  height: 3px;
+  background: var(--d-slate);
+}
+
+/* ---- objectifs ---- */
+
+.eleve__objectifs {
+  display: grid;
+  gap: var(--s-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.eleve__objectifs li {
+  display: grid;
+  gap: var(--s-3);
+  padding: var(--s-5);
+  border: 1px solid var(--glass-line);
+  border-radius: var(--r-tile);
+  background: var(--glass-bg-soft);
+}
+
+.eleve__objectifs li[data-atteint='true'] {
+  border-color: rgba(74, 222, 128, 0.4);
+}
+
+.eleve__otete {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.eleve__otete strong {
+  font-size: var(--t-small);
+}
+
+.eleve__ometa {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-micro);
+  color: var(--d-mute);
+}
+
+.eleve__apercu {
+  display: grid;
+  gap: var(--s-2);
+  margin: 0;
+  padding: var(--s-4);
+  border: 1px dashed var(--glass-line-strong);
+  border-radius: var(--r-tile);
+  font-size: var(--t-small);
+}
+
+/* Les listes déroulantes du formulaire d'objectif : mêmes règles
+   que les champs texte, que `.field` ne couvrait pas. */
+.field select {
+  padding: 0.78em 0.95em;
+  border: 1px solid var(--glass-line-strong);
+  border-radius: var(--r-btn);
+  background: rgba(6, 10, 17, 0.55);
+  color: var(--d-ink);
+  font: inherit;
+}
+
+.field input[type='number'] {
+  padding: 0.78em 0.95em;
+  border: 1px solid var(--glass-line-strong);
+  border-radius: var(--r-btn);
+  background: rgba(6, 10, 17, 0.55);
+  color: var(--d-ink);
+  font: inherit;
+}
+
+.field select:focus-visible {
+  outline: 2px solid var(--d-accent);
+  outline-offset: 1px;
 }
 
 /* ============================================================

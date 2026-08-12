@@ -48,6 +48,12 @@ const ROUTES = [
   ['/lab/aircraft', 'lab-aircraft'],
   ['/logbook', 'logbook'],
   ['/espace-eleve', 'espace-eleve'],
+  ['/espace-eleve/qcm', 'eleve-qcm'],
+  ['/espace-eleve/erreurs', 'eleve-erreurs'],
+  ['/espace-eleve/favoris', 'eleve-favoris'],
+  ['/espace-eleve/historique', 'eleve-historique'],
+  ['/espace-eleve/niveau', 'eleve-niveau'],
+  ['/espace-eleve/objectifs', 'eleve-objectifs'],
   ['/verification/aeromedecine', 'verif'],
   ['/nimporte-quoi', '404'],
 ]

@@ -97,6 +97,23 @@ export default function Course() {
     if (course && active) flightLog.bookmark(course.id, active)
   }, [course, active])
 
+  /*
+    LA VISITE EST ENREGISTRÉE À L'OUVERTURE, pas à la fermeture ni au bout
+    d'un délai. C'est ce qui alimente l'historique et le « reprendre là où tu
+    t'es arrêté » : quelqu'un qui ouvre un chapitre puis ferme l'onglet doit
+    le retrouver en tête de son espace, précisément parce qu'il ne l'a pas
+    fini. Une même référence n'apparaît qu'une fois dans le carnet — elle
+    remonte au lieu de s'empiler.
+  */
+  useEffect(() => {
+    if (!course) return
+    flightLog.visiter({
+      ref: `cours:${course.id}`,
+      titre: course.title,
+      to: `/cours/${course.track}/${course.id}`,
+    })
+  }, [course])
+
   if (!course) return <NotFound />
 
   const sections: CourseSection[] =
@@ -105,6 +122,8 @@ export default function Course() {
 
   const track = trackById(course.track)
   const isDone = log.completed.includes(course.id)
+  const favRef = `cours:${course.id}`
+  const isFav = log.favoris.includes(favRef)
 
   return (
     <article className="page u-shell" ref={article}>
@@ -115,9 +134,24 @@ export default function Course() {
       </div>
 
       <div className="page__head">
-        <Link to={track ? track.to : '/'} className="crumb">
-          ← {track?.name ?? 'Formation'}
-        </Link>
+        <div className="page__topline">
+          <Link to={track ? track.to : '/'} className="crumb">
+            ← {track?.name ?? 'Formation'}
+          </Link>
+
+          {/* Mettre de côté. Le libellé dit l'ÉTAT, pas l'action, et
+              `aria-pressed` le redit aux lecteurs d'écran : une étoile
+              seule ne dit pas si elle est allumée ou éteinte. */}
+          <button
+            type="button"
+            className="favori"
+            aria-pressed={isFav}
+            onClick={() => flightLog.basculerFavori(favRef)}
+          >
+            <span aria-hidden="true">{isFav ? '★' : '☆'}</span>
+            {isFav ? 'En favori' : 'Mettre en favori'}
+          </button>
+        </div>
         <p className="page__eyebrow">
           <span>{course.subject}</span>
           {course.minutes && <span>· {course.minutes} min</span>}

@@ -1,12 +1,10 @@
 import { useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
 import Logo from '@/components/Logo'
-import { SECTIONS } from '@/data/sections'
-import { flightLog, useFlightLog, weakPoints } from '@/lib/progress'
+import TableauDeBord from '@/pages/eleve/TableauDeBord'
+import { flightLog, useFlightLog } from '@/lib/progress'
 import {
   GOALS,
   applyBundle,
-  daysUntil,
   exportBundle,
   exportFilename,
   isSignedIn,
@@ -16,17 +14,17 @@ import {
 } from '@/lib/student'
 
 /**
- * ESPACE ÉLÈVE.
+ * ESPACE ÉLÈVE — LA PAGE D'ACCUEIL DE L'ÉLÈVE.
  *
- * Il n'y a ni identifiant ni mot de passe, et la page le dit franchement. Le
- * cahier des charges veut un site qui s'ouvre par un double-clic sur
- * `index.html`, sans serveur : personne n'est là pour authentifier quoi que ce
- * soit. Un formulaire de connexion serait donc un décor.
+ * Elle ouvre le profil s'il n'existe pas, puis laisse la place au tableau de
+ * bord (`pages/eleve/TableauDeBord`), qui mène aux six sous-pages : QCM,
+ * erreurs, favoris, historique, niveau, objectifs.
  *
- * Ce qui est offert à la place est réel : un profil gardé dans le navigateur, la
- * progression qui s'y rattache, et un fichier que l'élève emporte. Ce fichier
- * fait ce qu'un compte aurait fait — suivre l'élève d'un poste à l'autre,
- * s'envoyer à un instructeur — sans rien confier à personne.
+ * AUCUN COMPTE POUR L'INSTANT, et la page le dit sans détour. Tant que la
+ * synchronisation n'est pas branchée, la progression vit dans CE navigateur,
+ * et le fichier d'export est le seul moyen de la déplacer. Annoncer un compte
+ * qui n'existe pas ferait perdre sa progression à qui changerait d'appareil
+ * en s'y fiant.
  */
 
 export default function Student() {
@@ -53,9 +51,9 @@ export default function Student() {
 
         {/* L'avertissement vient AVANT le formulaire : l'élève doit savoir où
             va sa progression avant de commencer à en produire. */}
-        <Notice />
+        {!signed && <Notice />}
 
-        {signed ? <Dashboard /> : <Onboarding />}
+        {signed ? <TableauDeBord /> : <Onboarding />}
 
         <Portability />
 
@@ -94,12 +92,11 @@ export default function Student() {
 function Notice() {
   return (
     <aside className="eleve__notice" aria-label="Comment fonctionne cet espace">
-      <h2>Il n’y a pas de compte, et c’est volontaire</h2>
+      <h2>Où va ta progression</h2>
       <p>
-        Le site doit pouvoir s’ouvrir d’un double-clic, sans serveur à lancer. Or
-        un compte suppose un serveur pour vérifier un mot de passe et conserver
-        les données. Il n’y en a pas ici : <strong>rien de ce que tu saisis ne
-        quitte cet appareil.</strong>
+        Il n’y a pas encore de compte sur ce site :{' '}
+        <strong>rien de ce que tu saisis ne quitte cet appareil.</strong> Tout
+        est gardé par ton navigateur, et rien n’est envoyé nulle part.
       </p>
       <ul>
         <li>
@@ -186,99 +183,6 @@ function Onboarding() {
   )
 }
 
-/* ---------------------------------------------------------------- tableau */
-
-function Dashboard() {
-  const profile = useStudent()
-  const log = useFlightLog()
-  const left = daysUntil(profile.examDate)
-  const goal = GOALS.find((g) => g.id === profile.goal)
-  const weak = weakPoints(log)
-
-  const hours = Math.floor(log.studyMs / 3_600_000)
-  const minutes = Math.round((log.studyMs % 3_600_000) / 60_000)
-
-  return (
-    <>
-      <section className="eleve__stats" aria-label="Où tu en es">
-        <Stat label="Objectif" value={goal?.label ?? '—'} />
-        <Stat
-          label="Échéance"
-          value={
-            left === null
-              ? 'Aucune date'
-              : left > 0
-                ? `${left} jour${left > 1 ? 's' : ''}`
-                : left === 0
-                  ? "C'est aujourd'hui"
-                  : 'Date passée'
-          }
-        />
-        <Stat label="Chapitres terminés" value={String(log.completed.length)} />
-        <Stat
-          label="Temps d'étude"
-          value={hours > 0 ? `${hours} h ${minutes} min` : `${minutes} min`}
-        />
-      </section>
-
-      <section className="eleve__block">
-        <h2>Ta progression</h2>
-        <ul className="eleve__progress">
-          {SECTIONS.map((s) => {
-            const done = log.completed.includes(s.id)
-            return (
-              <li key={s.id} data-done={done} data-state={s.state}>
-                <span className="eleve__pname">
-                  {/* Sans destination, la matière s'affiche sans lien. */}
-                  {s.to ? <Link to={s.to}>{s.title}</Link> : s.title}
-                </span>
-                <span className="eleve__pstate">
-                  {s.state === 'awaiting'
-                    ? 'En attente de contenu'
-                    : done
-                      ? 'Terminé'
-                      : 'À commencer'}
-                </span>
-              </li>
-            )
-          })}
-        </ul>
-      </section>
-
-      <section className="eleve__block">
-        <h2>Notions à revoir</h2>
-        {weak.length === 0 ? (
-          <p className="eleve__empty">
-            Rien pour l’instant. Les questions que tu rates apparaîtront ici, avec
-            le passage du cours qui y répond.
-          </p>
-        ) : (
-          <ul className="eleve__weak">
-            {weak.map((a) => (
-              <li key={a.quizId}>
-                <strong>{a.courseId}</strong>
-                <span>
-                  {a.correct} / {a.total} — {a.missed.length} question
-                  {a.missed.length > 1 ? 's' : ''} à revoir
-                </span>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
-    </>
-  )
-}
-
-function Stat({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="eleve__stat">
-      <span className="eleve__slabel">{label}</span>
-      <strong className="eleve__svalue">{value}</strong>
-    </div>
-  )
-}
-
 /* ------------------------------------------------------------ portabilité */
 
 function Portability() {
@@ -326,9 +230,10 @@ function Portability() {
     <section className="eleve__block">
       <h2>Emporter ma progression</h2>
       <p>
-        Ce fichier tient le rôle d’un compte : il contient ton profil et ton
-        carnet de vol. Tu peux le garder, le mettre sur une clé, le rouvrir sur un
-        autre ordinateur, ou l’envoyer à ton instructeur.
+        Tout ce que tu fais ici est gardé <strong>dans ce navigateur</strong>, et
+        nulle part ailleurs. Ce fichier tient le rôle d’un compte : il contient
+        ton profil et ton carnet de vol. Tu peux le garder, le mettre sur une
+        clé, le rouvrir sur un autre ordinateur, ou l’envoyer à ton instructeur.
       </p>
 
       <div className="eleve__actions">

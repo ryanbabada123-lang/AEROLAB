@@ -443,6 +443,26 @@ de page.
   sous licence **CC-BY-4.0**. Mention obligatoire, reproduite mot pour mot
   depuis `license.txt` (voir §3).
 
+## 4 bis. Périmètre arrêté par l'auteur du projet
+
+Décisions prises après le prompt maître, et qui font autorité sur les listes
+qui suivent :
+
+- **Les annales BIA sont retirées**, pas ajournées. La section « en attente de
+  contenu » a donc disparu de `src/data/sections.ts` : une attente sans objet
+  finit par passer pour une promesse non tenue.
+- **Le PPL théorique et le PPL pratique restent attendus** : l'auteur cherche
+  les documents. Rien n'est rédigé d'ici là, et les jauges de l'espace élève
+  affichent « non mesuré » plutôt que zéro pour ces deux filières.
+- **Aucun manuel de vol du Tecnam n'est disponible** côté auteur. Ce qui
+  concerne cet appareil ne peut donc venir que des sources libres déjà
+  citées au § 6 bis, jamais d'une valeur reconstituée.
+- **Le site sera public**, et **Firebase tient le rôle du serveur**. La
+  synchronisation des comptes n'est pas encore branchée : tant qu'elle ne
+  l'est pas, l'espace élève dit franchement que la progression vit dans le
+  navigateur, et le fichier d'export reste le seul moyen de la déplacer.
+- **Les travaux commencent par l'espace élève**, avant toute nouvelle matière.
+
 ## 5. Reste à fournir
 
 - [ ] 🔴 **L'archive du A400M Flight Deck** — dernier verrou. Modèle choisi, il
@@ -456,7 +476,9 @@ de page.
 - [x] ~~Provenance des visuels~~ — **générés par ChatGPT**, l'auteur du projet
       indique en avoir l'usage. Consigné tel qu'il l'a déclaré ; la page de
       crédits mentionnera qu'ils sont produits par outil génératif.
-- [ ] 🟢 Cours PPL théorique, PPL pratique, annales BIA, banque de questions
+- [ ] 🟢 Cours PPL théorique et PPL pratique — l'auteur les cherche (§ 4 bis)
+- [x] ~~Annales BIA~~ — **retirées du périmètre** sur décision de l'auteur
+- [ ] 🟢 Banque de questions — se remplira à mesure des chapitres intégrés
 - [x] ~~Modèle 3D de l'A350-1000~~ — reçu, vérifié, complet, licence archivée
 - [x] ~~Visuels de montagne supplémentaires~~ — reçus
 - [x] ~~Choix du poste de pilotage~~ — A400M Flight Deck de NG, arrêté
