@@ -90,6 +90,47 @@
       <span class="hint">Préparation du vol</span>
     </div>
 
+    <!--
+      CHIEN DE GARDE DU DÉMARRAGE.
+
+      L'écran de démarrage est retiré par l'application dès sa première
+      frame peinte. Mais si le paquet ne s'exécute pas du tout — mémoire
+      insuffisante sur un téléphone, module refusé par un navigateur
+      intégré, fichier tronqué — plus personne ne le retire, et l'écran
+      reste indéfiniment sur « Préparation du vol ». C'est arrivé, et
+      l'utilisateur n'avait aucun moyen de savoir ce qui se passait.
+
+      Ce script est volontairement en JavaScript ancien et hors module : il
+      s'exécute même là où le paquet principal échoue.
+    -->
+    <script>
+      (function () {
+        var t = setTimeout(function () {
+          var root = document.getElementById('root')
+          var boot = document.getElementById('boot')
+          if (!boot || (root && root.children.length)) return
+          var hint = boot.querySelector('.hint')
+          var bar = boot.querySelector('.bar')
+          if (bar) bar.style.display = 'none'
+          if (hint) {
+            hint.style.maxWidth = '32ch'
+            hint.style.lineHeight = '1.7'
+            hint.style.textTransform = 'none'
+            hint.style.letterSpacing = '0'
+            hint.textContent =
+              'Le site n’a pas pu démarrer sur ce navigateur. ' +
+              'Sur iPhone, enregistrez le fichier dans l’app Fichiers puis ' +
+              'ouvrez-le avec Safari — un aperçu intégré n’a pas assez de ' +
+              'mémoire pour une page de cette taille.'
+          }
+        }, 12000)
+        window.addEventListener('load', function () {
+          var root = document.getElementById('root')
+          if (root && root.children.length) clearTimeout(t)
+        })
+      })()
+    </script>
+
     <noscript>
       <div
         style="
