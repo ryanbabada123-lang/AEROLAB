@@ -1,0 +1,80 @@
+# ============================================================
+# PUBLICATION SUR GITHUB PAGES
+# ------------------------------------------------------------
+# CE FLUX NE PART PAS TOUT SEUL. Il n'a pas de déclencheur `push` :
+# il faut aller le lancer à la main depuis l'onglet Actions du
+# dépôt (« Run workflow »). C'est voulu — mettre ce site en ligne
+# est une décision, pas un effet de bord d'un commit.
+#
+# CE QU'IL FAUT SAVOIR AVANT DE LE LANCER
+#
+# Le site reproduit MOT POUR MOT les cours d'André PARIS, avec
+# attribution. Publié à une adresse publique, cela relève du droit
+# d'auteur et cette décision appartient au propriétaire du dépôt.
+# GitHub Pages est TOUJOURS public, même depuis un dépôt privé.
+# Pour un usage strictement personnel, un hébergement protégé par
+# mot de passe est plus indiqué.
+#
+# AVANT LA PREMIÈRE EXÉCUTION
+#   Réglages du dépôt → Pages → Source : « GitHub Actions ».
+#
+# CHOIX TECHNIQUES
+#   base './'  — chemins relatifs, le site marche depuis un
+#                sous-dossier comme /aerolab/ aussi bien que
+#                depuis une racine.
+#   routeur à dièse — les adresses deviennent /#/cours/…, ce qui
+#                évite d'avoir à réécrire les URL côté serveur.
+#                Pages ne sait pas le faire, et sans cela un lien
+#                profond rouvert donnerait une 404.
+# ============================================================
+
+name: Publier sur GitHub Pages
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  construire:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - name: Contrôle des types
+        run: npx tsc --noEmit
+
+      - name: Construire
+        run: npx vite build --base ./
+        env:
+          VITE_HASH_ROUTER: '1'
+
+      - uses: actions/configure-pages@v5
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: dist
+
+  publier:
+    needs: construire
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deploiement.outputs.page_url }}
+    steps:
+      - id: deploiement
+        uses: actions/deploy-pages@v4

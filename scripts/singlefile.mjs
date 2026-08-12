@@ -2,8 +2,14 @@
  * Build en UN SEUL FICHIER HTML.
  *
  * Objectif : pouvoir ouvrir AERO//LAB d'un double-clic, sans serveur ni
- * réseau — la contrainte du §8, et la seule façon d'envoyer le site sur un
- * téléphone par message ou par AirDrop.
+ * réseau — la contrainte du §8.
+ *
+ * CE FICHIER EST UNE SOLUTION D'ORDINATEUR, PAS DE TÉLÉPHONE. iOS
+ * n'autorise pas Safari à ouvrir un `.html` local : le menu de partage ne
+ * propose jamais de navigateur pour ce type de fichier, et l'aperçu intégré
+ * des applications n'exécute pas le script. Sur iPhone, il faut soit une
+ * application tierce dotée d'un vrai moteur de rendu, soit — bien mieux —
+ * une adresse : voir .github/workflows/pages.yml.
  *
  * CE QUI EST EMBARQUÉ, ET CE QUI NE PEUT PAS L'ÊTRE
  *
