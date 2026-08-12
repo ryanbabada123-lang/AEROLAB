@@ -1,7 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
 import { NavLink, useLocation, Link } from 'react-router-dom'
-import { scrollDriver } from '@/lib/scroll'
-import { INTRO } from '@/sections/intro/timeline'
 import Logo from '@/components/Logo'
 import { NAV } from '@/data/sections'
 
@@ -30,13 +28,10 @@ export default function Nav() {
     const el = navRef.current
     if (!el) return
 
-    let introDark = isHome
-    let introActive = isHome
     let sectionDark = false
 
     const apply = () => {
-      const dark = introActive ? introDark : sectionDark
-      const next = dark ? 'dark' : 'light'
+      const next = sectionDark ? 'dark' : 'light'
       if (el.dataset.tone !== next) el.dataset.tone = next
     }
 
@@ -82,47 +77,30 @@ export default function Nav() {
     const mo = new MutationObserver(scan)
     mo.observe(main, { childList: true, subtree: true })
 
-    let unsub: (() => void) | undefined
-    if (isHome) {
-      // Piloté par la boucle du scrollDriver (donc toujours à jour) plutôt
-      // que par un écouteur `scroll` séparé, qui lirait une valeur d'une
-      // frame de retard.
-      unsub = scrollDriver.subscribe((p) => {
-        introActive = p < 0.999
-        introDark = p < INTRO.skyTurnsWhite
-        apply()
-
-        // Le fond de barre n'apparaît qu'une fois l'intro terminée.
-        const sv = introActive ? 'false' : 'true'
-        if (el.dataset.solid !== sv) el.dataset.solid = sv
-
-        // La barre s'efface pendant le passage cockpit : rien ne doit
-        // voler la vedette à la scène.
-        const hide = p > INTRO.cockpitEnter && p < INTRO.cockpitExit
-        const hv = hide ? 'true' : 'false'
-        if (el.dataset.hidden !== hv) el.dataset.hidden = hv
-      })
-    } else {
-      el.dataset.hidden = 'false'
-    }
+    /*
+      La barre ne dépend plus que des zones sombres traversées. Elle était
+      pilotée en plus par la boucle de l'introduction à défilement, qui la
+      faisait disparaître pendant le passage cockpit et changeait son fond
+      selon la progression. L'introduction a été retirée : il ne reste que
+      la règle générale, valable sur toutes les pages.
+    */
+    el.dataset.hidden = 'false'
 
     apply()
     return () => {
       io.disconnect()
       mo.disconnect()
-      unsub?.()
     }
-  }, [isHome, pathname])
+  }, [pathname])
 
   useEffect(() => {
     setOpen(false)
   }, [pathname])
 
-  // Hors accueil, le fond de barre suit simplement le défilement.
-  // (Sur l'accueil, il est piloté par le scrollDriver — voir ci-dessous.)
+  // Le fond de barre suit le défilement, sur toutes les pages.
   useEffect(() => {
     const el = navRef.current
-    if (!el || isHome) return
+    if (!el) return
     const onScroll = () => {
       const solid = window.scrollY > 24 ? 'true' : 'false'
       if (el.dataset.solid !== solid) el.dataset.solid = solid
@@ -130,7 +108,7 @@ export default function Nav() {
     onScroll()
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
-  }, [pathname, isHome])
+  }, [pathname])
 
   useEffect(() => {
     document.body.classList.toggle('is-locked', open)

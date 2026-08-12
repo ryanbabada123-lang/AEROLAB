@@ -274,36 +274,6 @@
   }
 }
 
-/* ------------------------------------------------------------- INTRO */
-
-.intro {
-  position: relative;
-  width: 100%;
-}
-
-.intro__viewport {
-  position: sticky;
-  top: 0;
-  height: 100svh;
-  width: 100%;
-  overflow: hidden;
-}
-
-.intro-stage {
-  position: absolute;
-  inset: 0;
-  z-index: var(--z-canvas);
-}
-.intro-stage canvas {
-  display: block;
-  width: 100% !important;
-  height: 100% !important;
-  touch-action: pan-y;
-}
-.intro-stage[data-active='false'] {
-  opacity: 0;
-  transition: opacity var(--d-base) var(--e-out);
-}
 /* Repli si WebGL est indisponible : un dégradé qui suit la même dramaturgie. */
 .intro-stage--fallback,
 .scene-fallback {
@@ -316,68 +286,6 @@
   inset: 0;
 }
 
-.intro__text {
-  position: absolute;
-  inset: 0;
-  z-index: var(--z-scene-ui);
-  display: grid;
-  place-items: center;
-  padding-inline: var(--gutter);
-  pointer-events: none;
-}
-
-.beat {
-  position: absolute;
-  width: min(100%, 1280px);
-  text-align: center;
-  opacity: 0;
-  will-change: opacity, transform;
-}
-.beat p {
-  font-family: var(--f-display);
-  text-wrap: balance;
-  margin: 0;
-}
-.beat[data-kind='hero'] p {
-  font-size: var(--t-hero);
-  font-weight: 600;
-  line-height: var(--lh-tight);
-  letter-spacing: var(--ls-hero);
-  text-transform: uppercase;
-  color: var(--c-void-ink);
-}
-.beat[data-kind='statement'] p {
-  font-size: var(--t-d2);
-  font-weight: 500;
-  line-height: var(--lh-snug);
-  letter-spacing: var(--ls-display);
-  color: var(--c-void-ink);
-}
-.beat[data-kind='whisper'] p {
-  font-family: var(--f-sans);
-  font-size: clamp(1.05rem, 1.8vw, 1.6rem);
-  font-weight: 400;
-  letter-spacing: 0.01em;
-  color: rgba(238, 243, 248, 0.78);
-}
-/* Les murmures accompagnent la scène : ils se placent sous le sujet plutôt
-   que par-dessus. Seuls les temps forts occupent le centre du cadre. */
-.beat[data-kind='whisper'] {
-  top: auto;
-  bottom: clamp(80px, 15vh, 150px);
-}
-
-/* Passé le blanchiment du ciel, l'encre repasse au sombre. */
-.intro__text .beat[data-kind='hero'] p,
-.intro__text .beat[data-kind='statement'] p {
-  transition: color var(--d-slow) var(--e-out);
-}
-
-.beat--welcome {
-  display: grid;
-  gap: var(--s-5);
-  justify-items: center;
-}
 .beat--welcome .u-label {
   color: var(--c-slate);
 }
@@ -393,44 +301,10 @@
   color: var(--c-electric);
 }
 
-/* Une fois le ciel blanchi, l'encre passe au sombre : le contraste reste
-   assuré des deux côtés de la bascule (§35). */
-.beat[data-ink='dark'][data-kind='hero'] p,
-.beat[data-ink='dark'][data-kind='statement'] p {
-  color: var(--c-ink);
-}
-.beat[data-ink='dark'][data-kind='whisper'] p {
-  color: var(--c-graphite);
-}
-
-/* Centrage par la boîte, pas par `transform` : useScrollBeat pilote déjà
-   `transform` pour l'animation, il écraserait un translateX(-50%). */
-.scroll-hint {
-  position: absolute;
-  left: 0;
-  right: 0;
-  /* Au-dessus des commandes de lecture, jamais dedans. */
-  bottom: calc(max(26px, env(safe-area-inset-bottom)) + 58px);
-  z-index: var(--z-scene-ui);
-  display: grid;
-  justify-items: center;
-  gap: var(--s-2);
-  pointer-events: none;
-}
 .scroll-hint .u-label {
   color: var(--c-void-mute);
 }
-.scroll-hint__line {
-  width: 1px;
-  height: 26px;
-  background: linear-gradient(
-    to bottom,
-    rgba(238, 243, 248, 0.5),
-    rgba(238, 243, 248, 0)
-  );
-  animation: hintdrop 2.4s var(--e-io) infinite;
-  transform-origin: top;
-}
+
 @keyframes hintdrop {
   0% {
     transform: scaleY(0);
@@ -445,288 +319,28 @@
   }
 }
 
-/* ---- HUD COCKPIT ---- */
-
-.hud {
-  position: absolute;
-  left: var(--gutter);
-  bottom: max(var(--s-8), env(safe-area-inset-bottom));
-  z-index: var(--z-scene-ui);
-  display: grid;
-  gap: var(--s-5);
-  opacity: 0;
-  pointer-events: none;
-}
-.hud__systems {
-  display: grid;
-  gap: var(--s-2);
-}
-.hud__systems li {
-  display: flex;
-  align-items: center;
-  gap: var(--s-3);
-  font-family: var(--f-mono);
-  font-size: var(--t-nano);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: var(--c-void-mute);
-  transition: color var(--d-base) var(--e-out);
-}
-.hud__systems li i {
-  width: 5px;
-  height: 5px;
-  background: var(--c-void-mute);
-  transition: background var(--d-base) var(--e-out);
-}
-.hud__systems li[data-state='on'] {
-  color: var(--c-void-ink);
-}
-.hud__systems li[data-state='on'] i {
-  background: var(--c-electric);
-  box-shadow: 0 0 10px rgba(22, 103, 255, 0.8);
-}
-
-.hud__data,
-.climb {
-  display: flex;
-  gap: clamp(20px, 3vw, 44px);
-  opacity: 0;
-}
-.hud__data > div,
-.climb > div {
-  display: grid;
-  gap: 2px;
-}
 .hud__data .u-label,
 .climb .u-label {
   color: var(--c-void-mute);
   font-size: 9px;
 }
-.hud__data b,
-.climb b {
-  font-size: clamp(1.5rem, 2.6vw, 2.2rem);
-  font-weight: 500;
-  line-height: 1;
-  color: var(--c-void-ink);
-  letter-spacing: 0.02em;
-}
-.hud__data em,
-.climb em {
-  font-family: var(--f-mono);
-  font-style: normal;
-  font-size: 9px;
-  letter-spacing: var(--ls-label);
-  color: var(--c-void-mute);
-}
 
-.climb {
-  position: absolute;
-  right: var(--gutter);
-  bottom: max(var(--s-8), env(safe-area-inset-bottom));
-  z-index: var(--z-scene-ui);
-  pointer-events: none;
-}
-.climb b {
-  color: var(--c-ink);
-}
 .climb .u-label,
 .climb em {
   color: var(--c-slate);
 }
 
-/* ---- QUESTIONS ---- */
-
-.questions {
-  position: absolute;
-  left: var(--gutter);
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: var(--z-scene-ui);
-  display: grid;
-  gap: clamp(8px, 1.2vw, 14px);
-  opacity: 0;
-  pointer-events: none;
-  max-width: min(56vw, 620px);
-}
-/* Voile clair sous la liste : les filets d'air passent derrière le texte
-   sans jamais le rendre difficile à lire (§35). */
-.questions::before {
-  content: '';
-  position: absolute;
-  inset: -36px -18% -36px -100vw;
-  background: linear-gradient(
-    to right,
-    rgba(251, 252, 253, 0.94) 62%,
-    rgba(251, 252, 253, 0)
-  );
-  z-index: -1;
-}
-.questions li {
-  display: flex;
-  align-items: baseline;
-  gap: var(--s-4);
-  font-family: var(--f-display);
-  font-size: clamp(0.98rem, 2.1vw, 1.7rem);
-  font-weight: 500;
-  letter-spacing: var(--ls-tight);
-  color: var(--c-ink);
-  opacity: 0;
-}
 .questions li .u-label {
   color: var(--c-electric);
   font-size: 10px;
 }
 
-/* ---- REPÈRE DE CHAPITRE ---- */
-
-/* ---- CHAPITRES : repère de position ET moyen de navigation ---- */
-
-.chapter {
-  position: absolute;
-  pointer-events: auto;
-  right: var(--gutter);
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: var(--z-scene-ui);
-  display: flex;
-  align-items: stretch;
-  gap: var(--s-4);
-  opacity: 0;
-}
-.chapter__track {
-  width: 1px;
-  background: rgba(141, 153, 166, 0.3);
-  display: block;
-  position: relative;
-  flex: none;
-}
-.chapter__bar {
-  position: absolute;
-  inset: 0;
-  background: var(--c-electric);
-  transform-origin: top;
-  transform: scaleY(0);
-}
-.chapter__list {
-  display: grid;
-  gap: 2px;
-  align-content: center;
-}
-.chapter__list button {
-  display: flex;
-  align-items: baseline;
-  gap: var(--s-3);
-  padding: 5px 0;
-  text-align: left;
-  font-family: var(--f-mono);
-  font-size: 9px;
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: var(--c-mute);
-  opacity: 0.65;
-  transition:
-    color var(--d-fast) var(--e-out),
-    opacity var(--d-fast) var(--e-out);
-}
-.chapter__list button:hover {
-  opacity: 1;
-  color: var(--c-electric);
-}
-.chapter__list button[aria-current='true'] {
-  opacity: 1;
-  color: var(--c-ink);
-}
-.chapter__id {
-  font-size: 9px;
-  letter-spacing: var(--ls-label);
-}
-.chapter__name {
-  font-size: 9px;
-}
-
-/* Encre claire tant que la scène est sombre. */
-.chapter[data-ink='light'] .chapter__list button {
-  color: var(--c-void-mute);
-}
-.chapter[data-ink='light'] .chapter__list button[aria-current='true'] {
-  color: var(--c-void-ink);
-}
-
-/* ---- COMMANDES DE LECTURE ---- */
-
-/* Visibles dès la première image : c'est au tout début qu'on a besoin
-   d'un moyen d'avancer autre que la molette. */
-.intro-controls {
-  position: absolute;
-  pointer-events: auto;
-  left: 0;
-  right: 0;
-  bottom: max(26px, env(safe-area-inset-bottom));
-  z-index: var(--z-scene-ui);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: var(--s-2);
-  opacity: 0;
-}
-.intro-controls button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-  padding: 0 12px;
-  border: 1px solid var(--c-line);
-  background: rgba(251, 252, 253, 0.86);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  font-family: var(--f-mono);
-  font-size: var(--t-nano);
-  letter-spacing: var(--ls-label);
-  text-transform: uppercase;
-  color: var(--c-graphite);
-  transition:
-    background var(--d-fast) var(--e-out),
-    color var(--d-fast) var(--e-out),
-    border-color var(--d-fast) var(--e-out);
-}
-.intro-controls button:hover {
-  background: var(--c-ink);
-  border-color: var(--c-ink);
-  color: var(--c-white);
-}
-.intro-controls__skip {
-  padding: 0 18px;
-}
-.intro-controls[data-ink='light'] button {
-  background: rgba(11, 15, 20, 0.55);
-  border-color: rgba(238, 243, 248, 0.28);
-  color: var(--c-void-ink);
-}
-.intro-controls[data-ink='light'] button:hover {
-  background: var(--c-void-ink);
-  border-color: var(--c-void-ink);
-  color: var(--c-void);
-}
-
 @media (max-width: 860px) {
-  /* Le repère de chapitre passe en pastilles : on garde la NAVIGATION,
-     on abandonne seulement les libellés, faute de place. */
-  .chapter__name {
-    display: none;
-  }
-  .chapter {
-    gap: var(--s-3);
-  }
-  .climb {
-    display: none;
-  }
-  .questions {
-    max-width: 82vw;
-  }
-  .hud {
-    gap: var(--s-4);
-  }
+  
+  
+  
+  
+  
 }
 
 /* ------------------------------------------------------------- AXES */
@@ -3028,32 +2642,107 @@ a.card:hover .card__state {
   color: #f0a7a2;
 }
 
-/* ---- Décor de l'intro : les plaques du storyboard ------------------
-   Elles sont peintes DERRIÈRE le canevas WebGL, qui est transparent.
-   Une texture 3D les aurait rééchantillonnées pour un plan qui ne bouge
-   pas ; en DOM elles restent nettes et le navigateur choisit sa
-   définition. */
+/* ============================================================
+   PAGE DE BIENVENUE
+   ------------------------------------------------------------
+   Ce qui remplace l'introduction à défilement. Une image, un
+   titre, deux portes d'entrée — et rien qui bouge.
 
-.intro-backdrop {
-  position: absolute;
-  inset: 0;
+   La hauteur est en `dvh` pour suivre la barre d'adresse de
+   Safari : en `vh`, le bas du bloc passait sous la barre sur
+   iPhone et les deux boutons étaient à moitié cachés.
+   ============================================================ */
+
+.bienvenue {
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: 100svh;
+  min-height: 100dvh;
   overflow: hidden;
-  /* Sous le canevas et sous les textes, mais au-dessus du fond de page. */
-  z-index: 0;
-  background: var(--c-void);
+  isolation: isolate;
 }
 
-.intro-backdrop__plate {
+.bienvenue__fond {
   position: absolute;
   inset: 0;
-  will-change: opacity, transform;
-  transform-origin: 50% 55%;
+  z-index: -1;
 }
 
-.intro-backdrop__plate picture,
-.intro-backdrop__plate img {
-  display: block;
+.bienvenue__fond img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  /*
+    L'image est très claire en haut à gauche, là où se pose le
+    texte. Un voile blanc léger, dégradé, garde le contraste sans
+    ternir la montagne.
+  */
+}
+
+.bienvenue__fond::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    rgba(255, 255, 255, 0.78) 0%,
+    rgba(255, 255, 255, 0.52) 38%,
+    rgba(255, 255, 255, 0.1) 70%,
+    rgba(255, 255, 255, 0) 100%
+  );
+}
+
+.bienvenue__contenu {
+  position: relative;
+  padding-block: clamp(96px, 18vh, 200px);
+  max-width: 100%;
+}
+
+.bienvenue__titre {
+  margin-top: var(--s-3);
+  font-family: var(--f-display);
+  font-weight: 600;
+  font-size: var(--t-d1);
+  line-height: 0.92;
+  letter-spacing: var(--ls-hero);
+  text-transform: uppercase;
+  color: var(--c-ink);
+}
+
+.bienvenue__titre span {
+  color: var(--c-electric);
+}
+
+.bienvenue__ligne {
+  margin-top: var(--s-5);
+  max-width: 34ch;
+  font-size: var(--t-h3);
+  line-height: 1.5;
+  color: var(--c-slate);
+}
+
+.bienvenue__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-4);
+  margin-top: var(--s-7);
+}
+
+@media (max-width: 640px) {
+  .bienvenue__fond::after {
+    /* Sur une colonne étroite, le texte occupe toute la largeur. */
+    background: linear-gradient(
+      180deg,
+      rgba(255, 255, 255, 0.86) 0%,
+      rgba(255, 255, 255, 0.66) 46%,
+      rgba(255, 255, 255, 0.18) 78%,
+      rgba(255, 255, 255, 0) 100%
+    );
+  }
+
+  .bienvenue__actions .btn {
+    flex: 1 1 100%;
+    justify-content: center;
+  }
 }

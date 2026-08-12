@@ -379,21 +379,9 @@ table {
 }
 
 @media (hover: none), (pointer: coarse) {
-  /*
-    Les pastilles de chapitre : au doigt, un pseudo-élément ne suffit
-    pas — deux pastilles voisines se marchent dessus. On leur donne
-    une hauteur réelle de 44 px, la colonne s'allonge et c'est très
-    bien ainsi.
-  */
-  .chapter__list button {
-    min-height: 44px;
-    min-width: 44px;
-    justify-content: flex-end;
-  }
+  
 
-  .chapter__list button::after {
-    display: none;
-  }
+  
 
   /* Lien « Comparer à l'original » sous chaque schéma de cours. */
   .cx-schema__origin a,
