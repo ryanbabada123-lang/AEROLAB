@@ -153,23 +153,33 @@ export default function Backdrop() {
         >
           <picture>
             {/*
-              Document mono-fichier : toutes les largeurs pointeraient sur la
-              même image intégrée. On n'en émet qu'une, sans `srcset`.
+              UN `srcset` NE PEUT PAS PORTER DE `data:` URI.
+
+              L'attribut est une liste séparée par des VIRGULES, et un
+              `data:image/webp;base64,…` en contient une. Le navigateur y lit
+              alors deux candidats — « data:image/webp;base64 » et le corps
+              en base64 pris pour un chemin relatif — et n'affiche rien.
+              Chromium rattrape le coup, WebKit non : le fichier envoyé sur
+              un iPhone s'ouvrait sans montagne.
+
+              Quand les images sont intégrées, on n'émet donc AUCUN
+              `<source>` : l'unique `src` de l'`<img>`, lui, accepte les
+              virgules sans broncher.
             */}
-            <source
-              type="image/webp"
-              srcSet={
-                integre
-                  ? asset(`images/${plate.file}-${plate.sizes[0]}.webp`)
-                  : plate.sizes
-                      .map((w) => `${asset(`images/${plate.file}-${w}.webp`)} ${w}w`)
-                      .join(', ')
-              }
-              sizes="100vw"
-            />
+            {!integre && (
+              <source
+                type="image/webp"
+                srcSet={plate.sizes
+                  .map((w) => `${asset(`images/${plate.file}-${w}.webp`)} ${w}w`)
+                  .join(', ')}
+                sizes="100vw"
+              />
+            )}
             <img
               src={asset(
-                `images/${plate.file}-${plate.sizes[plate.sizes.length - 1]}.jpg`,
+                integre
+                  ? `images/${plate.file}-${plate.sizes[0]}.webp`
+                  : `images/${plate.file}-${plate.sizes[plate.sizes.length - 1]}.jpg`,
               )}
               srcSet={
                 integre
@@ -178,7 +188,7 @@ export default function Backdrop() {
                       .map((w) => `${asset(`images/${plate.file}-${w}.jpg`)} ${w}w`)
                       .join(', ')
               }
-              sizes="100vw"
+              sizes={integre ? undefined : '100vw'}
               alt={plate.alt}
               // La première plaque est le tout premier écran du site : elle
               // ne doit pas être différée.

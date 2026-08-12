@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { useGLTF } from '@react-three/drei'
 import { useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
+import { asset } from '@/lib/asset'
 import ErrorBoundary from '@/components/ErrorBoundary'
 import { dressModel, type DressReport } from './modelMaterials'
 import { createInstruments, type FlightState, type InstrumentSet } from './instruments'
@@ -27,22 +28,26 @@ import { createInstruments, type FlightState, type InstrumentSet } from './instr
  */
 
 /*
- * Les chemins sont construits sur la base du site, jamais écrits en absolu.
+ * Les chemins passent par `asset()`, jamais écrits en absolu.
  *
- * Le §8 du cahier des charges veut un site ouvrable d'un double-clic, donc
- * servi par le protocole `file://`. Or un chemin absolu comme `/models/x.glb`
- * y désigne la racine du disque : les modèles ne se chargeaient pas, et rien ne
- * le signalait à la construction. En passant par `BASE_URL`, le build
- * mono-fichier — qui pose sa base à `./` — produit des chemins relatifs qui
- * fonctionnent aussi bien depuis un dossier que depuis un serveur.
+ * Le §8 veut un site ouvrable d'un double-clic, donc servi en `file://`. Un
+ * chemin absolu comme `/models/x.glb` y désigne la racine du disque. Et même
+ * relatif, il ne suffit pas : sous `file://` tout navigateur refuse le
+ * `fetch` d'un fichier voisin — c'est une règle d'origine, qu'aucun réglage
+ * ne lève.
+ *
+ * Un `data:` URI, LUI, PASSE. C'est ce qui permet au document mono-fichier
+ * d'embarquer ses modèles : `asset()` rend la donnée intégrée quand elle est
+ * là, le chemin normal sinon.
  */
-const BASE = import.meta.env.BASE_URL || '/'
-
 export const MODELS = {
-  a350: `${BASE}models/a350-1000.glb`,
-  tecnam: `${BASE}models/tecnam-p2010.glb`,
-  cockpit: `${BASE}models/a400m-flightdeck.glb`,
+  a350: 'models/a350-1000.glb',
+  tecnam: 'models/tecnam-p2010.glb',
+  cockpit: 'models/a400m-flightdeck.glb',
 } as const
+
+/** URL réellement chargée pour un modèle : intégrée, ou servie. */
+export const modelUrl = (k: ModelKey) => asset(MODELS[k])
 
 export type ModelKey = keyof typeof MODELS
 
@@ -84,7 +89,7 @@ export function useModel(
   key: ModelKey,
   options: { instruments?: boolean } = {},
 ): LoadedModel {
-  const gltf = useGLTF(MODELS[key])
+  const gltf = useGLTF(modelUrl(key))
   const withInstruments = options.instruments === true
 
   return useMemo(() => {
@@ -127,13 +132,16 @@ export function useModel(
  * seul `.glb` inaccessible, et le repli discret de la frontière effaçait
  * jusqu'à la trace de l'incident. On préfère ne pas essayer.
  */
-export function modelesAtteignables(): boolean {
+export function modeleAtteignable(k: ModelKey): boolean {
+  // Intégré au document : chargeable partout, y compris en `file://`.
+  if (modelUrl(k).startsWith('data:')) return true
   return typeof location === 'undefined' || location.protocol !== 'file:'
 }
 
 export function preloadModels(...keys: ModelKey[]) {
-  if (!modelesAtteignables()) return
-  for (const k of keys) useGLTF.preload(MODELS[k])
+  for (const k of keys) {
+    if (modeleAtteignable(k)) useGLTF.preload(modelUrl(k))
+  }
 }
 
 /* ------------------------------------------------------------------- rendu */
@@ -166,7 +174,7 @@ type ModelToutesProps = ModelProps &
  * three.js, le réconciliateur ne connaît que des objets de scène.
  */
 export default function Model(props: ModelToutesProps) {
-  if (!modelesAtteignables()) return null
+  if (!modeleAtteignable(props.model)) return null
   return (
     <ErrorBoundary silent>
       <ModelCharge {...props} />

@@ -256,16 +256,18 @@ export const media = (id: string): Media | undefined => MEDIA[id]
 /**
  * Construit l'attribut srcset pour un format donné.
  *
- * Rendu à une seule source quand les images sont intégrées au document :
- * toutes les largeurs y désigneraient la même donnée.
+ * Rendu VIDE quand les images sont intégrées au document : un \`srcset\` est
+ * une liste séparée par des virgules, et un \`data:…;base64,…\` en contient
+ * une. C'est \`src\` qui prend le relais.
  */
 export function srcSet(m: Media, fmt: 'avif' | 'webp' | 'jpg') {
-  if (assetsIntegres()) return asset(\`images/\${m.id}-\${m.widths[0]}.\${fmt}\`)
+  if (assetsIntegres()) return ''
   return m.widths.map((w) => \`\${asset(\`images/\${m.id}-\${w}.\${fmt}\`)} \${w}w\`).join(', ')
 }
 
 /** Source de repli : la plus grande largeur en JPEG. */
 export function fallback(m: Media) {
+  if (assetsIntegres()) return asset(\`images/\${m.id}-\${m.widths[0]}.webp\`)
   return asset(\`images/\${m.id}-\${m.widths[m.widths.length - 1]}.jpg\`)
 }
 `

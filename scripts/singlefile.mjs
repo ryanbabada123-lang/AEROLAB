@@ -134,7 +134,43 @@ const meta = [...headInner.matchAll(/<meta[^>]*>/g)]
   .join('\n')
 const icon = headInner.match(/<link[^>]*rel="icon"[^>]*>/)?.[0] ?? ''
 
-/* ------------------------------------------- images en data: URI */
+/* -------------------------------- images et modèles en data: URI */
+
+/**
+ * MODÈLES 3D EMBARQUÉS — lesquels, et pourquoi pas tous.
+ *
+ * Sous `file://`, un navigateur refuse de charger un `.glb` voisin : c'est
+ * une règle d'origine. Un `data:` URI, lui, passe. Embarquer les modèles est
+ * donc la SEULE façon d'avoir l'A350 dans un fichier ouvert d'un
+ * double-clic ou envoyé sur un téléphone.
+ *
+ * Les deux appareils de l'INTRODUCTION y sont : le Tecnam (0,37 Mo) et
+ * l'A350 (2,9 Mo). Le poste de pilotage A400M (1,8 Mo) reste dehors — il ne
+ * sert qu'au laboratoire cockpit, et 2,4 Mo de base64 pour une page annexe
+ * feraient un document que les téléphones peinent à ouvrir.
+ *
+ * `--tout` les embarque quand même, `--sans-modeles` n'en met aucun.
+ */
+const MODELES = process.argv.includes('--sans-modeles')
+  ? []
+  : process.argv.includes('--tout')
+    ? ['tecnam-p2010.glb', 'a350-1000.glb', 'a400m-flightdeck.glb']
+    : ['tecnam-p2010.glb', 'a350-1000.glb']
+
+function carteModeles() {
+  const dir = path.join(ROOT, 'public', 'models')
+  const carte = {}
+  let octets = 0
+  if (FRAGMENT || !fs.existsSync(dir)) return { carte, octets }
+  for (const f of MODELES) {
+    const from = path.join(dir, f)
+    if (!fs.existsSync(from)) continue
+    const uri = `data:model/gltf-binary;base64,${fs.readFileSync(from).toString('base64')}`
+    octets += uri.length
+    carte[`models/${f}`] = uri
+  }
+  return { carte, octets }
+}
 
 /**
  * Une seule largeur par visuel : la plus petite variante WebP.
@@ -207,11 +243,13 @@ function carteImages() {
   return { carte, octets }
 }
 
-const { carte: INLINE, octets: octetsImages } = FRAGMENT
+const { carte: imagesInline, octets: octetsImages } = FRAGMENT
   ? { carte: {}, octets: 0 }
   : carteImages()
+const { carte: modelesInline, octets: octetsModeles } = carteModeles()
+const INLINE = { ...imagesInline, ...modelesInline }
 
-const nbImages = new Set(Object.values(INLINE)).size
+const nbImages = new Set(Object.values(imagesInline)).size
 
 /*
   LA CARTE EST DÉDUPLIQUÉE, ET CE N'EST PAS UN DÉTAIL.
@@ -311,15 +349,21 @@ function copyBeside(folder) {
 }
 
 /*
-  Seuls les modèles voisinent le document : les images, elles, sont
-  désormais dedans. Les copier en plus laisserait croire que le fichier a
-  besoin d'un dossier, alors qu'il se suffit à lui-même.
+  Les modèles NON embarqués restent copiés à côté : un document posé dans un
+  dossier, servi par un petit serveur local, retrouve alors le cockpit.
+  Ouvert directement en `file://`, seuls les modèles intégrés se chargent —
+  et c'est déjà l'introduction complète.
 */
-copyBeside('models')
+if (MODELES.length < 3) copyBeside('models')
 
 if (!FRAGMENT) {
   console.log(
     `· ${nbImages} images intégrées en data: — ${(octetsImages / 1024 / 1024).toFixed(2)} Mo`,
+  )
+  console.log(
+    `· ${Object.keys(modelesInline).length} modèles intégrés — ` +
+      `${(octetsModeles / 1024 / 1024).toFixed(2)} Mo` +
+      (MODELES.length < 3 ? ' (cockpit A400M laissé dehors)' : ''),
   )
 }
 
